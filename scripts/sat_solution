@@ -1,0 +1,24 @@
+#!/bin/bash
+
+SAT_FOLDER=$1
+RULES="$1/rules"
+SOLUTION="$1/solution"
+
+W_FILE=`mktemp`
+
+if [ -r "$RULES" ]; then
+	cat "$RULES" | sed 's/$/ 0/' > "$W_FILE"
+else
+	echo "Error: No rules file in specified folder." 1>&2
+	exit 1
+fi
+
+RL_COUNT=`wc -l < "$W_FILE"`
+NUM_VAR=`tail -1 "$RULES" | sed 's/ .*//' | sed 's/-//'`
+sed -i "1ip cnf $NUM_VAR $RL_COUNT" "$W_FILE"
+echo "CLAUSELES: $RL_COUNT"
+echo "VARIABLES: $NUM_VAR"
+
+minisat "$W_FILE" "$SOLUTION"
+
+rm "$W_FILE"
