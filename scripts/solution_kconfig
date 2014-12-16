@@ -1,0 +1,38 @@
+#!/bin/bash
+
+SAT_FOLDER="$1"
+CONF="$2"
+LINKER="$1/linker"
+SOLUTION="$1/solution"
+
+SAT=`head -1 "$SOLUTION"`
+SOL=`tail -1 "$SOLUTION"`
+
+if [[ ! -w "$CONF" ]]; then
+	echo "No file \"$CONF\"" >&2
+	exit 1
+fi
+
+if [[ "$SAT" != "SAT" ]]; then
+	echo "No solution" >&2
+	exit 1
+fi
+
+for exp in $SOL; do
+	if [[ "$exp" != "0" ]]; then
+		if [[ `echo "$exp" | head -c 1` = "-" ]]; then
+			exp=`echo "$exp" | cut -c 2-`
+			not="n"
+		else
+			not="y"
+		fi
+		lnk=`grep -e "^$exp:" "$LINKER" | sed 's/^[0-9]*\://'`
+		if [[ "$lnk" != NONAMEGEN* ]]; then # Ignore no name configs
+			if [[ -z `grep "^CONFIG_$lnk" "$CONF"` ]]; then
+				echo "CONFIG_$lnk=$not" >> "$CONF"
+			else
+				sed "s/^CONFIG_$lnk=.*/CONFIG_$lnk=$not/" "$CONF" > "$CONF"
+			fi
+		fi
+	fi
+done
