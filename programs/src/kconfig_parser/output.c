@@ -1,10 +1,10 @@
 #include "output.h"
 
-void fprint_rules(struct symlist *sl) {
+void fprint_rules(struct symlist *sl, char* output) {
     FILE *f;
-    f = fopen(RULES_FILE, "w");
+    f = fopen(output, "w");
     if (f == NULL) {
-        fprintf(stderr, "Can't create file: %s\n", RULES_FILE);
+        fprintf(stderr, "Can't create file: %s\n", output);
         return;
     }
     int i;
@@ -67,16 +67,16 @@ void fprint_rules(struct symlist *sl) {
     fclose(f);
 }
 
-void fprint_linker(struct symlist *sl) {
+void fprint_symbol_map(struct symlist *sl, char* output) {
     FILE *f;
-    f = fopen(LINKER_FILE, "w");
+    f = fopen(output, "w");
     if (f == NULL) {
-        fprintf(stderr, "Can't create file: %s\n", RULES_FILE);
+        fprintf(stderr, "Can't create file: %s\n", output);
         return;
     }
     int i;
     for (i = 0; i < sl->pos; i++) {
-        fprintf(f, "%d:%s\n", sl->array[i].id, sl->array[i].name);
+        fprintf(f, "%d %s\n", sl->array[i].id, sl->array[i].name);
     }
     fclose(f);
 }

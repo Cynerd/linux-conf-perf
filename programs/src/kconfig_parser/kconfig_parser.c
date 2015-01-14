@@ -28,7 +28,11 @@ int main(int argc, char **argv) {
 
     if (argc < 2) {
         printf("No input file specified\n");
-        return;
+        exit(1);
+    }
+    if (argc < 3) {
+        printf("No output folder specified\n");
+        exit(2);
     }
 
     setlocale(LC_ALL, "");
@@ -43,9 +47,11 @@ int main(int argc, char **argv) {
     kconfig_menu_walker(solve_names);
     kconfig_menu_walker(solve_dep);
 
-    //symlist_print(gsymlist);
-	fprint_rules(gsymlist);
-	fprint_linker(gsymlist);
+    char *rules_file, *symbol_map_file;
+    asprintf(&rules_file, "%s/%s", argv[2], DEFAULT_RULES_FILE);
+    asprintf(&symbol_map_file, "%s/%s", argv[2], DEFAULT_SYMBOL_MAP_FILE);
+    fprint_rules(gsymlist, rules_file);
+    fprint_symbol_map(gsymlist, symbol_map_file);
 }
 
 void kconfig_menu_walker(void (*solve) (struct symbol * sym)) {
