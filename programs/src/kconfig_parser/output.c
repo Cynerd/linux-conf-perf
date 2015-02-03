@@ -76,7 +76,7 @@ void fprint_symbol_map(struct symlist *sl, char* output) {
     }
     int i;
     for (i = 0; i < sl->pos; i++) {
-        fprintf(f, "%d %s\n", sl->array[i].id, sl->array[i].name);
+        fprintf(f, "%d:%s\n", sl->array[i].id, sl->array[i].name);
     }
     fclose(f);
 }

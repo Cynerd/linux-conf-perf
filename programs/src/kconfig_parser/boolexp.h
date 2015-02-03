@@ -1,6 +1,7 @@
 #ifndef _BOOLEXP_H_
 #define _BOOLEXP_H_
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include "symlist.h"
 #include "kconfig/lkc.h"

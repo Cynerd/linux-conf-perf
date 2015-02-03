@@ -52,6 +52,7 @@ int main(int argc, char **argv) {
     asprintf(&symbol_map_file, "%s/%s", argv[2], DEFAULT_SYMBOL_MAP_FILE);
     fprint_rules(gsymlist, rules_file);
     fprint_symbol_map(gsymlist, symbol_map_file);
+    return 0;
 }
 
 void kconfig_menu_walker(void (*solve) (struct symbol * sym)) {
