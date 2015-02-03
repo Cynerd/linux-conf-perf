@@ -1,4 +1,3 @@
-#!/bin/python3
 # This file is only loading ../conf.py
 import os
 import importlib.machinery
