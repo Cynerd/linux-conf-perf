@@ -11,17 +11,22 @@ def config():
 	env = dict(os.environ)
 	wd = os.getcwd()
 	os.chdir(conf.linux_sources)
-	sprc = subprocess.Popen(['make', 'oldconfig'], env=utils.get_kernel_env())
-	for line in sprc.stdout:
-		if line == "* Restart config...":
-			print("Configuration failed")
-			sprc.kill()
+	sprc = subprocess.Popen(['make', 'oldconfig'], stdout=subprocess.PIPE, env=utils.get_kernel_env())
+	while True:
+		line = sprc.stdout.readline()
+		if line != '':
+			if b'Restart config' in line:
+				print("Kernel config failed")
+				sprc.terminate()
+				break
+			else:
+				print(line.decode('utf-8'), end="")
 		else:
-			print(line)
+			break
 	os.chdir(wd)
 
 def make():
 	wd = os.getcwd()
 	os.chdir(conf.linux_sources)
-	subprocess.call(['make', '-j8'], env=utils.get_kernel_env())
+	subprocess.call(['make'] + conf.linux_make_args, env=utils.get_kernel_env())
 	os.chdir(wd)
