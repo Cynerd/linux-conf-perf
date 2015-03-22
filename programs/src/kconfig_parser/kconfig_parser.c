@@ -88,11 +88,11 @@ void cpy_dep() {
     for_all_symbols(i, sym) {
         if ((sym->type == S_BOOLEAN || sym->type == S_TRISTATE)
             && strstr(sym->name, "NONAMEGEN") == NULL) {
-            Iprintf("working: %s\n", sym->name);
-
             el = symlist_find(gsymlist, sym->name);
+            Iprintf("working: %s(%d)\n", sym->name, el->id);
+
             if (sym->dir_dep.expr != NULL) {
-                if (verbose_level > 2)
+                if (verbose_level > 3)
                     printf_original(gsymlist, sym->dir_dep.expr);
                 el->be = kconfig_cnfexpr(gsymlist, false, sym->dir_dep.expr);
                 Iprintf("Direct:\n");
@@ -100,7 +100,7 @@ void cpy_dep() {
                     cnf_printf(el->be);
             }
             if (sym->rev_dep.expr != NULL) {
-                if (verbose_level > 2)
+                if (verbose_level > 3)
                     printf_original(gsymlist, sym->rev_dep.expr);
                 el->re_be = kconfig_cnfexpr(gsymlist, true, sym->rev_dep.expr);
                 Iprintf("Revers:\n");

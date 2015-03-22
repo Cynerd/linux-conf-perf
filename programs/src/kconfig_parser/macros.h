@@ -7,5 +7,5 @@ extern int verbose_level; // Defined in kconfig_parser.c
 #ifndef DEBUG
 #define Dprintf(...)
 #else
-#define Dprintf(...) if (verbose_level > 2) printf(a, __VA_ARGS__)
+#define Dprintf(...) if (verbose_level > 3) printf(a, __VA_ARGS__)
 #endif /* DEBUG */
