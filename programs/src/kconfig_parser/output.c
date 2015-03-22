@@ -6,12 +6,11 @@ void fprint_rules_cnf(FILE * f, unsigned id, struct cnfexpr *cnf, bool nt) {
     case CT_FALSE:
         // Never satisfiable
         if (!nt)
-            fprintf(f, "-%d\n", id);
+            fprintf(f, "-");
+        fprintf(f, "%d\n", id);
         break;
     case CT_TRUE:
         // Always satisfiable
-        if (nt)
-            fprintf(f, "%d\n", id);
         break;
     case CT_EXPR:
         for (i = 0; i < cnf->size; i++) {
