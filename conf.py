@@ -32,3 +32,7 @@ iteration_file = build_folder + '/iteration'
 
 # Programs paths
 kconfig_parser = checkXf(pf('programs/kconfig_parser'), 'You must build programs first.')
+
+# Programs output hide
+kconfig_parser_output = False
+minisat_output = False

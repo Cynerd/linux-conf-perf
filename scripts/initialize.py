@@ -14,7 +14,11 @@ def kconfig_parser():
 	env['KERNELVERSION'] = 'KERNELVERSION' # hides error
 	wd = os.getcwd()
 	os.chdir(conf.linux_sources)
-	subprocess.call([conf.kconfig_parser, conf.linux_kconfig_head, conf.build_folder], env=env)
+	if conf.kconfig_parser_output:
+		subprocess.call([conf.kconfig_parser, conf.linux_kconfig_head, conf.build_folder, "-v", "-v"], env=env)
+	else:
+		subprocess.call([conf.kconfig_parser, conf.linux_kconfig_head, conf.build_folder], env=env)
+
 	os.chdir(wd)
 
 def gen_requred():

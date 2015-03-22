@@ -5,6 +5,7 @@ import subprocess
 
 import utils
 from conf import conf
+from exceptions import NoSolution
 
 def generate():
 	"""Collect boolean equations from files: rules, solved and required
@@ -53,7 +54,10 @@ def generate():
 	w_file.close()
 
 	# Execute minisat
-	subprocess.call(['minisat', w_file.name, conf.solution_file])
+	if conf.minisat_output:
+		subprocess.call(['minisat', w_file.name, conf.solution_file])
+	else:
+		subprocess.call(['minisat', w_file.name, conf.solution_file], stdout=subprocess.DEVNULL)
 
 	os.remove(w_file.name)
 
