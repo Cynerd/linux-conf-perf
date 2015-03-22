@@ -5,7 +5,7 @@ all: ../../kconfig_parser
 
 INPUT_FILES  = kconfig_parser.c
 INPUT_FILES += kconfig/zconf.tab.c \
-			   boolexp.c \
+			   cnfexpr.c \
 			   symlist.c \
 			   output.c
 CFLAGS = -O0 -w -ggdb

@@ -12,20 +12,15 @@
 #include <stdbool.h>
 #include "kconfig/lkc.h"
 #include "symlist.h"
-#include "boolexp.h"
 #include "output.h"
-
-void kconfig_menu_walker(void (*solve)
-                          (struct symbol * sym));
-
-void solve_names(struct symbol *sym);
-void solve_dep(struct symbol *sym);
 
 struct symlist *gsymlist;
 int noname_num;
 
-int main(int argc, char **argv) {
+void build_symlist();
+void cpy_dep();
 
+int main(int argc, char **argv) {
     if (argc < 2) {
         printf("No input file specified\n");
         exit(1);
@@ -44,8 +39,8 @@ int main(int argc, char **argv) {
 
     gsymlist = symlist_create();
 
-    kconfig_menu_walker(solve_names);
-    kconfig_menu_walker(solve_dep);
+    build_symlist();
+    cpy_dep();
 
     char *rules_file, *symbol_map_file;
     asprintf(&rules_file, "%s/%s", argv[2], DEFAULT_RULES_FILE);
@@ -55,53 +50,47 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-void kconfig_menu_walker(void (*solve) (struct symbol * sym)) {
-    struct menu *menu;
+void build_symlist() {
+    int i;
     struct symbol *sym;
-    menu = rootmenu.list;
-
-    while (menu != NULL) {
-        sym = menu->sym;
-        if (sym != NULL) {
-            do {
-                if (sym->type == S_BOOLEAN || sym->type == S_TRISTATE) {
-                    solve(sym);
-                }
-            } while ((sym = sym->next) != NULL);
-        }
-        // switch to menu
-        if (menu->list != NULL) {
-            menu = menu->list;
-        } else if (menu->next != NULL) {
-            menu = menu->next;
-        } else {
-            while ((menu = menu->parent) != NULL) {
-                if (menu->next != NULL) {
-                    menu = menu->next;
-                    break;
-                }
+    for_all_symbols(i, sym) {
+        if (sym->type == S_BOOLEAN || sym->type == S_TRISTATE) {
+            if (sym->name != NULL) {
+                symlist_add(gsymlist, sym->name);
+            } else {
+                sym->name = malloc((9 + 7) * sizeof(char));
+                sprintf(sym->name, "NONAMEGEN%d", noname_num++);
+                symlist_add(gsymlist, sym->name);
             }
         }
     }
 }
 
-void solve_names(struct symbol *sym) {
-    if (sym->name != NULL) {
-        if (symlist_find(gsymlist, sym->name) == NULL)
-            symlist_add(gsymlist, sym->name);
-    } else {
-        sym->name = malloc((9 + 7) * sizeof(char));
-        sprintf(sym->name, "NONAMEGEN%d", noname_num++);
-        symlist_add(gsymlist, sym->name);
-    }
-}
+void cpy_dep() {
+    int i;
+    struct symbol *sym;
+    struct symlist_el *el;
+    for_all_symbols(i, sym) {
+        if ((sym->type == S_BOOLEAN || sym->type == S_TRISTATE)
+            && strstr(sym->name, "NONAMEGEN") == NULL) {
+            printf("working: %s\n", sym->name);
 
-void solve_dep(struct symbol *sym) {
-    if (sym->dir_dep.expr != NULL) {
-        struct symlist_el *el;
-        el = symlist_find(gsymlist, sym->name);
-        el->be = copy_kconfig_dep(gsymlist, sym->dir_dep.expr);
-        if (el->be != NULL)
-            el->be = boolexp_cnf(el->be);
+            el = symlist_find(gsymlist, sym->name);
+            if (sym->dir_dep.expr != NULL) {
+                printf_original(gsymlist, sym->dir_dep.expr);
+                printf("Direct:\n");
+                el->be = kconfig_cnfexpr(gsymlist, sym->dir_dep.expr);
+                cnf_printf(el->be);
+            }
+            if (sym->rev_dep.expr != NULL) {
+                if (!strcmp(sym->name, "CRC32"))
+                        continue;
+                printf_original(gsymlist, sym->rev_dep.expr);
+                printf("Revers:\n");
+                el->re_be = kconfig_cnfexpr(gsymlist, sym->rev_dep.expr);
+                cnf_printf(el->re_be);
+                el->re_be = kconfig_cnfexpr(gsymlist, sym->rev_dep.expr);
+            }
+        }
     }
 }

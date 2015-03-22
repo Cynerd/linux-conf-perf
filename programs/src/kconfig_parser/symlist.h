@@ -3,12 +3,13 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include "boolexp.h"
+#include "cnfexpr.h"
 
 struct symlist_el {
     unsigned int id;
     char *name;
-    struct boolexp *be;
+    struct cnfexpr *be;
+    struct cnfexpr *re_be; // forward dependency
 };
 struct symlist {
     struct symlist_el *array;

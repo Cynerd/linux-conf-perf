@@ -21,7 +21,17 @@ struct boolexp {
     union boolexp_data left, right;
 };
 
+/*struct cnfexpr {
+    int **exprs;
+    unsigned *sizes;
+    unsigned size;
+};*/
+
+struct cnfexpr *kconfig_dep(struct symlist *sl, struct expr *expr);
+void cnfprint(struct cnfexpr *);
+
 struct boolexp *copy_kconfig_dep(struct symlist *sl, struct expr *expr);
+struct boolexp *copy_kconfig_f_dep(struct symlist *sl, struct expr *expr);
 struct boolexp *boolexp_cnf(struct boolexp *be);
 void boolexp_print(struct boolexp *be);
 

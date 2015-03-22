@@ -37,7 +37,7 @@ void symlist_print(struct symlist *sl) {
         printf("%d:%s\n", sl->array[i].id, sl->array[i].name);
         if (sl->array[i].be != NULL) {
             printf("  ");
-            boolexp_print(sl->array[i].be);
+            cnf_printf(sl->array[i].be);
             printf("\n");
         }
     }

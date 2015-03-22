@@ -1,80 +1,59 @@
 #include "output.h"
 
-void fprint_rules(struct symlist *sl, char* output) {
+void fprint_rules_cnf(FILE * f, unsigned id, struct cnfexpr *cnf) {
+    unsigned i, y;
+    switch (cnf->type) {
+    case CT_FALSE:
+        // Never satisfiable
+        fprintf(f, "-%d\n", id);
+        break;
+    case CT_TRUE:
+        // Always satisfiable
+        break;
+    case CT_EXPR:
+        for (i = 0; i < cnf->size; i++) {
+            fprintf(f, "-%d ", id);
+            for (y = 0; y < cnf->sizes[i] - 1; y++) {
+                fprintf(f, "%d ", cnf->exprs[i][y]);
+            }
+            fprintf(f, "%d ", cnf->exprs[i][cnf->sizes[i] - 1]);
+            fprintf(f, "\n");
+        }
+        break;
+    }
+}
+
+void fprint_rules(struct symlist *sl, char *output) {
     FILE *f;
     f = fopen(output, "w");
     if (f == NULL) {
         fprintf(stderr, "Can't create file: %s\n", output);
         return;
     }
-    int i;
+    size_t i;
     struct symlist_el *el;
-    struct boolexp *be;
-    struct boolexp **stack;
-    size_t stack_size = 2, stack_pos = 0;
-    int count_or, count_and;
-    stack = malloc(stack_size * sizeof(struct boolexp *));
     for (i = 0; i < sl->pos; i++) {
         if (sl->array[i].be != NULL) {
             el = sl->array + i;
-            be = el->be;
-            stack_pos = 0;
-            count_or = 0;
-            count_and = 0;
-            fprintf(f, "-%d ", el->id);
-            while (be != NULL) {
-                if (stack_pos >= stack_size) {
-                    stack_size *= 2;
-                    stack =
-                        realloc(stack,
-                                stack_size * sizeof(struct boolexp *));
-                }
-                switch (be->type) {
-                case BE_NOT:
-                    fprintf(f, "-");
-                    be = be->left.be;
-                    break;
-                case BE_AND:
-                    count_and++;
-                    stack[stack_pos++] = be->right.be;
-                    be = be->left.be;
-                    break;
-                case BE_OR:
-                    count_or++;
-                    stack[stack_pos++] = be->right.be;
-                    be = be->left.be;
-                    break;
-                case BE_LEAF:
-                    fprintf(f, "%d", be->left.id);
-                    if (count_or > 0) {
-                        fprintf(f, " ");
-                        count_or--;
-                    } else if (count_and > 0) {
-                        fprintf(f, "\n-%d ", el->id);
-                        count_and--;
-                    }
-                    if (stack_pos > 0)
-                        be = stack[--stack_pos];
-                    else
-                        be = NULL;
-                    break;
-                }
+            if (el->be != NULL) {
+                fprint_rules_cnf(f, el->id, el->be);
             }
-            fprintf(f, "\n");
+            if (el->re_be != NULL) {
+                fprint_rules_cnf(f, el->id, el->be);
+            }
         }
     }
-    free(stack);
     fclose(f);
 }
 
-void fprint_symbol_map(struct symlist *sl, char* output) {
+void fprint_symbol_map(struct symlist *sl, char *output) {
     FILE *f;
     f = fopen(output, "w");
     if (f == NULL) {
         fprintf(stderr, "Can't create file: %s\n", output);
         return;
     }
-    int i;
+    size_t i;
     for (i = 0; i < sl->pos; i++) {
         fprintf(f, "%d:%s\n", sl->array[i].id, sl->array[i].name);
     }
