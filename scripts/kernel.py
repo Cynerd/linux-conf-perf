@@ -2,9 +2,9 @@ import os
 import sys
 import subprocess
 
-import utils
 from conf import conf
-
+import utils
+from exceptions import KernelConfigFailed
 
 def config():
 	# Executing old linux config
@@ -16,11 +16,12 @@ def config():
 		line = sprc.stdout.readline()
 		if line != '':
 			if b'Restart config' in line:
-				print("Kernel config failed")
 				sprc.terminate()
+				raise KernelConfigFailed()
 				break
 			else:
-				print(line.decode('utf-8'), end="")
+				if conf.kernel_config_output:
+					print(line.decode('utf-8'), end="")
 		else:
 			break
 	os.chdir(wd)
