@@ -11,6 +11,7 @@ import phase
 import solution
 import kernel
 from exceptions import MissingFile
+from exceptions import KernelConfigFailed
 import iteration
 
 def step():
@@ -47,16 +48,21 @@ def step():
 		phase.set(6)
 	elif phs == phase.phs("Solution applied"):
 		print("-- Generated solution applied")
-		phase.set(2) # TODO edited
+		phase.set(7)
 	elif phs == phase.phs("Kernel configuration"):
 		print("-- Kernel configure ...")
-		phase.set(8)
+		try:
+			kernel.config()
+			phase.set(8)
+		except KernelConfigFailed:
+			print("-- Kernel configuration failed")
+			phase.set(3)
 	elif phs == phase.phs("Kernel configured"):
 		print("-- Kernel configured")
 		phase.set(9)
 	elif phs == phase.phs("Kernel build"):
 		print("-- Build Linux ...")
-		kernel.build()
+		kernel.make()
 		phase.set(10)
 	elif phs == phase.phs("Kernel built"):
 		print("-- Linux built")
