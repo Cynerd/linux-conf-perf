@@ -10,9 +10,14 @@
 #include <unistd.h>
 #include <locale.h>
 #include <stdbool.h>
+#include <argp.h>
 #include "kconfig/lkc.h"
 #include "symlist.h"
 #include "output.h"
+#include "macros.h"
+
+int verbose_level;
+char *file;
 
 struct symlist *gsymlist;
 int noname_num;
@@ -21,12 +26,22 @@ void build_symlist();
 void cpy_dep();
 
 int main(int argc, char **argv) {
+    // TODO argp
+    verbose_level = 1;
+    int i;
+    for (i = 0; i < argc; i++) {
+        if (!strcmp(argv[i], "-v"))
+            verbose_level++;
+        else if (file == NULL)
+            file = argv[i];
+    }
+
     if (argc < 2) {
-        printf("No input file specified\n");
+        Eprintf("No input file specified\n");
         exit(1);
     }
     if (argc < 3) {
-        printf("No output folder specified\n");
+        Eprintf("No output folder specified\n");
         exit(2);
     }
 
@@ -73,23 +88,24 @@ void cpy_dep() {
     for_all_symbols(i, sym) {
         if ((sym->type == S_BOOLEAN || sym->type == S_TRISTATE)
             && strstr(sym->name, "NONAMEGEN") == NULL) {
-            printf("working: %s\n", sym->name);
+            Iprintf("working: %s\n", sym->name);
 
             el = symlist_find(gsymlist, sym->name);
             if (sym->dir_dep.expr != NULL) {
-                printf_original(gsymlist, sym->dir_dep.expr);
-                printf("Direct:\n");
-                el->be = kconfig_cnfexpr(gsymlist, sym->dir_dep.expr);
-                cnf_printf(el->be);
+                if (verbose_level > 2)
+                    printf_original(gsymlist, sym->dir_dep.expr);
+                el->be = kconfig_cnfexpr(gsymlist, false, sym->dir_dep.expr);
+                Iprintf("Direct:\n");
+                if (verbose_level > 2)
+                    cnf_printf(el->be);
             }
             if (sym->rev_dep.expr != NULL) {
-                if (!strcmp(sym->name, "CRC32"))
-                        continue;
-                printf_original(gsymlist, sym->rev_dep.expr);
-                printf("Revers:\n");
-                el->re_be = kconfig_cnfexpr(gsymlist, sym->rev_dep.expr);
-                cnf_printf(el->re_be);
-                el->re_be = kconfig_cnfexpr(gsymlist, sym->rev_dep.expr);
+                if (verbose_level > 2)
+                    printf_original(gsymlist, sym->rev_dep.expr);
+                el->re_be = kconfig_cnfexpr(gsymlist, true, sym->rev_dep.expr);
+                Iprintf("Revers:\n");
+                if (verbose_level > 2)
+                    cnf_printf(el->re_be);
             }
         }
     }

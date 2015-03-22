@@ -18,7 +18,7 @@ struct cnfexpr {
     unsigned size;
 };
 
-struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, struct expr *expr);
+struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, bool nt, struct expr *expr);
 void cnf_printf(struct cnfexpr *);
 
 struct boolexp *printf_original(struct symlist *sl, struct expr *expr);

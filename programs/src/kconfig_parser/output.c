@@ -1,18 +1,23 @@
 #include "output.h"
 
-void fprint_rules_cnf(FILE * f, unsigned id, struct cnfexpr *cnf) {
+void fprint_rules_cnf(FILE * f, unsigned id, struct cnfexpr *cnf, bool nt) {
     unsigned i, y;
     switch (cnf->type) {
     case CT_FALSE:
         // Never satisfiable
-        fprintf(f, "-%d\n", id);
+        if (!nt)
+            fprintf(f, "-%d\n", id);
         break;
     case CT_TRUE:
         // Always satisfiable
+        if (nt)
+            fprintf(f, "%d\n", id);
         break;
     case CT_EXPR:
         for (i = 0; i < cnf->size; i++) {
-            fprintf(f, "-%d ", id);
+            if (!nt)
+                fprintf(f, "-");
+            fprintf(f, "%d ", id);
             for (y = 0; y < cnf->sizes[i] - 1; y++) {
                 fprintf(f, "%d ", cnf->exprs[i][y]);
             }
@@ -36,10 +41,10 @@ void fprint_rules(struct symlist *sl, char *output) {
         if (sl->array[i].be != NULL) {
             el = sl->array + i;
             if (el->be != NULL) {
-                fprint_rules_cnf(f, el->id, el->be);
+                fprint_rules_cnf(f, el->id, el->be, false);
             }
             if (el->re_be != NULL) {
-                fprint_rules_cnf(f, el->id, el->be);
+                fprint_rules_cnf(f, el->id, el->re_be, true);
             }
         }
     }

@@ -7,7 +7,7 @@ struct cnfexpr *cnf_or(struct cnfexpr *e1, struct cnfexpr *e2);
 struct cnfexpr *cnf_and(struct cnfexpr *e1, struct cnfexpr *e2);
 void free_cnf(struct cnfexpr *e);
 
-struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, struct expr *expr) {
+struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, bool nt, struct expr *expr) {
     struct stck {
         struct expr *expr;
         struct cnfexpr *cnf;
@@ -19,7 +19,6 @@ struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, struct expr *expr) {
     int stack_size = 2, stack_pos = -1;
     stack = malloc((unsigned) stack_size * sizeof(struct stck));
     struct cnfexpr *rtrn = NULL;
-    bool nt = false;
 
     while (expr != NULL) {
         if ((back_pos >= 0 && back[back_pos] != expr) || back_pos < 0) {
