@@ -68,9 +68,17 @@ def step():
 		print("-- Linux built")
 		phase.set(2)
 
-# TODO repair, not working
+def rm_rf(d):
+	for path in (os.path.join(d,f) for f in os.listdir(d)):
+		if os.path.isdir(path):
+			rm_rf(path)
+		else:
+			os.unlink(path)
+		os.rmdir(d)
+
+# TODO repair, broken
 def reset():
-	os.rmdir(conf.build_folder)
+	rm_rf(conf.build_folder)
 	os.chdir(conf.linux_sources)
 	subprocess.call(['make','clean'])
 	os.rm('.config') # remove linux config file
@@ -103,6 +111,8 @@ def main_loop():
 #################################################################################
 
 if __name__ == '__main__':
-	print("Start")
 	signal.signal(signal.SIGTERM, sigterm_handler)
-	main_loop()
+	if sys.argv[1] == "reset":
+		reset()
+	else:
+		main_loop()
