@@ -36,3 +36,4 @@ kconfig_parser = checkXf(pf('programs/kconfig_parser'), 'You must build programs
 # Programs output hide
 kconfig_parser_output = False
 minisat_output = False
+kernel_config_output = True
