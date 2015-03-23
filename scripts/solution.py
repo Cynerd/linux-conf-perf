@@ -96,7 +96,7 @@ def apply():
 				txt = txt[1:]
 			else:
 				nt = False
-			if 'NONAMEGEN' in txt: # ignore generated names
+			if 'NONAMEGEN' in utils.smap[txt]: # ignore generated names
 				continue
 
 			f.write('CONFIG_' + utils.smap[txt] + '=')
