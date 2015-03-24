@@ -8,7 +8,7 @@
 #define DEFAULT_RULES_FILE "rules"
 #define DEFAULT_SYMBOL_MAP_FILE "symbol_map"
 
-void fprint_rules(struct symlist *sl, char* output);
-void fprint_symbol_map(struct symlist *sl, char* output);
+void fprint_rules(struct symlist *sl, char *output);
+void fprint_symbol_map(struct symlist *sl, char *output);
 
 #endif /* _OUTPUT_H_ */
