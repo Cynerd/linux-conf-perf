@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import shutil
 
 import utils
 from conf import conf
@@ -32,9 +33,11 @@ def gen_requred():
 	except OSError:
 		pass
 
+	shutil.copy(conf.linux_sources + '/.config', conf.dot_config_back_file)
+
 	with open(conf.linux_sources + '/.config', 'r') as f:
 		with open(conf.required_file, 'w') as freq:
-			with open(conf.dot_config_file, 'w') as fconf:
+			with open(conf.dot_config_fragment_file, 'w') as fconf:
 				for line in f:
 					if (line[0] == '#') or (not '=' in line):
 						continue

@@ -26,7 +26,8 @@ symbol_map_file = build_folder + '/symbol_map' # Also defined in kconfig_parser
 rules_file = build_folder + '/rules' # Also defined in kconfig_parser
 solved_file = build_folder + '/solved'
 required_file = build_folder + '/required'
-dot_config_file = build_folder + '/dot_config'
+dot_config_fragment_file = build_folder + '/dot_config_fragment'
+dot_config_back_file = build_folder + '/dot_config_back'
 solution_file = build_folder + '/solution'
 iteration_file = build_folder + '/iteration'
 
