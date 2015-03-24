@@ -25,22 +25,23 @@ def gen_requred():
 	"Generates required depenpency from required file."
 	utils.build_symbol_map()
 	srmap = {value:key for key, value in utils.smap.items()}
-	
-	if not os.path.isfile(conf.required):
-		raise MissingFile(conf.required, None)
 
 	try:
 		os.remove(conf.required_file)
+		os.remove(conf.dot_config_file)
 	except OSError:
 		pass
 
-	with open(conf.required_file, 'w') as fout:
-		with open(conf.required, 'r') as f:
-			for line in f:
-				for word in line.rstrip().split():
-					if word[0] == '-':
-						fout.write('-')
-						word = word[1:]
-					fout.write(srmap[word] + " ")
-				fout.write("\n")
-
+	with open(conf.linux_sources + '/.config', 'r') as f:
+		with open(conf.required_file, 'w') as freq:
+			with open(conf.dot_config_file, 'w') as fconf:
+				for line in f:
+					if (line[0] == '#') or (not '=' in line):
+						continue
+					indx = line.index('=')
+					if (line[indx + 1] == 'y' or line[indx + 1] == 'm'):
+						freq.write(srmap[line[7:indx]] + "\n")
+					elif (line[indx + 1] == 'n'):
+						freq.write("-" + srmap[line[7:indx]] + "\n")
+					else:
+						fconf.write(line);
