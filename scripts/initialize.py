@@ -24,7 +24,7 @@ def kconfig_parser():
 
 def gen_requred():
 	"Generates required depenpency from required file."
-	utils.build_symbol_map()
+	utils.build_symbol_map() # Ensure smap existence
 	srmap = {value:key for key, value in utils.smap.items()}
 
 	try:

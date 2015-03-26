@@ -19,9 +19,3 @@ class PhaseMismatch(Exception):
 		pass
 	def __str__(self):
 		return "Phase in " + conf.phase_file + " is unknown."
-
-class KernelConfigFailed(Exception):
-	def __init__(self):
-		pass
-	def __str__(self):
-		return "Kernel configuration failed."
