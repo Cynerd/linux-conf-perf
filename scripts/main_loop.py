@@ -16,14 +16,14 @@ import iteration
 
 def step():
 	phs = phase.get()
-	if phs == phase.phs("Not Initialized"):
+	if phs == 0:
 		try:
 			os.mkdir(conf.build_folder)
 		except FileExistsError:
 			pass
 		phase.set(1)
-	elif phs == phase.phs("Initializing"):
-		print("-- Initializing ...")
+	elif phs == 1:
+		phase.message(1)
 		initialize.kconfig_parser()
 		try:
 			initialize.gen_requred()
@@ -31,41 +31,37 @@ def step():
 			pass
 		iteration.reset()
 		phase.set(2)
-	elif phs == phase.phs("Initialized"):
-		print("-- Initialized")
+	elif phs == 2:
+		phase.message(2)
 		phase.set(3)
-	elif phs == phase.phs("Solution generating"):
-		print("-- Generating solution ...")
+	elif phs == 3:
+		phase.message(3)
 		solution.generate()
 		iteration.inc()
 		phase.set(4)
-	elif phs == phase.phs("Solution generated"):
-		print("-- Solution generated")
+	elif phs == 4:
+		phase.message(4)
 		phase.set(5)
-	elif phs == phase.phs("Solution applying"):
-		print("-- Applying generated solution ...")
+	elif phs == 5:
+		phase.message(5)
 		solution.apply()
 		phase.set(6)
-	elif phs == phase.phs("Solution applied"):
-		print("-- Generated solution applied")
+	elif phs == 6:
+		phase.message(6)
 		phase.set(7)
-	elif phs == phase.phs("Kernel configuration"):
-		print("-- Kernel configure ...")
-		try:
-			kernel.config()
-			phase.set(8)
-		except KernelConfigFailed:
-			print("-- Kernel configuration failed")
-			phase.set(3)
-	elif phs == phase.phs("Kernel configured"):
-		print("-- Kernel configured")
+	elif phs == 7:
+		phase.message(7)
+		kernel.config()
+		phase.set(8)
+	elif phs == 8:
+		phase.message(8)
 		phase.set(9)
-	elif phs == phase.phs("Kernel build"):
-		print("-- Build Linux ...")
+	elif phs == 9:
+		phase.message(9)
 		kernel.make()
 		phase.set(10)
-	elif phs == phase.phs("Kernel built"):
-		print("-- Linux built")
+	elif phs == 10:
+		phase.message(10)
 		phase.set(2)
 
 class mainThread(Thread):
