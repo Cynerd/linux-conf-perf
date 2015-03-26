@@ -11,7 +11,6 @@ import phase
 import solution
 import kernel
 from exceptions import MissingFile
-from exceptions import KernelConfigFailed
 import iteration
 
 def step():
