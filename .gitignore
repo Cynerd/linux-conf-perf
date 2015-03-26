@@ -1,12 +1,6 @@
 *~
 .*
-!/.gitignore
+!.gitignore
 
 build
 __*__
-
-required
-
-# Programs
-programs/kconfig_parser
-programs/solution_gen
