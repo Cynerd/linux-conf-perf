@@ -24,6 +24,11 @@ def kconfig_parser():
 
 def gen_requred():
 	"Generates required depenpency from required file."
+
+	if not os.path.isfile(conf.linux_sources + '/.config'):
+		raise MissingFile(conf.linux_sources + '/.config',
+				'Generate initial configuration. Execute make defconfig in linux folder. Or use make menuconfig and change configuration.')
+
 	utils.build_symbol_map() # Ensure smap existence
 	srmap = {value:key for key, value in utils.smap.items()}
 
