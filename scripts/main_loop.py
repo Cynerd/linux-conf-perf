@@ -24,10 +24,7 @@ def step():
 	elif phs == 1:
 		phase.message(1)
 		initialize.kconfig_parser()
-		try:
-			initialize.gen_requred()
-		except MissingFile:
-			pass
+		initialize.gen_requred()
 		iteration.reset()
 		phase.set(2)
 	elif phs == 2:
