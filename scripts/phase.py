@@ -3,7 +3,7 @@ import sys
 
 from conf import conf
 
-phases = ("Not Initialized"		#0
+phases = ("Not Initialized",		#0
 		  "Initializing",			#1
 		  "Initialized",			#2
 		  "Solution generating",	#3
