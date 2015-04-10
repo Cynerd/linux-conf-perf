@@ -11,7 +11,7 @@
 #include <locale.h>
 #include <stdbool.h>
 #include <argp.h>
-#include "kconfig/lkc.h"
+#include "lkc.h"
 #include "symlist.h"
 #include "output.h"
 #include "macros.h"
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
     textdomain(PACKAGE);
 
     conf_parse(argv[1]);
-    sym_clear_all_valid();
+    //sym_clear_all_valid();
 
     gsymlist = symlist_create();
 

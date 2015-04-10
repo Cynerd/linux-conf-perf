@@ -1,24 +1,19 @@
+.PHONY: all clean
 .SUFFIXES:
+
+all: parser
+
+KCONFIG_PREFIX = ../shared/kconfig
+include $(KCONFIG_PREFIX)/files.mk
 
 SRC  = parser.c \
 	       cnfexpr.c \
 	       symlist.c \
 	       output.c
-SRC += kconfig/zconf.tab.c
 CFLAGS = -O0 -w -ggdb
 
-parser: $(SRC) kconfig/zconf.lex.c kconfig/zconf.hash.c
-	gcc $(CFLAGS) -o $@ $(SRC)
+parser: $(SRC) $(KCONFIG_SRC)
+	gcc $(CFLAGS) -o $@ $^ -I$(KCONFIG_PREFIX)
 
-%.hash.c: %.gperf
-	gperf -t --output-file $@ -a -C -E -g -k '1,3,$$' -p -t $<
-
-%.lex.c: %.l
-	flex -o $@  -L -P zconf $<
-
-%.tab.c: %.y kconfig/zconf.lex.c kconfig/zconf.hash.c
-	bison -o $@ $< -p zconf -t -l
-
-clean:
-	$(RM) kconfig/zconf.tab.c kconfig/zconf.lex.c kconfig/zconf.hash.c
+clean::
 	$(RM) parser
