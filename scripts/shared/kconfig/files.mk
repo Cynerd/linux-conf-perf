@@ -1,3 +1,5 @@
+# Files in this folder are exported from kernel source tree (except this file)
+# 	commit: e5e02de0665ef2477e7a018193051387c6fe0fbc
 .PHONY: clean
 
 ifndef KCONFIG_PREFIX
