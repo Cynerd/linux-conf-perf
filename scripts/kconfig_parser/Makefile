@@ -1,14 +1,14 @@
 .SUFFIXES:
 
-KCPARSER_INFILES  = parser.c \
+SRC  = parser.c \
 	       cnfexpr.c \
 	       symlist.c \
 	       output.c
-KCPARSER_INFILES += kconfig/zconf.tab.c
-KCPARSER_CFLAGS = -O0 -w -ggdb
+SRC += kconfig/zconf.tab.c
+CFLAGS = -O0 -w -ggdb
 
-parser: $(KCPARSER_INFILES) kconfig/zconf.lex.c kconfig/zconf.hash.c
-	gcc $(KCPARSER_CFLAGS) -o $@ $(KCPARSER_INFILES)
+parser: $(SRC) kconfig/zconf.lex.c kconfig/zconf.hash.c
+	gcc $(CFLAGS) -o $@ $(SRC)
 
 %.hash.c: %.gperf
 	gperf -t --output-file $@ -a -C -E -g -k '1,3,$$' -p -t $<
