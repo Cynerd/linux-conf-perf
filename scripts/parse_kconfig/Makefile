@@ -1,7 +1,7 @@
 .PHONY: all clean
 .SUFFIXES:
 
-all: parser
+all: parse
 
 KCONFIG_PREFIX = ../shared/kconfig
 include $(KCONFIG_PREFIX)/files.mk
@@ -12,7 +12,7 @@ SRC  = parser.c \
 	       output.c
 CFLAGS = -O0 -w -ggdb
 
-parser: $(SRC) $(KCONFIG_SRC)
+parse: $(SRC) $(KCONFIG_SRC)
 	gcc $(CFLAGS) -o $@ $^ -I$(KCONFIG_PREFIX)
 
 clean::
