@@ -1,15 +1,15 @@
 
 all: kconfig_parser
 
-kconfig_parser:
-	@$(MAKE) -C scripts/kconfig_parser/
+parse_kconfig:
+	@$(MAKE) -C scripts/parse_kconfig/
 
 main_loop: kconfig_parser
 	scripts/main_loop.py
 
 
 clean:
-	@$(MAKE) -C scripts/kconfig_parser/ clean
+	@$(MAKE) -C scripts/parse_kconfig/ clean
 	$(RM) linux/.config
 	$(RM) -r build
 
