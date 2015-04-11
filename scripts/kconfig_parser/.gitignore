@@ -1,4 +1,1 @@
 parser
-kconfig/zconf.hash.c
-kconfig/zconf.lex.c
-kconfig/zconf.tab.c
