@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "symlist.h"
-#include "lkc.h"
+#include "kconfig/lkc.h"
 
 enum cnfexpr_type {
     CT_EXPR, CT_FALSE, CT_TRUE

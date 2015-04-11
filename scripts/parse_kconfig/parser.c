@@ -11,7 +11,7 @@
 #include <locale.h>
 #include <stdbool.h>
 #include <argp.h>
-#include "lkc.h"
+#include "kconfig/lkc.h"
 #include "symlist.h"
 #include "output.h"
 #include "macros.h"

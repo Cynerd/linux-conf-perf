@@ -13,7 +13,7 @@ SRC  = parser.c \
 CFLAGS = -O0 -w -ggdb
 
 parse: $(SRC) $(KCONFIG_SRC)
-	gcc $(CFLAGS) -o $@ $^ -I$(KCONFIG_PREFIX)
+	gcc $(CFLAGS) -o $@ $^ -I../shared
 
 clean::
 	$(RM) parser
