@@ -14,7 +14,9 @@ KCONFIG_SRC = $(KCONFIG_PREFIX)/zconf.tab.c
 %.lex.c: %.l
 	flex -o $@  -L -P zconf $<
 
-%.tab.c: %.y %.lex.c %.hash.c
+$(KCONFIG_PREFIX)/zconf.tab.c: $(KCONFIG_PREFIX)/zconf.lex.c
+$(KCONFIG_PREFIX)/zconf.tab.c: $(KCONFIG_PREFIX)/zconf.hash.c
+%.tab.c: %.y
 	bison -o $@ $< -p zconf -t -l
 
 
