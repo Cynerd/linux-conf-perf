@@ -21,6 +21,7 @@ void symlist_add(struct symlist *sl, char *name) {
     sl->pos++;
 }
 
+// TODO faster implementation? Maybe binary search tree?
 struct symlist_el *symlist_find(struct symlist *sl, char *name) {
     int i = 0;
     while (i < sl->pos) {
