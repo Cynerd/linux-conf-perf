@@ -2,5 +2,7 @@
 .*
 !.gitignore
 
+*.o
+
 build
 __*__
