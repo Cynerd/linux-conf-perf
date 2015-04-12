@@ -7,6 +7,9 @@ ifndef KCONFIG_PREFIX
 endif
 
 KCONFIG_SRC = $(KCONFIG_PREFIX)/zconf.tab.c
+KCONFIG_OBJ = $(KCONFIG_PREFIX)/zconf.tab.o
+
+KCONFIG_CFLAGS = -O3
 
 %.hash.c: %.gperf
 	gperf -t --output-file $@ -a -C -E -g -k '1,3,$$' -p -t $<
@@ -19,8 +22,11 @@ $(KCONFIG_PREFIX)/zconf.tab.c: $(KCONFIG_PREFIX)/zconf.hash.c
 %.tab.c: %.y
 	bison -o $@ $< -p zconf -t -l
 
+$(KCONFIG_PREFIX)/zconf.tab.o: $(KCONFIG_PREFIX)/zconf.tab.c
+	gcc $(KCONFIG_CFLAGS) -c -o $@ $^
 
 clean::
+	$(RM) $(KCONFIG_OBJ)
 	$(RM) $(KCONFIG_PREFIX)/zconf.tab.c
 	$(RM) $(KCONFIG_PREFIX)/zconf.lex.c
 	$(RM) $(KCONFIG_PREFIX)/zconf.hash.c
