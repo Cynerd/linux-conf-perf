@@ -1,9 +1,9 @@
-#ifndef _SYMLIST_H_
-#define _SYMLIST_H_
-
 #include <stdbool.h>
 #include <string.h>
 #include "cnfexpr.h"
+
+#ifndef _SYMLIST_H_
+#define _SYMLIST_H_
 
 struct symlist_el {
     unsigned int id;
