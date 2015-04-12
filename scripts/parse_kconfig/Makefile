@@ -23,4 +23,4 @@ parse: $(OBJ) $(KCONFIG_OBJ)
 
 clean::
 	$(RM) $(OBJ)
-	$(RM) parser
+	$(RM) parse
