@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
     }
 
     if (file == NULL) {
-        Eprintf("No input file specified\n");
+        Eprintf("No Kconfig input file specified\n");
         exit(2);
     }
     if (folder == NULL) {
