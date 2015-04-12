@@ -4,7 +4,7 @@
 #include <locale.h>
 #include <stdbool.h>
 #include <libintl.h>
-#include "kconfig/lkc.h"
+#include <kconfig/lkc.h>
 #include "symlist.h"
 #include "output.h"
 #include "macros.h"
