@@ -3,7 +3,7 @@
 struct symlist *symlist_create() {
     struct symlist *ret;
     ret = malloc(sizeof(struct symlist));
-    ret->size = 2;
+    ret->size = 1;
     ret->pos = 0;
     ret->array = malloc(ret->size * sizeof(struct symlist_el));
     return ret;
