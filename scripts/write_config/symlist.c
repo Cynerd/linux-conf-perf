@@ -1,5 +1,7 @@
 #include "symlist.h"
 
+#define NONAMEGEN "NONAMEGEN"
+
 struct symlist *symlist_read(FILE * f) {
     struct symlist *ret;
     ret = malloc(sizeof(struct symlist));
@@ -23,7 +25,10 @@ struct symlist *symlist_read(FILE * f) {
                             ret->size * sizeof(struct symlist_el));
             }
             ret->array[(size_t) id - 1].id = id;
-            ret->array[(size_t) id - 1].sym = sym_lookup(w, 0);
+            if (!strncmp(w, NONAMEGEN, strlen(NONAMEGEN)))
+                ret->array[(size_t) id - 1].sym = NULL;
+            else
+                ret->array[(size_t) id - 1].sym = sym_lookup(w, 0);
             w_pos = 0;
         } else if (c == ':') {
             w[w_pos] = '\0';
