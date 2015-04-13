@@ -23,7 +23,7 @@ def step():
 		phase.set(1)
 	elif phs == 1:
 		phase.message(1)
-		initialize.kconfig_parser()
+		initialize.parse_kconfig()
 		initialize.gen_requred()
 		iteration.reset()
 		phase.set(2)

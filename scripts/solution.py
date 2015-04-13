@@ -19,7 +19,7 @@ def generate():
 	"""
 	# Check if rules_file exist. If it was generated.
 	if not os.path.isfile(conf.rules_file):
-		raise Exception("Rules file missing. Run kconfig_parse and check ecistence of " + rules_file)
+		raise Exception("Rules file missing. Run parse_kconfig and check ecistence of " + rules_file)
 
 	w_file = tempfile.NamedTemporaryFile(delete=False)
 	# Join files to one single temporary file

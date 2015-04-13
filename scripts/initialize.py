@@ -7,18 +7,18 @@ import utils
 from conf import conf
 from exceptions import MissingFile
 
-def kconfig_parser():
-	"Execute kconfig_parser in linux_sources directory and parsed output is placed to build_folder."
+def parse_kconfig():
+	"Execute parse_kconfig in linux_sources directory and parsed output is placed to build_folder."
 	env = dict(os.environ)
 	env['SRCARCH'] = conf.SRCARCH
 	env['ARCH'] = conf.ARCH
 	env['KERNELVERSION'] = 'KERNELVERSION' # hides error
 	wd = os.getcwd()
 	os.chdir(conf.linux_sources)
-	if conf.kconfig_parser_output:
-		subprocess.call([conf.kconfig_parser, conf.linux_kconfig_head, conf.build_folder, "-v", "-v"], env=env)
+	if conf.parse_kconfig_output:
+		subprocess.call([conf.parse_kconfig, conf.linux_kconfig_head, conf.build_folder, "-v", "-v"], env=env)
 	else:
-		subprocess.call([conf.kconfig_parser, conf.linux_kconfig_head, conf.build_folder], env=env)
+		subprocess.call([conf.parse_kconfig, conf.linux_kconfig_head, conf.build_folder], env=env)
 
 	os.chdir(wd)
 

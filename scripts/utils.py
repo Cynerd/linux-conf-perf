@@ -13,7 +13,7 @@ def build_symbol_map():
 	except NameError:
 		# Check if symbol_map_file exist
 		if not os.path.isfile(conf.symbol_map_file):
-			raise MissingFile(conf.symbol_map_file, "Run kconfig_parser to generate it.")
+			raise MissingFile(conf.symbol_map_file, "Run parse_kconfig to generate it.")
 
 		smap = dict()
 		with open(conf.symbol_map_file) as f:

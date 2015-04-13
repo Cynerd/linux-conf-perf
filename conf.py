@@ -33,9 +33,9 @@ solution_file = build_folder + '/solution'
 iteration_file = build_folder + '/iteration'
 
 # Programs paths
-kconfig_parser = checkXf(pf('scripts/kconfig_parser/parser'), 'You must build programs first.')
+parse_kconfig = checkXf(pf('scripts/parse_kconfig/parse'), 'You must build programs first.')
 
 # Programs output hide
-kconfig_parser_output = False
+parse_kconfig_output = False
 minisat_output = False
 kernel_config_output = False
