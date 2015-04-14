@@ -16,7 +16,7 @@ struct symlist *symlist_read(FILE * f) {
     int c;
     do {
         c = fgetc(f);
-        if (c == EOF || c == '\n') {
+        if (c == '\n') {
             w[w_pos] = '\0';
             if ((size_t) id > ret->size) {
                 ret->size *= 2;
