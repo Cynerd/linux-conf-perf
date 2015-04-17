@@ -90,10 +90,6 @@ def apply():
 
 	# Write solution to .config file in linux source folder
 	with open(conf.linux_sources + '/.config', 'w') as f:
-		with open(conf.dot_config_fragment_file, 'r') as fconf:
-			for line in fconf:
-				f.write(line)
-
 		for txt in solut:
 			if txt[0] == '-':
 				nt = True
