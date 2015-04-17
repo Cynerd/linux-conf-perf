@@ -8,7 +8,8 @@ KCONFIG_PREFIX = ../shared/kconfig
 include $(KCONFIG_PREFIX)/files.mk
 
 SRC  = write.c \
-	   symlist.c
+	   symlist.c \
+	   solution.c
 OBJ = $(patsubst %.c,%.o,$(SRC))
 CFLAGS = -O0 -w -ggdb
 INCLUDES = -I../shared
