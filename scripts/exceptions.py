@@ -19,3 +19,9 @@ class PhaseMismatch(Exception):
 		pass
 	def __str__(self):
 		return "Phase in " + conf.phase_file + " is unknown."
+
+class ConfigurationError(Exception):
+	def __init__(self, message):
+		self.message = message;
+	def __str__(self):
+		return "Configuration error: " + message

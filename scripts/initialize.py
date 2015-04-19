@@ -47,9 +47,12 @@ def gen_requred():
 					if (line[0] == '#') or (not '=' in line):
 						continue
 					indx = line.index('=')
-					if (line[indx + 1] == 'y' or line[indx + 1] == 'm'):
+					if (line[7:indx] == "MODULES"): # skip if modules set
+						raise exceptions.ConfigurationError("Initial kernel configuration must have MODULES disabled.")
+					if (line[indx + 1] == 'y'):
 						freq.write(srmap[line[7:indx]] + "\n")
-					elif (line[indx + 1] == 'n'):
+					elif (line[indx + 1] == 'n' or line[indx + 1] == 'm'):
 						freq.write("-" + srmap[line[7:indx]] + "\n")
 					else:
 						fconf.write(line);
+			freq.write("-" + srmap["MODULES"] + "\n"); # force modules no
