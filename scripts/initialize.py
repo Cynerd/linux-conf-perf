@@ -34,11 +34,11 @@ def gen_requred():
 
 	try:
 		os.remove(conf.required_file)
-		os.remove(conf.dot_config_file)
+		os.remove(conf.dot_config_fragment_file)
 	except OSError:
 		pass
 
-	shutil.copy(conf.linux_sources + '/.config', conf.dot_config_back_file)
+	shutil.copy(conf.linux_dot_config, conf.dot_config_back_file)
 
 	with open(conf.linux_sources + '/.config', 'r') as f:
 		with open(conf.required_file, 'w') as freq:

@@ -20,6 +20,7 @@ linux_make_args = ['-j8']
 # Path settings
 linux_sources = pf('linux')
 linux_kconfig_head = 'Kconfig'
+linux_dot_config = linux_sources + '/.config'
 
 build_folder = pf('build/')
 phase_file = build_folder + '/phase'
