@@ -26,17 +26,18 @@ void solution_set(struct symlist *sl, FILE * f) {
                 continue;
             if (sl->array[id - 1].sym == NULL)
                 continue;
-            tristate val = sym_get_tristate_value(sl->array[id - 1].sym);
-            sym_set_tristate_value(sl->array[id - 1].sym, neg ? no : yes);
-            sym_calc_value(sl->array[id - 1].sym);
+            //tristate val = sym_get_tristate_value(sl->array[id - 1].sym);
+            //sym_set_tristate_value(sl->array[id - 1].sym, neg ? no : yes);
+            //sym_calc_value(sl->array[id - 1].sym);
             if (neg ==
                 (sym_get_tristate_value(sl->array[id - 1].sym) ==
                  no ? true : false))
                 printf("Ok\n");
             else
-                printf("Problem %s\n", sl->array[id - 1].sym->name);
-            if (sym_get_tristate_value(sl->array[id - 1].sym) != val)
-                printf("Change\n");
+                printf("Problem %s=%d/%d\n", sl->array[id - 1].sym->name,
+                       !neg, sym_get_tristate_value(sl->array[id - 1].sym));
+            //if (sym_get_tristate_value(sl->array[id - 1].sym) != val)
+            //printf("Change\n");
         } else {
             if (w_pos >= w_size) {
                 w_size *= 2;
