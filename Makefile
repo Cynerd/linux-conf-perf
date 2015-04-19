@@ -1,5 +1,5 @@
 
-all: kconfig_parser
+all: parse_kconfig write_config
 
 parse_kconfig:
 	@$(MAKE) -C scripts/parse_kconfig/
