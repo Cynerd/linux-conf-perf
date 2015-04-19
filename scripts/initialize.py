@@ -10,15 +10,12 @@ from exceptions import MissingFile
 def parse_kconfig():
 	"Execute parse_kconfig in linux_sources directory and parsed output is placed to build_folder."
 	env = dict(os.environ)
-	env['SRCARCH'] = conf.SRCARCH
-	env['ARCH'] = conf.ARCH
-	env['KERNELVERSION'] = 'KERNELVERSION' # hides error
 	wd = os.getcwd()
 	os.chdir(conf.linux_sources)
 	if conf.parse_kconfig_output:
-		subprocess.call([conf.parse_kconfig, conf.linux_kconfig_head, conf.build_folder, "-v", "-v"], env=env)
+		subprocess.call([conf.parse_kconfig, conf.linux_kconfig_head, conf.build_folder, "-v", "-v"], env=utils.get_kernel_env())
 	else:
-		subprocess.call([conf.parse_kconfig, conf.linux_kconfig_head, conf.build_folder], env=env)
+		subprocess.call([conf.parse_kconfig, conf.linux_kconfig_head, conf.build_folder], env=utils.get_kernel_env())
 
 	os.chdir(wd)
 
