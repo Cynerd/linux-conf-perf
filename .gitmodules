@@ -4,3 +4,6 @@
 [submodule "scripts/novaboot"]
 	path = scripts/novaboot
 	url = https://github.com/wentasah/novaboot.git
+[submodule "scripts/buildroot"]
+	path = scripts/buildroot
+	url = http://git.buildroot.net/git/buildroot.git
