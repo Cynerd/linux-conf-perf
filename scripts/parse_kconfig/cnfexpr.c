@@ -333,5 +333,4 @@ struct boolexp *printf_original(struct symlist *sl, struct expr *expr) {
         printf("  ERROR\n");
         break;
     }
-
 }
