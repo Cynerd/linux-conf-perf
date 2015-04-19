@@ -32,12 +32,14 @@ void solution_set(struct symlist *sl, FILE * f) {
             if (neg ==
                 (sym_get_tristate_value(sl->array[id - 1].sym) ==
                  no ? true : false))
-                printf("Ok\n");
-            else
+                //printf("Ok\n");
+            {
+            } else
                 printf("Problem %s=%d/%d\n", sl->array[id - 1].sym->name,
-                       !neg, sym_get_tristate_value(sl->array[id - 1].sym));
+                       !neg,
+                       sym_get_tristate_value(sl->array[id - 1].sym));
             //if (sym_get_tristate_value(sl->array[id - 1].sym) != val)
-            //printf("Change\n");
+            //printf("Change: %s\n", sl->array[id - 1].sym->name);
         } else {
             if (w_pos >= w_size) {
                 w_size *= 2;

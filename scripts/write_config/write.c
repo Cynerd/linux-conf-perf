@@ -47,8 +47,8 @@ int main(int argc, char **argv) {
     textdomain(PACKAGE);
 
     conf_parse(file);
+    //conf_read(def_config_file);
     conf_read(".config");
-    conf_write(".config");
 
     FILE *f = fopen(symbol_map_file, "r");
     if (f == NULL) {
@@ -65,6 +65,8 @@ int main(int argc, char **argv) {
     }
     solution_set(sl, f);
     fclose(f);
+
+    conf_write(".config");
 
     return 0;
 }
