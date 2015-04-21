@@ -7,7 +7,7 @@ all: parse
 KCONFIG_PREFIX = ../shared/kconfig
 include $(KCONFIG_PREFIX)/files.mk
 
-SRC  = parser.c \
+SRC  = parse.c \
 	       cnfexpr.c \
 	       symlist.c \
 	       output.c
