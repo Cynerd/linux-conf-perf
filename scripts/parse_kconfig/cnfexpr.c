@@ -151,9 +151,7 @@ struct cnfexpr *cnf_eql(struct symlist *sl, bool not, struct symbol *sym1,
         return fls;
     }
     if (!strcmp(sym2->name, "n")) {
-        struct cnfexpr *w = cnf_sym(sl, not, sym1);
-        w->exprs[0][0] *= -1;
-        return w;
+        return cnf_sym(sl, !not, sym1);
     }
     if (!strcmp(sym2->name, "y")) {
         return cnf_sym(sl, not, sym1);
