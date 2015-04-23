@@ -97,7 +97,8 @@ void cpy_dep() {
                 Iprintf("Direct:\n");
                 if (verbose_level > 2)
                     cnf_printf(el->be);
-            }
+            } else
+                el->be = NULL;
             if (sym->rev_dep.expr != NULL) {
                 if (verbose_level > 3)
                     printf_original(gsymlist, sym->rev_dep.expr);
@@ -106,7 +107,8 @@ void cpy_dep() {
                 Iprintf("Revers:\n");
                 if (verbose_level > 2)
                     cnf_printf(el->re_be);
-            }
+            } else
+                el->re_be = NULL;
         }
     }
 }
