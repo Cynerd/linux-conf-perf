@@ -15,10 +15,15 @@ void symlist_add(struct symlist *sl, char *name) {
         sl->array =
             realloc(sl->array, sl->size * sizeof(struct symlist_el));
     }
-    sl->array[sl->pos].id = (unsigned)sl->pos + 1;
+    sl->array[sl->pos].id = (unsigned) sl->pos + 1;
     sl->array[sl->pos].name = name;
     sl->array[sl->pos].be = NULL;
+    sl->array[sl->pos].prompt = false;
     sl->pos++;
+}
+
+void symlist_set_prompt(struct symlist *sl, char *name, bool prompt) {
+    symlist_find(sl, name)->prompt = prompt;
 }
 
 // TODO faster implementation? Maybe binary search tree?

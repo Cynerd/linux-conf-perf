@@ -12,13 +12,14 @@ enum cnfexpr_type {
 };
 
 struct cnfexpr {
-    enum cnfexpr_type type; 
+    enum cnfexpr_type type;
     int **exprs;
     unsigned *sizes;
     unsigned size;
 };
 
-struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, bool nt, struct expr *expr);
+struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, bool nt,
+                                struct symbol *sym, struct expr *expr);
 void cnf_printf(struct cnfexpr *);
 
 struct boolexp *printf_original(struct symlist *sl, struct expr *expr);

@@ -5,9 +5,12 @@ struct cnfexpr *cnf_eql(struct symlist *sl, bool not, struct symbol *sym1,
                         struct symbol *sym2);
 struct cnfexpr *cnf_or(struct cnfexpr *e1, struct cnfexpr *e2);
 struct cnfexpr *cnf_and(struct cnfexpr *e1, struct cnfexpr *e2);
+struct cnfexpr *cnf_not(struct cnfexpr *el);
+struct cnfexpr *cnf_copy(struct cnfexpr *el);
 void free_cnf(struct cnfexpr *e);
 
-struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, bool nt, struct expr *expr) {
+struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, bool nt,
+                                struct symbol *sym, struct expr *expr) {
     struct stck {
         struct expr *expr;
         struct cnfexpr *cnf;
@@ -89,6 +92,26 @@ struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, bool nt, struct expr *expr) 
 
     free(back);
     free(stack);
+
+    struct symlist_el *se = symlist_find(sl, sym->name);
+    if (se->prompt || nt == true)
+        rtrn = cnf_or(cnf_sym(sl, !nt, sym), rtrn);
+    else {
+        struct cnfexpr *w12 = cnf_not(cnf_copy(rtrn));
+        struct cnfexpr *w11 = cnf_sym(sl, false, sym);
+        struct cnfexpr *w1 = cnf_or(w11, w12);
+        struct cnfexpr *w22 = rtrn;
+        struct cnfexpr *w21 = cnf_sym(sl, true, sym);
+        struct cnfexpr *w2 = cnf_or(w21, w22);
+        rtrn = cnf_and(w1, w2);
+        /*
+           rtrn =
+           cnf_and(cnf_or
+           (cnf_sym(sl, false, sym), cnf_not(cnf_copy(rtrn))),
+           cnf_or(cnf_sym(sl, true, sym), rtrn));
+         */
+    }
+
     return rtrn;
 }
 
@@ -259,6 +282,61 @@ struct cnfexpr *cnf_and(struct cnfexpr *e1, struct cnfexpr *e2) {
     return e1;
 }
 
+struct cnfexpr *cnf_not_dissolve(struct cnfexpr *expr, unsigned i) {
+    struct cnfexpr *w;
+    unsigned y;
+    w = malloc(sizeof(struct cnfexpr));
+    w->type = CT_EXPR;
+    w->size = expr->sizes[i];
+    w->exprs = malloc(w->size * sizeof(int *));
+    w->sizes = malloc(w->size * sizeof(unsigned));
+    for (y = 0; y < w->size; y++) {
+        w->sizes[y] = 1;
+        w->exprs[y] = malloc(sizeof(int));
+        w->exprs[y][0] = -1 * expr->exprs[i][y];
+    }
+    return w;
+}
+
+struct cnfexpr *cnf_not(struct cnfexpr *expr) {
+    switch (expr->type) {
+    case CT_TRUE:
+        expr->type = CT_FALSE;
+        return expr;
+    case CT_FALSE:
+        expr->type = CT_TRUE;
+        return expr;
+    case CT_EXPR:
+        break;
+    }
+    struct cnfexpr *rtrn, *w;
+    unsigned i = 0;
+    rtrn = cnf_not_dissolve(expr, 0);
+    for (i = 1; i < expr->size; i++) {
+        w = cnf_not_dissolve(expr, i);
+        rtrn = cnf_or(rtrn, w);
+    }
+    return rtrn;
+}
+
+struct cnfexpr *cnf_copy(struct cnfexpr *el) {
+    struct cnfexpr *rtrn;
+    rtrn = malloc(sizeof(struct cnfexpr));
+    rtrn->type = el->type;
+    rtrn->size = el->size;
+    if (el->type != CT_EXPR)
+        return rtrn;
+    rtrn->sizes = malloc(rtrn->size * sizeof(int));
+    memcpy(rtrn->sizes, el->sizes, rtrn->size * sizeof(int));
+    rtrn->exprs = malloc(rtrn->size * sizeof(int *));
+    unsigned i;
+    for (i = 0; i < rtrn->size; i++) {
+        rtrn->exprs[i] = malloc(rtrn->sizes[i] * sizeof(int));
+        memcpy(rtrn->exprs[i], el->exprs[i], rtrn->sizes[i] * sizeof(int));
+    }
+    return rtrn;
+}
+
 void free_cnf(struct cnfexpr *e) {
     if (e->type != CT_EXPR) {
         free(e);
@@ -318,7 +396,7 @@ struct boolexp *printf_original(struct symlist *sl, struct expr *expr) {
     case E_SYMBOL:
         printf("  symbol");
         if (expr->left.sym->name != NULL)
-                printf(": %s", expr->left.sym->name);
+            printf(": %s", expr->left.sym->name);
         printf("\n");
         break;
     case E_RANGE:

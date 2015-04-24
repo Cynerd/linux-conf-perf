@@ -1,27 +1,23 @@
 #include "output.h"
 
-void fprint_rules_cnf(FILE * f, unsigned id, struct cnfexpr *cnf, bool nt) {
+void fprint_rules_cnf(FILE * f, struct cnfexpr *cnf) {
     unsigned i, y;
     switch (cnf->type) {
     case CT_FALSE:
         // Never satisfiable
-        if (!nt)
-            fprintf(f, "-");
-        fprintf(f, "%d\n", id);
-        break;
+        // This should newer happen
+        fprintf(stderr,
+                "ERROR: Some rule is not satisfiable. But this should never happen.\n");
+        exit(28);
     case CT_TRUE:
         // Always satisfiable
         break;
     case CT_EXPR:
         for (i = 0; i < cnf->size; i++) {
-            if (!nt)
-                fprintf(f, "-");
-            fprintf(f, "%d ", id);
             for (y = 0; y < cnf->sizes[i] - 1; y++) {
                 fprintf(f, "%d ", cnf->exprs[i][y]);
             }
-            fprintf(f, "%d ", cnf->exprs[i][cnf->sizes[i] - 1]);
-            fprintf(f, "\n");
+            fprintf(f, "%d\n", cnf->exprs[i][cnf->sizes[i] - 1]);
         }
         break;
     }
@@ -40,10 +36,10 @@ void fprint_rules(struct symlist *sl, char *output) {
         if (sl->array[i].be != NULL) {
             el = sl->array + i;
             if (el->be != NULL) {
-                fprint_rules_cnf(f, el->id, el->be, false);
+                fprint_rules_cnf(f, el->be);
             }
             if (el->re_be != NULL) {
-                fprint_rules_cnf(f, el->id, el->re_be, true);
+                fprint_rules_cnf(f, el->re_be);
             }
         }
     }

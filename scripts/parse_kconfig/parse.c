@@ -76,6 +76,11 @@ void build_symlist() {
                 symlist_add(gsymlist, sym->name);
             }
         }
+        struct property *prop;
+        for_all_prompts(sym, prop) {
+            gsymlist->array[gsymlist->pos - 1].prompt = true;
+            break;
+        }
     }
 }
 
@@ -84,8 +89,7 @@ void cpy_dep() {
     struct symbol *sym;
     struct symlist_el *el;
     for_all_symbols(i, sym) {
-        if ((sym->type == S_BOOLEAN || sym->type == S_TRISTATE)
-            && strstr(sym->name, "NONAMEGEN") == NULL) {
+        if ((sym->type == S_BOOLEAN || sym->type == S_TRISTATE)) {
             el = symlist_find(gsymlist, sym->name);
             Iprintf("working: %s(%d)\n", sym->name, el->id);
 
@@ -93,7 +97,8 @@ void cpy_dep() {
                 if (verbose_level > 3)
                     printf_original(gsymlist, sym->dir_dep.expr);
                 el->be =
-                    kconfig_cnfexpr(gsymlist, false, sym->dir_dep.expr);
+                    kconfig_cnfexpr(gsymlist, false, sym,
+                                    sym->dir_dep.expr);
                 Iprintf("Direct:\n");
                 if (verbose_level > 2)
                     cnf_printf(el->be);
@@ -103,7 +108,8 @@ void cpy_dep() {
                 if (verbose_level > 3)
                     printf_original(gsymlist, sym->rev_dep.expr);
                 el->re_be =
-                    kconfig_cnfexpr(gsymlist, true, sym->rev_dep.expr);
+                    kconfig_cnfexpr(gsymlist, true, sym,
+                                    sym->rev_dep.expr);
                 Iprintf("Revers:\n");
                 if (verbose_level > 2)
                     cnf_printf(el->re_be);
