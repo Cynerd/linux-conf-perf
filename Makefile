@@ -1,4 +1,4 @@
-.PHONY: all help parse_kconfig write_config build run test clean clean_linux clean_buildroot mlinux mbuildroot deflinux
+.PHONY: all help parse_kconfig write_config build run test clean clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean
 
 -include .conf.mk
 
@@ -47,11 +47,20 @@ clean:
 	@$(MAKE) -C scripts/write_config/ clean
 	$(RM) -r build
 
+distclean: clean distclean_linux distclean_buildroot
+	$(RM) .conf.mk
+
 clean_linux:
 	@$(MAKE) -C linux clean
 
+distclean_linux:
+	@$(MAKE) -C linux distclean
+
 clean_buildroot:
 	@$(MAKE) -C scripts/buildroot clean
+
+distclean_buildroot:
+	@$(MAKE) -C scripts/buildroot distclean
 
 #######################################
 
