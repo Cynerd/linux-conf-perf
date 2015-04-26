@@ -11,6 +11,8 @@ help:
 	@echo "              buildroot configuration."
 	@echo "mlinux      - Calls 'make menuconfig' in linux folder. Use this for linux"
 	@echo "              configuration."
+	@echo "deflinux    - Executes 'make defconfig' in linux folder. This generates default"
+	@echo "              linux configuration for architecture specified in conf.py"
 	@echo "test        - Executes boot and benchmark test. You should use this before"
 	@echo "              target run. This target is for testing if initial kernel"
 	@echo "              configuration, buildroot configuration and benchmark are"
@@ -27,6 +29,9 @@ mbuildroot:
 
 mlinux:
 	ARCH=$(SRCARCH) $(MAKE) -C linux menuconfig
+
+deflinux:
+	ARCH=$(SRCARCH) $(MAKE) -C linux defconfig
 
 test: build/initram.gz
 	@ #TODO
