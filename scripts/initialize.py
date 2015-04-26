@@ -8,7 +8,7 @@ from conf import conf
 from exceptions import MissingFile
 
 def parse_kconfig():
-	"Execute parse_kconfig in linux_sources directory and parsed output is placed to build_folder."
+	"Execute parse_kconfig in linux_sources directory."
 	env = dict(os.environ)
 	wd = os.getcwd()
 	os.chdir(conf.linux_sources)
@@ -20,7 +20,7 @@ def parse_kconfig():
 	os.chdir(wd)
 
 def gen_requred():
-	"Generates required depenpency from required file."
+	"Generates required depenpency from .config file in linux source tree."
 
 	if not os.path.isfile(conf.linux_sources + '/.config'):
 		raise MissingFile(conf.linux_sources + '/.config',
