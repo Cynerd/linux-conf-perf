@@ -1,5 +1,7 @@
 .PHONY: all help parse_kconfig write_config build run test clean clean_linux clean_buildroot mlinux mbuildroot
 
+include .conf.mk
+
 all: parse_kconfig write_config
 
 help:
@@ -24,7 +26,7 @@ mbuildroot:
 	$(MAKE) -C scripts/buildroot menuconfig
 
 mlinux:
-	$(MAKE) -C linux menuconfig
+	ARCH=$(SRCARCH) $(MAKE) -C linux menuconfig
 
 test: build/initram.gz
 	@ #TODO
@@ -47,6 +49,9 @@ clean_buildroot:
 	@$(MAKE) -C scripts/buildroot clean
 
 #######################################
+
+.conf.mk: conf.py
+	scripts/confmk.py
 
 parse_kconfig:
 	@$(MAKE) -C scripts/parse_kconfig/

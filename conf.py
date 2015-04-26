@@ -18,6 +18,8 @@ ARCH = SRCARCH
 linux_make_args = ['-j8']
 
 # Path settings
+dot_confmk = pf('.conf.mk')
+
 linux_sources = pf('linux')
 linux_kconfig_head = 'Kconfig'
 linux_dot_config = linux_sources + '/.config'
