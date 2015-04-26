@@ -1,6 +1,6 @@
-.PHONY: all help parse_kconfig write_config build run test clean clean_linux clean_buildroot mlinux mbuildroot
+.PHONY: all help parse_kconfig write_config build run test clean clean_linux clean_buildroot mlinux mbuildroot deflinux
 
-include .conf.mk
+-include .conf.mk
 
 all: parse_kconfig write_config
 
@@ -33,10 +33,10 @@ mlinux:
 deflinux:
 	ARCH=$(SRCARCH) $(MAKE) -C linux defconfig
 
-test: build/initram.gz
+test: $(INITRAM)
 	@ #TODO
 
-run: kconfig_parser write_config build/initram.gz
+run: kconfig_parser write_config $(INITRAM)
 	scripts/main_loop.py
 
 evaluate:
@@ -64,11 +64,14 @@ parse_kconfig:
 write_config:
 	@$(MAKE) -C scripts/write_config/
 
-build:
-	mkdir $@
+%:
+	mkdir -p $@
 
-build/initram.gz: scripts/buildroot/.config build
+$(BUILDROOT_INITRAM): scripts/buildroot/.config
 	@$(MAKE) -C scripts/buildroot
-	mv scripts/buildroot/output/images/rootfs.cpio.gz
+
+$(INITRAM): $(BUILDROOT_INITRAM) $${@D}
+	mv $^ $@
 
 scripts/buildroot/.config: mbuildroot
+	@

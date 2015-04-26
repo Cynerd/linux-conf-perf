@@ -23,6 +23,7 @@ dot_confmk = pf('.conf.mk')
 linux_sources = pf('linux')
 linux_kconfig_head = 'Kconfig'
 linux_dot_config = linux_sources + '/.config'
+linux_image = linux_sources + '/arch/' + ARCH + '/boot/bzImage'
 
 build_folder = pf('build/')
 phase_file = build_folder + '/phase'
@@ -34,6 +35,9 @@ dot_config_fragment_file = build_folder + '/dot_config_fragment'
 dot_config_back_file = build_folder + '/dot_config_back'
 solution_file = build_folder + '/solution'
 iteration_file = build_folder + '/iteration'
+
+buildroot_initram = pf('scripts/buildroot/output/images/rootfs.cpio.gz')
+initram = build_folder + '/initram.gz'
 
 # Programs paths
 parse_kconfig = checkXf(pf('scripts/parse_kconfig/parse'), 'You must build programs first.')
