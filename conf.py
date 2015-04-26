@@ -29,6 +29,7 @@ dot_config_back_file = build_folder + '/dot_config_back'
 solution_file = build_folder + '/solution'
 iteration_file = build_folder + '/iteration'
 
+buildroot_def_config = pf('scripts/buildroot.def.config')
 buildroot_initram = pf('scripts/buildroot/output/images/rootfs.cpio.gz')
 initram = build_folder + '/initram.gz'
 

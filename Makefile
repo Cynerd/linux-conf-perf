@@ -24,7 +24,7 @@ help:
 	@echo "clean_linux     - Executes 'make clean' in linux folder."
 	@echo "clean_buildroot - Executes 'make clean' in buildroot folder."
 
-mbuildroot:
+mbuildroot: scripts/buildroot/.config
 	$(MAKE) -C scripts/buildroot menuconfig
 
 mlinux:
@@ -82,5 +82,5 @@ $(BUILDROOT_INITRAM): scripts/buildroot/.config
 $(INITRAM): $(BUILDROOT_INITRAM) $${@D}
 	mv $^ $@
 
-scripts/buildroot/.config: mbuildroot
-	@
+scripts/buildroot/.config:
+	cp $(BUILDROOT_DEF_CONFIG) $@
