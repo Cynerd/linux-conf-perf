@@ -5,13 +5,6 @@ def pf(rfile):
 	"Relative patch of file is decoded to absolute acording to working tree."
 	return os.path.dirname(os.path.realpath(__file__)) + '/' + rfile
 
-def checkXf(f, message):
-	"Check if file is executable. If not, raise MissingFile exception."
-	if os.path.isfile(f) and os.access(f, os.X_OK):
-		return f
-	else:
-		raise MissingFile(f, message)
-
 # Global configs
 SRCARCH = 'x86' # Kernel architecture
 ARCH = SRCARCH
@@ -40,8 +33,8 @@ buildroot_initram = pf('scripts/buildroot/output/images/rootfs.cpio.gz')
 initram = build_folder + '/initram.gz'
 
 # Programs paths
-parse_kconfig = checkXf(pf('scripts/parse_kconfig/parse'), 'You must build programs first.')
-write_config = checkXf(pf('scripts/write_config/write'), 'You must build programs first.')
+parse_kconfig = pf('scripts/parse_kconfig/parse')
+write_config = pf('scripts/write_config/write')
 
 # Programs output show/hide
 parse_kconfig_output = False
