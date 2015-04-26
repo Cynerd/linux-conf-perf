@@ -20,9 +20,14 @@ help:
 	@echo "run         - Executes loop of kernel building, booting and benchmark execution."
 	@echo "evaluate    - Creating result statistics from generated data."
 	@echo
-	@echo "clean           - Cleans all generated files. Except those in linux and buildroot."
-	@echo "clean_linux     - Executes 'make clean' in linux folder."
-	@echo "clean_buildroot - Executes 'make clean' in buildroot folder."
+	@echo "clean               - Cleans all generated files. Except those in"
+	@echo "                      linux and buildroot."
+	@echo "distclean           - Cleans all configurations and generated files."
+	@echo "                      Including linux and buildroot."
+	@echo "clean_linux         - Executes 'make clean' in linux folder."
+	@echo "distclean_linux     - Executes 'make distclean' in linux folder."
+	@echo "clean_buildroot     - Executes 'make clean' in buildroot folder."
+	@echo "distclean_buildroot - Executes 'make distclean' in buildroot folder."
 
 mbuildroot: scripts/buildroot/.config
 	$(MAKE) -C scripts/buildroot menuconfig
