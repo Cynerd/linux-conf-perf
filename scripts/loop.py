@@ -75,7 +75,7 @@ def loop_term():
 def sigterm_handler(_signo, _stack_frame):
 	loop_term()
 
-def main_loop():
+def loop():
 	global thr
 	thr = mainThread("thred")
 	thr.start()
@@ -88,4 +88,4 @@ def main_loop():
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGTERM, sigterm_handler)
-	main_loop()
+	loop()
