@@ -2,6 +2,9 @@
 
 -include .conf.mk
 
+BENCHMARK_FILES := $(patsubst benchmark/%,scripts/buildroot/system/skeleton/usr/share/benchmark/%,$(shell find benchmark -type f))
+BENCHMARK_FOLDERS := $(shell dirname $(BENCHMARK_FILES))
+
 all: parse_kconfig write_config
 
 help:
@@ -29,7 +32,7 @@ help:
 	@echo "clean_buildroot     - Executes 'make clean' in buildroot folder."
 	@echo "distclean_buildroot - Executes 'make distclean' in buildroot folder."
 
-mbuildroot: scripts/buildroot/.config
+mbuildroot: scripts/buildroot/.config scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf $(BENCHMARK_FILES)
 	$(MAKE) -C scripts/buildroot menuconfig
 
 mlinux:
@@ -51,6 +54,7 @@ clean:
 	@$(MAKE) -C scripts/parse_kconfig/ clean
 	@$(MAKE) -C scripts/write_config/ clean
 	$(RM) -r build
+	$(RM) -r scripts/buildroot/system/skeleton/usr/share/benchmark
 
 distclean: clean distclean_linux distclean_buildroot
 	$(RM) .conf.mk
@@ -84,8 +88,17 @@ write_config:
 $(BUILDROOT_INITRAM): scripts/buildroot/.config
 	@$(MAKE) -C scripts/buildroot
 
+$(INITRAM): $(shell dirname $(INITRAM))
 $(INITRAM): $(BUILDROOT_INITRAM) $${@D}
 	mv $^ $@
 
 scripts/buildroot/.config:
 	cp $(BUILDROOT_DEF_CONFIG) $@
+
+scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf:
+	cp $(BUILDROOT_INITSCRIPT) $@
+	cat $(BUILDROOT_INITTAB_DIRECTIVE) >> scripts/buildroot/system/skeleton/etc/inittab
+
+$(BENCHMARK_FILES): $(BENCHMARK_FOLDERS)
+scripts/buildroot/system/skeleton/usr/share/benchmark/%: benchmark/%
+	cp $< $@

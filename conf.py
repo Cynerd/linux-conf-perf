@@ -9,6 +9,7 @@ def pf(rfile):
 SRCARCH = 'x86' # Kernel architecture
 ARCH = SRCARCH
 linux_make_args = ['-j8']
+novaboot_args = ['--qemu=qemu-system-x86_64']
 
 # Path settings
 dot_confmk = pf('.conf.mk')
@@ -29,16 +30,22 @@ dot_config_back_file = build_folder + '/dot_config_back'
 solution_file = build_folder + '/solution'
 iteration_file = build_folder + '/iteration'
 
-buildroot_def_config = pf('scripts/buildroot.def.config')
+buildroot_def_config = pf('scripts/buildroot_recipe/buildroot.def.config')
+buildroot_inittab_directive = pf('scripts/buildroot_recipe/inittab_directive')
+buildroot_initscript = pf('scripts/buildroot_recipe/linux-conf-perf')
 buildroot_initram = pf('scripts/buildroot/output/images/rootfs.cpio.gz')
-initram = build_folder + '/initram.gz'
+initram = build_folder + '/initram.gz2'
+
+nbscript = pf('scripts/nbscript')
 
 # Programs paths
 parse_kconfig = pf('scripts/parse_kconfig/parse')
 write_config = pf('scripts/write_config/write')
+novaboot = pf('scripts/novaboot/novaboot')
 
 # Programs output show/hide
 parse_kconfig_output = False
 minisat_output = False
 kernel_config_output = True
 kernel_make_output = True
+boot_output = True

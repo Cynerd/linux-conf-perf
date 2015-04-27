@@ -1,0 +1,5 @@
+#!/bin/bash
+
+/usr/share/benchmark/start | sed -e 's/^/lcp-output: /'
+
+poweroff

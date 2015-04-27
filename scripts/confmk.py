@@ -14,8 +14,11 @@ def gen_confmk():
 		f.write("SRCARCH := " + conf.SRCARCH + "\n")
 		f.write("\n")
 		f.write("BUILDROOT_INITRAM := " + conf.buildroot_initram + "\n")
+		f.write("BUILDROOT_INITTAB_DIRECTIVE := " + conf.buildroot_inittab_directive + "\n")
+		f.write("BUILDROOT_INITSCRIPT := " + conf.buildroot_initscript + "\n")
 		f.write("INITRAM := " + conf.initram + "\n")
 		f.write("BUILDROOT_DEF_CONFIG := " + conf.buildroot_def_config + "\n")
+		f.write("\n")
 
 #################################################################################
 
