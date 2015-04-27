@@ -56,6 +56,7 @@ clean:
 	$(RM) -r build
 	$(RM) -r scripts/buildroot/system/skeleton/usr/share/benchmark
 	$(RM) $(INITRAM)
+	$(RM) $(NBSCRIPT)
 
 distclean: clean distclean_linux distclean_buildroot
 	$(RM) .conf.mk

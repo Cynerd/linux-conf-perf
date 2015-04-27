@@ -35,8 +35,6 @@ buildroot_inittab_directive = pf('scripts/buildroot_recipe/inittab_directive')
 buildroot_initscript = pf('scripts/buildroot_recipe/linux-conf-perf')
 buildroot_initram = pf('scripts/buildroot/output/images/rootfs.cpio.gz')
 
-nbscript = pf('scripts/nbscript')
-
 # Programs paths
 parse_kconfig = pf('scripts/parse_kconfig/parse')
 write_config = pf('scripts/write_config/write')
@@ -49,3 +47,5 @@ kernel_config_output = True
 kernel_make_output = True
 boot_output = True
 initram = build_folder + 'initram.gz'
+
+nbscript = 'scripts/nbscript'
