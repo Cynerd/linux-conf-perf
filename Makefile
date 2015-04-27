@@ -42,7 +42,7 @@ deflinux:
 	ARCH=$(SRCARCH) $(MAKE) -C linux defconfig
 
 test: $(INITRAM)
-	@ #TODO
+	scripts/test.py
 
 run: kconfig_parser write_config $(INITRAM)
 	scripts/main_loop.py
