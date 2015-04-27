@@ -29,7 +29,7 @@ def boot():
 			pass
 
 	bench = importlib.machinery.SourceFileLoader("module.name",
-			"../benchmark.py").load_module()
+			sf(conf.benchmark_python)).load_module()
 
 	sprc = subprocess.Popen([sf(conf.novaboot), sf(conf.nbscript)] + conf.novaboot_args,
 			stdout = subprocess.PIPE)
