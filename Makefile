@@ -55,6 +55,7 @@ clean:
 	@$(MAKE) -C scripts/write_config/ clean
 	$(RM) -r build
 	$(RM) -r scripts/buildroot/system/skeleton/usr/share/benchmark
+	$(RM) $(INITRAM)
 
 distclean: clean distclean_linux distclean_buildroot
 	$(RM) .conf.mk
@@ -82,15 +83,18 @@ parse_kconfig:
 write_config:
 	@$(MAKE) -C scripts/write_config/
 
-%:
+scripts/buildroot/system/skeleton/usr/share/%:
+	mkdir -p $@
+
+build:
 	mkdir -p $@
 
 $(BUILDROOT_INITRAM): scripts/buildroot/.config
 	@$(MAKE) -C scripts/buildroot
 
-$(INITRAM): $(shell dirname $(INITRAM))
-$(INITRAM): $(BUILDROOT_INITRAM) $${@D}
-	mv $^ $@
+$(INITRAM): build
+$(INITRAM): $(BUILDROOT_INITRAM)
+	mv $< $@
 
 scripts/buildroot/.config:
 	cp $(BUILDROOT_DEF_CONFIG) $@

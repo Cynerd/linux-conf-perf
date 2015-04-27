@@ -34,7 +34,6 @@ buildroot_def_config = pf('scripts/buildroot_recipe/buildroot.def.config')
 buildroot_inittab_directive = pf('scripts/buildroot_recipe/inittab_directive')
 buildroot_initscript = pf('scripts/buildroot_recipe/linux-conf-perf')
 buildroot_initram = pf('scripts/buildroot/output/images/rootfs.cpio.gz')
-initram = build_folder + '/initram.gz2'
 
 nbscript = pf('scripts/nbscript')
 
@@ -49,3 +48,4 @@ minisat_output = False
 kernel_config_output = True
 kernel_make_output = True
 boot_output = True
+initram = build_folder + 'initram.gz'

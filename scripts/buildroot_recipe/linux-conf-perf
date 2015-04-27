@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 /usr/share/benchmark/start | sed -e 's/^/lcp-output: /'
 
