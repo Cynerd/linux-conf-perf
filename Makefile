@@ -41,7 +41,7 @@ mlinux:
 deflinux:
 	ARCH=$(SRCARCH) $(MAKE) -C linux defconfig
 
-test: $(INITRAM)
+test: $(INITRAM) parse_kconfig
 	scripts/test.py
 
 run: kconfig_parser write_config $(INITRAM)

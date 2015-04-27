@@ -10,6 +10,7 @@ import kernel
 import boot
 
 def test():
+	initialize.parse_kconfig()
 	initialize.gen_requred() # Call this to check initial solution
 	iteration.reset() # Reset iteration
 	conf.kernel_make_output = True
