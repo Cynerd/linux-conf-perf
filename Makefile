@@ -90,7 +90,7 @@ scripts/buildroot/system/skeleton/usr/share/%:
 build:
 	mkdir -p $@
 
-$(BUILDROOT_INITRAM): scripts/buildroot/.config
+$(BUILDROOT_INITRAM): scripts/buildroot/.config scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf $(BENCHMARK_FILES)
 	@$(MAKE) -C scripts/buildroot
 
 $(INITRAM): build
