@@ -1,6 +1,7 @@
 import os
 import sys
 from conf import conf
+from conf import sf
 from exceptions import MissingFile
 
 def build_symbol_map():
@@ -12,11 +13,11 @@ def build_symbol_map():
 		smap
 	except NameError:
 		# Check if symbol_map_file exist
-		if not os.path.isfile(conf.symbol_map_file):
-			raise MissingFile(conf.symbol_map_file, "Run parse_kconfig to generate it.")
+		if not os.path.isfile(sf(conf.symbol_map_file)):
+			raise MissingFile(sf(conf.symbol_map_file), "Run parse_kconfig to generate it.")
 
 		smap = dict()
-		with open(conf.symbol_map_file) as f:
+		with open(sf(conf.symbol_map_file)) as f:
 			for lnn in f:
 				w = lnn.rstrip().split(sep=':')
 				smap[w[0]] = w[1]

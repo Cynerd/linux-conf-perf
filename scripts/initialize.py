@@ -5,41 +5,42 @@ import shutil
 
 import utils
 from conf import conf
+from conf import sf
 from exceptions import MissingFile
 
 def parse_kconfig():
 	"Execute parse_kconfig in linux_sources directory."
 	env = dict(os.environ)
 	wd = os.getcwd()
-	os.chdir(conf.linux_sources)
+	os.chdir(sf(conf.linux_sources))
 	if conf.parse_kconfig_output:
-		subprocess.call([conf.parse_kconfig, conf.linux_kconfig_head, conf.build_folder, "-v", "-v"], env=utils.get_kernel_env())
+		subprocess.call([sf(conf.parse_kconfig), sf(conf.linux_kconfig_head), sf(conf.build_folder), "-v", "-v"], env=utils.get_kernel_env())
 	else:
-		subprocess.call([conf.parse_kconfig, conf.linux_kconfig_head, conf.build_folder], env=utils.get_kernel_env())
+		subprocess.call([sf(conf.parse_kconfig), sf(conf.linux_kconfig_head), sf(conf.build_folder)], env=utils.get_kernel_env())
 
 	os.chdir(wd)
 
 def gen_requred():
 	"Generates required depenpency from .config file in linux source tree."
 
-	if not os.path.isfile(conf.linux_sources + '/.config'):
-		raise MissingFile(conf.linux_sources + '/.config',
+	if not os.path.isfile(sf(conf.linux_dot_config)):
+		raise MissingFile(sf(conf.linux_dot_config),
 				'Generate initial configuration. Execute make defconfig in linux folder. Or use make menuconfig and change configuration.')
 
 	utils.build_symbol_map() # Ensure smap existence
 	srmap = {value:key for key, value in utils.smap.items()}
 
 	try:
-		os.remove(conf.required_file)
-		os.remove(conf.dot_config_fragment_file)
+		os.remove(sf(conf.required_file))
+		os.remove(sf(conf.dot_config_fragment_file))
 	except OSError:
 		pass
 
-	shutil.copy(conf.linux_dot_config, conf.dot_config_back_file)
+	shutil.copy(sf(conf.linux_dot_config), sf(conf.dot_config_back_file))
 
-	with open(conf.linux_sources + '/.config', 'r') as f:
-		with open(conf.required_file, 'w') as freq:
-			with open(conf.dot_config_fragment_file, 'w') as fconf:
+	with open(sf(conf.linux_dot_config), 'r') as f:
+		with open(sf(conf.required_file), 'w') as freq:
+			with open(sf(conf.dot_config_fragment_file), 'w') as fconf:
 				for line in f:
 					if (line[0] == '#') or (not '=' in line):
 						continue

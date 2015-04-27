@@ -2,6 +2,7 @@ import os
 import sys
 
 from conf import conf
+from conf import sf
 
 phases = ("Not Initialized",		#0
 		  "Initializing",			#1
@@ -18,7 +19,7 @@ phases = ("Not Initialized",		#0
 
 def get():
 	try:
-		with open(conf.phase_file) as f:
+		with open(sf(conf.phase_file)) as f:
 			txtPhase = f.readline().rstrip()
 		if not txtPhase in phases:
 			raise PhaseMismatch()
@@ -27,7 +28,7 @@ def get():
 		return 0
 	
 def set(phs):
-	with open(conf.phase_file, 'w') as f:
+	with open(sf(conf.phase_file), 'w') as f:
 		f.write(phases[phs])
 
 def pset(str):
