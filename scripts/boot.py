@@ -44,7 +44,7 @@ def boot():
 	data = bench.stdoutput(output)
 
 	iteration = 0
-	with open(sf(conf.iteration_file), 'a') as f:
+	with open(sf(conf.iteration_file), 'r') as f:
 		iteration = int(f.readline())
 
 	for key, val in data.items():
