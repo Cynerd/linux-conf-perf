@@ -11,7 +11,7 @@ novaboot_args = ['--qemu=qemu-system-x86_64']
 parse_kconfig_output = False
 minisat_output = False
 kernel_config_output = True
-kernel_make_output = True
+kernel_make_output = False
 boot_output = False
 
 #######################################
