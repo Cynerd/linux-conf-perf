@@ -8,4 +8,3 @@ conf = importlib.machinery.SourceFileLoader("module.name", confpy).load_module()
 
 def sf(path):
 	return os.path.join(os.path.relpath(conf.absroot), path)
-	return '../' + path
