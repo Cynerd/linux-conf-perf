@@ -81,8 +81,8 @@ def apply():
 	# Write solution to output_confs file
 	with open(sf(conf.output_confs), 'a') as f:
 		iteration = 0
-		with open(sf(conf.iteration_file)) as f:
-			iteration = int(f.readline)
+		with open(sf(conf.iteration_file)) as ff:
+			iteration = int(ff.readline())
 		f.write(str(iteration) + ':')
 		for txt in solut:
 			f.write(txt + ' ')
