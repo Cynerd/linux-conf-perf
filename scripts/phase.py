@@ -14,7 +14,9 @@ phases = ("Not Initialized",		#0
 		  "Kernel configuration",	#7
 		  "Kernel configured",		#8
 		  "Kernel build",			#9
-		  "Kernel built"			#10
+		  "Kernel built",			#10
+		  "System boot",			#11
+		  "Benchmark successful"	#12
 		  )
 
 def get():

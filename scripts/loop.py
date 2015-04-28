@@ -12,6 +12,7 @@ import solution
 import kernel
 from exceptions import MissingFile
 import iteration
+import boot
 
 def step():
 	phs = phase.get()
@@ -58,6 +59,13 @@ def step():
 		phase.set(10)
 	elif phs == 10:
 		phase.message(10)
+		phase.set(11)
+	elif phs == 11:
+		phase.message(11)
+		boot.boot()
+		phase.set(12)
+	elif phs == 12:
+		phase.message(12)
 		phase.set(2)
 
 class mainThread(Thread):
