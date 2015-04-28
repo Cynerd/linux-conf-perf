@@ -14,6 +14,7 @@ kernel_config_output = True
 kernel_make_output = False
 boot_output = False
 
+step_by_step = True
 #######################################
 # Path settings
 dot_confmk = '.conf.mk'

@@ -122,9 +122,11 @@ class mainThread(Thread):
 		Thread.__init__(self, name=name)
 		self.term = False
 	def run(self):
-		while not self.term:
+		if conf.step_by_step:
 			step()
-	
+		else:
+			while not self.term:
+				step()
 
 def loop_term():
 	global thr
