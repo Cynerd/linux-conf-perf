@@ -44,8 +44,8 @@ deflinux:
 test: $(INITRAM) parse_kconfig
 	scripts/test.py
 
-run: kconfig_parser write_config $(INITRAM)
-	scripts/main_loop.py
+run: parse_kconfig write_config $(INITRAM)
+	scripts/loop.py
 
 evaluate:
 	@ #TODO
@@ -95,7 +95,7 @@ $(BUILDROOT_INITRAM): scripts/buildroot/.config scripts/buildroot/system/skeleto
 
 $(INITRAM): build
 $(INITRAM): $(BUILDROOT_INITRAM)
-	mv $< $@
+	cp $< $@
 
 scripts/buildroot/.config:
 	cp $(BUILDROOT_DEF_CONFIG) $@
