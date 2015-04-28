@@ -6,68 +6,117 @@ import signal
 from threading import Thread
 
 from conf import conf
+from conf import sf
 import initialize
-import phase
 import solution
 import kernel
-from exceptions import MissingFile
-import iteration
 import boot
+from exceptions import MissingFile
 
 def step():
-	phs = phase.get()
+	phs = phase_get()
 	if phs == 0:
 		try:
 			os.mkdir(conf.build_folder)
 		except FileExistsError:
 			pass
-		phase.set(1)
+		phase_set(1)
 	elif phs == 1:
-		phase.message(1)
+		phase_message(1)
 		initialize.parse_kconfig()
 		initialize.gen_requred()
-		iteration.reset()
-		phase.set(2)
+		iteration_reset()
+		phase_set(2)
 	elif phs == 2:
-		phase.message(2)
-		phase.set(3)
+		phase_message(2)
+		phase_set(3)
 	elif phs == 3:
-		phase.message(3)
+		phase_message(3)
 		solution.generate()
-		iteration.inc()
-		phase.set(4)
+		iteration_inc()
+		phase_set(4)
 	elif phs == 4:
-		phase.message(4)
-		phase.set(5)
+		phase_message(4)
+		phase_set(5)
 	elif phs == 5:
-		phase.message(5)
+		phase_message(5)
 		solution.apply()
-		phase.set(6)
+		phase_set(6)
 	elif phs == 6:
-		phase.message(6)
-		phase.set(7)
+		phase_message(6)
+		phase_set(7)
 	elif phs == 7:
-		phase.message(7)
+		phase_message(7)
 		kernel.config()
-		phase.set(8)
+		phase_set(8)
 	elif phs == 8:
-		phase.message(8)
-		phase.set(9)
+		phase_message(8)
+		phase_set(9)
 	elif phs == 9:
-		phase.message(9)
+		phase_message(9)
 		kernel.make()
-		phase.set(10)
+		phase_set(10)
 	elif phs == 10:
-		phase.message(10)
-		phase.set(11)
+		phase_message(10)
+		phase_set(11)
 	elif phs == 11:
-		phase.message(11)
+		phase_message(11)
 		boot.boot()
-		phase.set(12)
+		phase_set(12)
 	elif phs == 12:
-		phase.message(12)
-		phase.set(2)
+		phase_message(12)
+		phase_set(2)
 
+# Phase #
+phases = ("Not Initialized",		#0
+		  "Initializing",			#1
+		  "Initialized",			#2
+		  "Solution generating",	#3
+		  "Solution generated",		#4
+		  "Solution applying",		#5
+		  "Solution applied",		#6
+		  "Kernel configuration",	#7
+		  "Kernel configured",		#8
+		  "Kernel build",			#9
+		  "Kernel built",			#10
+		  "System boot",			#11
+		  "Benchmark successful"	#12
+		  )
+
+def phase_get():
+	try:
+		with open(sf(conf.phase_file)) as f:
+			txtPhase = f.readline().rstrip()
+		if not txtPhase in phases:
+			raise PhaseMismatch()
+		return phases.index(txtPhase)
+	except FileNotFoundError:
+		return 0
+
+def phase_set(phs):
+	global thr
+	if thr.term:
+		return
+	with open(sf(conf.phase_file), 'w') as f:
+		f.write(phases[phs])
+
+def phase_message(phs):
+	"Prints message signaling running phase_"
+	print("-- " + phases[phs])
+
+# Iteration #
+def iteration_reset():
+	with open(sf(conf.iteration_file), 'w') as f:
+		f.write('0')
+
+def iteration_inc():
+	with open(sf(conf.iteration_file), 'r') as f:
+		it = int(f.readline())
+	it += 1
+	with open(sf(conf.iteration_file), 'w') as f:
+		f.write(str(it))
+
+# Thread #
 class mainThread(Thread):
 	def __init__(self, name):
 		Thread.__init__(self, name=name)
@@ -76,6 +125,7 @@ class mainThread(Thread):
 		while not self.term:
 			step()
 	
+
 def loop_term():
 	global thr
 	thr.term = True
