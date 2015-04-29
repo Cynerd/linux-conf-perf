@@ -8,7 +8,7 @@
 struct symlist_el {
     unsigned int id;
     char *name;
-    bool prompt;
+    bool prompt, def;
     struct cnfexpr *be;
     struct cnfexpr *re_be; // forward dependency
 };

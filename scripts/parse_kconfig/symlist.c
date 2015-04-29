@@ -19,6 +19,7 @@ void symlist_add(struct symlist *sl, char *name) {
     sl->array[sl->pos].name = name;
     sl->array[sl->pos].be = NULL;
     sl->array[sl->pos].prompt = false;
+    sl->array[sl->pos].def = true;
     sl->pos++;
 }
 

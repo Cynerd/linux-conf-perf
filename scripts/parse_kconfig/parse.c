@@ -81,6 +81,10 @@ void build_symlist() {
             gsymlist->array[gsymlist->pos - 1].prompt = true;
             break;
         }
+        for_all_defaults(sym, prop) {
+            gsymlist->array[gsymlist->pos - 1].def = true;
+            break;
+        }
     }
 }
 
@@ -97,7 +101,7 @@ void cpy_dep() {
                 if (verbose_level > 3)
                     printf_original(gsymlist, sym->dir_dep.expr);
                 el->be =
-                    kconfig_cnfexpr(gsymlist, false, sym,
+                    kconfig_cnfexpr(gsymlist, false, el->def, sym,
                                     sym->dir_dep.expr);
                 Iprintf("Direct:\n");
                 if (verbose_level > 2)
@@ -108,7 +112,7 @@ void cpy_dep() {
                 if (verbose_level > 3)
                     printf_original(gsymlist, sym->rev_dep.expr);
                 el->re_be =
-                    kconfig_cnfexpr(gsymlist, true, sym,
+                    kconfig_cnfexpr(gsymlist, true, el->def, sym,
                                     sym->rev_dep.expr);
                 Iprintf("Revers:\n");
                 if (verbose_level > 2)

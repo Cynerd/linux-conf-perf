@@ -9,7 +9,7 @@ struct cnfexpr *cnf_not(struct cnfexpr *el);
 struct cnfexpr *cnf_copy(struct cnfexpr *el);
 void free_cnf(struct cnfexpr *e);
 
-struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, bool nt,
+struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, bool nt, bool def,
                                 struct symbol *sym, struct expr *expr) {
     struct stck {
         struct expr *expr;
@@ -94,7 +94,7 @@ struct cnfexpr *kconfig_cnfexpr(struct symlist *sl, bool nt,
     free(stack);
 
     struct symlist_el *se = symlist_find(sl, sym->name);
-    if (se->prompt || nt == true)
+    if (se->prompt || (nt == true && def == true))
         rtrn = cnf_or(cnf_sym(sl, !nt, sym), rtrn);
     else {
         struct cnfexpr *w12 = cnf_not(cnf_copy(rtrn));
