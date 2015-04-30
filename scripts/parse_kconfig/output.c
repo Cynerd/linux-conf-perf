@@ -1,61 +1,134 @@
 #include "output.h"
 
-void fprint_rules_cnf(FILE * f, struct cnfexpr *cnf) {
-    unsigned i, y;
-    switch (cnf->type) {
-    case CT_FALSE:
-        // Never satisfiable
-        // This should newer happen
-        fprintf(stderr,
-                "ERROR: Some rule is not satisfiable. But this should never happen.\n");
-        exit(28);
-    case CT_TRUE:
-        // Always satisfiable
-        break;
-    case CT_EXPR:
-        for (i = 0; i < cnf->size; i++) {
-            for (y = 0; y < cnf->sizes[i] - 1; y++) {
-                fprintf(f, "%d ", cnf->exprs[i][y]);
-            }
-            fprintf(f, "%d\n", cnf->exprs[i][cnf->sizes[i] - 1]);
-        }
-        break;
-    }
+FILE *frules, *fsymmap;
+
+int output_init(char *rules_file, char *symbolmap_file) {
+    if ((frules = fopen(rules_file, "w")) == NULL)
+        return 1;
+    if ((fsymmap = fopen(symbolmap_file, "w")) == NULL)
+        return 2;
+    return 0;
 }
 
-void fprint_rules(struct symlist *sl, char *output) {
-    FILE *f;
-    f = fopen(output, "w");
-    if (f == NULL) {
-        fprintf(stderr, "Can't create file: %s\n", output);
-        return;
-    }
-    size_t i;
-    struct symlist_el *el;
-    for (i = 0; i < sl->pos; i++) {
-        if (sl->array[i].be != NULL) {
-            el = sl->array + i;
-            if (el->be != NULL) {
-                fprint_rules_cnf(f, el->be);
-            }
-            if (el->re_be != NULL) {
-                fprint_rules_cnf(f, el->re_be);
-            }
-        }
-    }
-    fclose(f);
+void output_finish(void) {
+    fclose(frules);
+    fclose(fsymmap);
 }
 
-void fprint_symbol_map(struct symlist *sl, char *output) {
-    FILE *f;
-    f = fopen(output, "w");
-    if (f == NULL) {
-        fprintf(stderr, "Can't create file: %s\n", output);
+
+// Functions for symbol_map
+void output_push_symbol(int id, char *name) {
+    fprintf(fsymmap, "%d:%s\n", id, name);
+}
+
+// Functions for rules
+struct output_expr *output_rules_newexpr(void) {
+    struct output_expr *rtn;
+    rtn = malloc(sizeof(struct output_expr));
+    rtn->terms_size = 1;
+    rtn->terms_pos = 0;
+    rtn->terms = malloc(rtn->terms_size * sizeof(int *));
+    rtn->terms_sizes = malloc(rtn->terms_size * sizeof(size_t));
+
+    rtn->w_term_size = 1;
+    rtn->w_term_pos = 0;
+    rtn->w_term = malloc(rtn->w_term_size * sizeof(int));
+
+    return rtn;
+}
+
+void output_rules_symbol(struct output_expr *ex, int id) {
+    if (++(ex->w_term_pos) >= ex->w_term_size) {
+        ex->w_term_size *= 2;
+        ex->w_term = realloc(ex->w_term, ex->w_term_size * sizeof(int));
+    }
+    ex->w_term[ex->w_term_pos - 1] = id;
+}
+
+void output_rules_endterm(struct output_expr *ex) {
+    if (ex->w_term_pos <= 0)
         return;
+    if (++(ex->terms_pos) >= ex->terms_size) {
+        ex->terms_size *= 2;
+        ex->terms = realloc(ex->terms, ex->terms_size * sizeof(int *));
+        ex->terms_sizes =
+            realloc(ex->terms_sizes, ex->terms_size * sizeof(size_t));
     }
+    ex->terms_sizes[ex->terms_pos - 1] = ex->w_term_pos;
+    ex->terms[ex->terms_pos - 1] = malloc(ex->w_term_pos * sizeof(int));
+    memcpy(ex->terms[ex->terms_pos - 1], ex->w_term,
+           ex->w_term_pos * sizeof(int));
+    ex->w_term_pos = 0;
+}
+
+struct output_expr *output_rules_joinexpr(struct output_expr *ex1,
+                                          struct output_expr *ex2) {
+    if (ex1 == NULL)
+        if (ex2 == NULL)
+            return NULL;
+        else
+            return ex2;
+    if (ex2 == NULL)
+        return ex1;
+
+    if ((ex1->terms_pos + ex2->terms_pos) >= ex1->terms_size) {
+        ex1->terms_size += ex2->terms_pos;
+        ex1->terms = realloc(ex1->terms, ex1->terms_size * sizeof(int *));
+        ex1->terms_sizes =
+            realloc(ex1->terms_sizes, ex1->terms_size * sizeof(size_t));
+    }
+    memcpy(ex1->terms + ex1->terms_pos - 1, ex2->terms,
+           ex2->terms_pos * sizeof(int *));
+    memcpy(ex1->terms_sizes + ex1->terms_size - 1, ex2->terms_sizes,
+           ex2->terms_pos * sizeof(size_t));
+    ex1->terms_pos += ex2->terms_pos;
+
+    ex1->w_term_pos = 0;
+    free(ex2->terms);
+    free(ex2->terms_sizes);
+    free(ex2);
+    return ex1;
+}
+
+struct output_expr *output_rules_copycnf(struct output_expr *ex) {
+    struct output_expr *rtn;
+    rtn = malloc(sizeof(struct output_expr));
+    rtn->terms_size = ex->terms_size;
+    rtn->terms_pos = ex->terms_pos;
+    rtn->terms_sizes = malloc(rtn->terms_size * sizeof(size_t));
+    memcpy(rtn->terms_sizes, ex->terms_sizes,
+           rtn->terms_size * sizeof(size_t));
+    rtn->terms = malloc(rtn->terms_size * sizeof(int *));
     size_t i;
-    for (i = 0; i < sl->pos; i++) {
-        fprintf(f, "%d:%s\n", sl->array[i].id, sl->array[i].name);
+    for (i = 0; i < rtn->terms_pos; i++) {
+        rtn->terms[i] = malloc(ex->terms_sizes[i] * sizeof(int));
+        memcpy(rtn->terms[i], ex->terms[i],
+               ex->terms_sizes[i] * sizeof(int));
     }
-    fclose(f);
+
+    ex->w_term_size = 1;
+    ex->w_term_pos = 0;
+    ex->w_term = malloc(ex->w_term_size * sizeof(int));
+    return rtn;
+}
+
+void output_rules_freexpr(struct output_expr *ex) {
+    size_t i;
+    for (i = 0; i < ex->terms_pos; i++) {
+        free(ex->terms[i]);
+    }
+    free(ex->terms);
+    free(ex->terms_sizes);
+    free(ex->w_term);
+    free(ex);
+}
+
+void output_rules_writexpr(struct output_expr *ex) {
+    size_t i, y;
+    for (i = 0; i < ex->terms_pos; i++) {
+        for (y = 0; y < ex->terms_sizes[i]; y++) {
+            fprintf(frules, "%d ", ex->terms[i][y]);
+        }
+        fprintf(frules, "\n");
+    }
 }
