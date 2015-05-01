@@ -15,6 +15,7 @@ struct symlist_el {
 struct symlist {
     struct symlist_el *array;
     size_t size;
+    unsigned maxid;
 };
 
 struct symlist *symlist_read(FILE *f);

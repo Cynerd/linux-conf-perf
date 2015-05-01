@@ -1,6 +1,6 @@
 #include "solution.h"
 
-void solution_set(struct symlist *sl, FILE * f) {
+void solution_check(struct symlist *sl, FILE * f) {
     int c;
     // skip first line
     do
@@ -22,6 +22,8 @@ void solution_set(struct symlist *sl, FILE * f) {
                 ww = w + 1;
             }
             int id = atoi(ww);
+            if ((unsigned) id > sl->maxid)
+                break;
             if (id == 0)
                 continue;
             if (sl->array[id - 1].sym == NULL)

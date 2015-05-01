@@ -8,6 +8,6 @@
 #ifndef _SOLUTION_H_
 #define _SOLUTION_H_
 
-void solution_set(struct symlist *sl, FILE * f);
+void solution_check(struct symlist *sl, FILE * f);
 
 #endif /* _SOLUTION_H_ */

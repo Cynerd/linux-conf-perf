@@ -6,6 +6,7 @@ struct symlist *symlist_read(FILE * f) {
     struct symlist *ret;
     ret = malloc(sizeof(struct symlist));
     ret->size = 1;
+    ret->maxid = 0;
     ret->array = malloc(ret->size * sizeof(struct symlist_el));
 
     unsigned int id;
@@ -24,6 +25,8 @@ struct symlist *symlist_read(FILE * f) {
                     realloc(ret->array,
                             ret->size * sizeof(struct symlist_el));
             }
+            if (id > ret->maxid)
+                ret->maxid = id;
             ret->array[(size_t) id - 1].id = id;
             if (!strncmp(w, NONAMEGEN, strlen(NONAMEGEN)))
                 ret->array[(size_t) id - 1].sym = NULL;

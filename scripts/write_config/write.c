@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
         Eprintf("Can't open file: %s\n", solution_file);
         exit(2);
     }
-    solution_set(sl, f);
+    solution_check(sl, f);
     fclose(f);
 
     conf_write(".config");
