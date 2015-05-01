@@ -7,5 +7,5 @@ extern int verbose_level; // Must be defined in project
 #ifndef DEBUG
 #define Dprintf(...)
 #else
-#define Dprintf(...) if (verbose_level > 3) printf(a, __VA_ARGS__)
+#define Dprintf(...) if (verbose_level > 3) printf(__VA_ARGS__)
 #endif /* DEBUG */
