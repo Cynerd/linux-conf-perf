@@ -103,8 +103,12 @@ void cpy_dep() {
             el_id = symlist_id(gsymlist, sym->name);
             el = &(gsymlist->array[el_id - 1]);
             Iprintf("Processing: %s\n", sym->name);
+            if (el->prompt)
+                Dprintf("Is prompt\n");
 
             for_all_defaults(sym, prop) {
+                Dprintf(" Default value:\n");
+                doutput_expr(prop->expr);
                 struct boolexpr *def =
                     boolexpr_kconfig(gsymlist, prop->expr);
                 if (el->def == NULL) {
@@ -112,22 +116,20 @@ void cpy_dep() {
                 } else {
                     el->def = boolexpr_or(el->def, def);
                 }
-                Dprintf(" Default value:\n");
-                doutput_expr(prop->expr);
             }
             if (el->def == NULL)
                 el->def = boolexpr_false();
             if (sym->dir_dep.expr != NULL) {
-                el->dep = boolexpr_kconfig(gsymlist, sym->dir_dep.expr);
                 Dprintf(" Dependency:\n");
                 doutput_expr(sym->dir_dep.expr);
+                el->dep = boolexpr_kconfig(gsymlist, sym->dir_dep.expr);
             } else
                 el->dep = boolexpr_true();
             if (sym->rev_dep.expr != NULL) {
-                el->rev_dep =
-                    boolexpr_kconfig(gsymlist, sym->rev_dep.expr);
                 Dprintf(" Reverse dependency:\n");
                 doutput_expr(sym->rev_dep.expr);
+                el->rev_dep =
+                    boolexpr_kconfig(gsymlist, sym->rev_dep.expr);
             } else
                 el->rev_dep = boolexpr_false();
 
