@@ -164,6 +164,17 @@ void cpy_dep() {
                 pw = boolexpr_and(pw, w4);
             }
             cnf_boolexpr(gsymlist, pw);
+            switch (pw->type) {
+            case BT_TRUE:
+                break;
+            case BT_FALSE:
+                Eprintf
+                    ("E: Root terms is false. This shouldn't happen.\n");
+                break;
+            default:
+                output_rules_symbol((int) pw->id);
+                output_rules_endterm();
+            }
             boolexpr_free(pw);
         }
     }
