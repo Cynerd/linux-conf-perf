@@ -10,6 +10,7 @@
 #include "symlist.h"
 #include "output.h"
 #include "macros.h"
+#include "doutput.h"
 
 int verbose_level;
 char *file, *folder;
@@ -57,13 +58,15 @@ int main(int argc, char **argv) {
     char *rules_file, *symbol_map_file, *variable_count_file;
     asprintf(&rules_file, "%s/%s", folder, DEFAULT_RULES_FILE);
     asprintf(&symbol_map_file, "%s/%s", folder, DEFAULT_SYMBOL_MAP_FILE);
-    asprintf(&variable_count_file, "%s/%s", folder, DEFAULT_VARIABLE_COUNT_FILE);
+    asprintf(&variable_count_file, "%s/%s", folder,
+             DEFAULT_VARIABLE_COUNT_FILE);
     output_init(rules_file, symbol_map_file);
 
     build_symlist();
     cpy_dep();
 
-    output_write_variable_count(variable_count_file, gsymlist->lastsym - 1);
+    output_write_variable_count(variable_count_file,
+                                gsymlist->lastsym - 1);
 
     output_finish();
     return 0;
@@ -99,6 +102,7 @@ void cpy_dep() {
         if ((sym->type == S_BOOLEAN || sym->type == S_TRISTATE)) {
             el_id = symlist_id(gsymlist, sym->name);
             el = &(gsymlist->array[el_id - 1]);
+            Iprintf("Processing: %s\n", sym->name);
 
             for_all_defaults(sym, prop) {
                 struct boolexpr *def =
@@ -108,21 +112,26 @@ void cpy_dep() {
                 } else {
                     el->def = boolexpr_or(el->def, def);
                 }
+                Dprintf(" Default value:\n");
+                doutput_expr(prop->expr);
             }
             if (el->def == NULL)
                 el->def = boolexpr_false();
-            if (sym->dir_dep.expr != NULL)
+            if (sym->dir_dep.expr != NULL) {
                 el->dep = boolexpr_kconfig(gsymlist, sym->dir_dep.expr);
-            else
+                Dprintf(" Dependency:\n");
+                doutput_expr(sym->dir_dep.expr);
+            } else
                 el->dep = boolexpr_true();
-            if (sym->rev_dep.expr != NULL)
+            if (sym->rev_dep.expr != NULL) {
                 el->rev_dep =
                     boolexpr_kconfig(gsymlist, sym->rev_dep.expr);
-            else
+                Dprintf(" Reverse dependency:\n");
+                doutput_expr(sym->rev_dep.expr);
+            } else
                 el->rev_dep = boolexpr_false();
 
             struct boolexpr *pw;
-            Iprintf("Workig: %s\n", sym->name);
             struct boolexpr *boolsym = boolexpr_sym(gsymlist, sym);
             boolexpr_copy(boolsym);
             struct boolexpr *boolsym_not = boolexpr_not(boolsym);
