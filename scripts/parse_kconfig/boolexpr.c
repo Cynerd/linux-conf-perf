@@ -212,22 +212,25 @@ struct boolexpr *boolexpr_and(struct boolexpr *e1, struct boolexpr *e2) {
 }
 
 struct boolexpr *boolexpr_not(struct boolexpr *e) {
-    switch (e->type) {
-    case BT_FALSE:
-        e->type = BT_TRUE;
-        return e;
-    case BT_TRUE:
-        e->type = BT_FALSE;
-        return e;
-    default:
-        break;
-    }
     struct boolexpr *rtn;
     rtn = malloc(sizeof(struct boolexpr));
-    rtn->type = BT_NOT;
     rtn->overusage = 0;
     rtn->id = 0;
-    rtn->left = e;
+
+    switch (e->type) {
+    case BT_FALSE:
+        rtn->type = BT_TRUE;
+        boolexpr_free(e);
+        break;
+    case BT_TRUE:
+        rtn->type = BT_FALSE;
+        boolexpr_free(e);
+        break;
+    default:
+        rtn->type = BT_NOT;
+        rtn->left = e;
+        break;
+    }
     return rtn;
 }
 
