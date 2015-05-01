@@ -41,13 +41,11 @@ def generate():
 			if ln not in lines:
 				lines.add(ln)
 
-	with open(sf(conf.symbol_map_file)) as f:
-		for var_num, l in enumerate(f):
-			pass
-		var_num += 1
+	with open(sf(conf.variable_count_file)) as f:
+		var_num = f.readline()
 	lines_count = len(lines)
 
-	first_line = "p cnf " + str(var_num) + " " + str(lines_count)
+	first_line = "p cnf " + var_num + " " + str(lines_count)
 	w_file.write(bytes(first_line + '\n', 'UTF-8'))
 	for ln in lines:
 		w_file.write(bytes(ln + ' 0\n', 'UTF-8'))
@@ -100,6 +98,10 @@ def apply():
 			f.write( ntx + txt + " ")
 		f.write("\n")
 
+	with open(sf(conf.symbol_map_file)) as f:
+		for var_num, l in enumerate(f):
+			pass
+		var_num += 1
 	# Write solution to .config file in linux source folder
 	with open(sf(conf.linux_dot_config), 'w') as f:
 		for txt in solut:
@@ -108,6 +110,8 @@ def apply():
 				txt = txt[1:]
 			else:
 				nt = False
+			if int(txt) >= var_num:
+				break;
 			if 'NONAMEGEN' in utils.smap[txt]: # ignore generated names
 				continue
 
