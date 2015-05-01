@@ -6,6 +6,7 @@
 #include <libintl.h>
 
 #include <kconfig/lkc.h>
+#include "boolexpr.h"
 #include "symlist.h"
 #include "output.h"
 #include "macros.h"
@@ -53,19 +54,25 @@ int main(int argc, char **argv) {
 
     gsymlist = symlist_create();
 
-    char *rules_file, *symbol_map_file;
+    char *rules_file, *symbol_map_file, *variable_count_file;
     asprintf(&rules_file, "%s/%s", folder, DEFAULT_RULES_FILE);
     asprintf(&symbol_map_file, "%s/%s", folder, DEFAULT_SYMBOL_MAP_FILE);
+    asprintf(&variable_count_file, "%s/%s", folder, DEFAULT_VARIABLE_COUNT_FILE);
     output_init(rules_file, symbol_map_file);
 
     build_symlist();
+    cpy_dep();
 
+    output_write_variable_count(variable_count_file, gsymlist->lastsym - 1);
+
+    output_finish();
     return 0;
 }
 
 void build_symlist() {
     int i;
     struct symbol *sym;
+    struct property *prop;
     for_all_symbols(i, sym) {
         if (sym->type == S_BOOLEAN || sym->type == S_TRISTATE) {
             if (sym->name == NULL) {
@@ -74,17 +81,18 @@ void build_symlist() {
             }
             symlist_add(gsymlist, sym->name);
         }
-        struct property *prop;
         for_all_prompts(sym, prop) {
             gsymlist->array[gsymlist->pos - 1].prompt = true;
             break;
         }
     }
+    symlist_closesym(gsymlist);
 }
 
 void cpy_dep() {
     int i;
     struct symbol *sym;
+    struct property *prop;
     struct symlist_el *el;
     unsigned el_id;
     for_all_symbols(i, sym) {
@@ -93,56 +101,59 @@ void cpy_dep() {
             el = &(gsymlist->array[el_id - 1]);
 
             for_all_defaults(sym, prop) {
-                gsymlist->array[gsymlist->pos - 1].def = true;
-                struct cnfexpr *def =
-                    kconfig_cnfexpr(gsymlist, prop->expr);
+                struct boolexpr *def =
+                    boolexpr_kconfig(gsymlist, prop->expr);
                 if (el->def == NULL) {
-                    gsymlist->array[gsymlist->pos - 1].def = def;
+                    el->def = def;
                 } else {
-                    gsymlist->array[gsymlist->pos - 1].def =
-                        cnfexpr_or(gsymlist,
-                                   gsymlist->array[gsymlist->pos - 1].def,
-                                   def);
+                    el->def = boolexpr_or(el->def, def);
                 }
             }
             if (el->def == NULL)
-                el->cnfexpr_false(gsymlist);
+                el->def = boolexpr_false();
             if (sym->dir_dep.expr != NULL)
-                el->dep = kconfig_cnfexpr(gsymlist, sym->dir_dep.expr);
+                el->dep = boolexpr_kconfig(gsymlist, sym->dir_dep.expr);
             else
-                el->dep = cnfexpr_true(gsymlist);
+                el->dep = boolexpr_true();
             if (sym->rev_dep.expr != NULL)
-                el->re_be = kconfig_cnfexpr(gsymlist, sym->rev_dep.expr);
+                el->rev_dep =
+                    boolexpr_kconfig(gsymlist, sym->rev_dep.expr);
             else
-                el->rev_dep = cnfexpr_false(gsymlist);
+                el->rev_dep = boolexpr_false();
 
-            if (el->prompt) {
-                struct cnfexpr *pw =
-                    cnfexpr_and(gsymlist,
-                                cnfexpr_or(gsymlist,
-                                           cnfexpr_not(gsymlist,
-                                                       cnfexpr_sym
-                                                       (gsymlist,
-                                                        sym->name)),
-                                           el->dep), cnfexpr_or(gsymlist,
-                                                                cnfexpr_not
-                                                                (gsymlist,
-                                                                 el->
-                                                                 rev_dep),
-                                                                cnfexpr_sym
-                                                                (gsymlist,
-                                                                 sym->
-                                                                 name)));
-                switch (pw->type) {
-                    case CT_EXPR:
-                        break;
-                    case CT_TRUE:
-                        break;
-                    case CT_FALSE:
-                        break;
-                }
-            } else {
+            struct boolexpr *pw;
+            Iprintf("Workig: %s\n", sym->name);
+            struct boolexpr *boolsym = boolexpr_sym(gsymlist, sym);
+            boolexpr_copy(boolsym);
+            struct boolexpr *boolsym_not = boolexpr_not(boolsym);
+            if (!el->prompt) {
+                boolexpr_copy(boolsym);
+                boolexpr_copy(boolsym_not);
+                boolexpr_copy(el->def);
+                boolexpr_copy(el->dep);
+                boolexpr_copy(el->rev_dep);
             }
+            // (!sym || dep) && (sym || !rev_dep)
+            struct boolexpr *w1 = boolexpr_or(boolsym_not, el->dep);
+            struct boolexpr *w2 =
+                boolexpr_or(boolsym, boolexpr_not(el->rev_dep));
+            pw = boolexpr_and(w1, w2);
+
+            if (!el->prompt) {
+                // && (sym || !dep || !def) &&
+                // (!sym || rev_dep || def)
+                struct boolexpr *w31 =
+                    boolexpr_or(boolsym, boolexpr_not(el->dep));
+                struct boolexpr *w3 =
+                    boolexpr_or(w31, boolexpr_not(el->def));
+                struct boolexpr *w41 =
+                    boolexpr_or(boolsym_not, el->rev_dep);
+                struct boolexpr *w4 = boolexpr_or(w41, el->def);
+                pw = boolexpr_and(pw, w3);
+                pw = boolexpr_and(pw, w4);
+            }
+            cnf_boolexpr(gsymlist, pw);
+            boolexpr_free(pw);
         }
     }
 }

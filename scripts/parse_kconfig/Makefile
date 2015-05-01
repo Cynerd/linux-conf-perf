@@ -8,7 +8,8 @@ KCONFIG_PREFIX = ../shared/kconfig
 include $(KCONFIG_PREFIX)/files.mk
 
 SRC  = parse.c \
-	       cnfexpr.c \
+	       boolexpr.c \
+		   cnfbuild.c \
 	       symlist.c \
 	       output.c
 OBJ = $(patsubst %.c,%.o,$(SRC))

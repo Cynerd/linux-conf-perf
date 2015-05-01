@@ -22,6 +22,7 @@ void symlist_add(struct symlist *sl, char *name) {
     sl->array[sl->pos].def_size = 0;
     sl->array[sl->pos].dep = NULL;
     sl->array[sl->pos].rev_dep = NULL;
+    output_push_symbol((unsigned) sl->pos, name);
     sl->pos++;
 }
 
@@ -46,6 +47,10 @@ struct symlist_el *symlist_find(struct symlist *sl, char *name) {
 
 // TODO faster implementation? Maybe binary search tree?
 size_t symlist_id(struct symlist * sl, char *name) {
+    if (name == NULL) {
+        printf("Aha\n");
+        return 0;
+    }
     size_t i = 0;
     while (i < sl->pos) {
         if (!strcmp(name, sl->array[i].name))
@@ -53,20 +58,6 @@ size_t symlist_id(struct symlist * sl, char *name) {
         i++;
     }
     return 0;
-}
-
-void symlist_print(struct symlist *sl) {
-    /*
-       size_t i;
-       for (i = 0; i < sl->pos; i++) {
-       printf("%d:%s\n", sl->array[i].id, sl->array[i].name);
-       if (sl->array[i].be != NULL) {
-       printf("  ");
-       cnf_printf(sl->array[i].be);
-       printf("\n");
-       }
-       }
-     */
 }
 
 void symlist_free(struct symlist *sl) {
