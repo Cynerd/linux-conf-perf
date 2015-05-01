@@ -27,8 +27,9 @@ linux_image = linux_sources + 'arch/' + ARCH + '/boot/bzImage'
 
 build_folder = 'build/'
 phase_file = build_folder + 'phase'
-symbol_map_file = build_folder + 'symbol_map' # Also defined in kconfig_parser
-rules_file = build_folder + 'rules' # Also defined in kconfig_parser
+symbol_map_file = build_folder + 'symbol_map' # Also defined in parse_kconfig
+rules_file = build_folder + 'rules' # Also defined in parse_kconfig
+variable_count_file = build_folder + 'variable_count' # Also defined in parse_kconfig
 solved_file = build_folder + 'solved'
 required_file = build_folder + 'required'
 dot_config_fragment_file = build_folder + 'dot_config_fragment'
