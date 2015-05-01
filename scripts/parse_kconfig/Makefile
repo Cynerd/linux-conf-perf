@@ -11,9 +11,10 @@ SRC  = parse.c \
 	       boolexpr.c \
 		   cnfbuild.c \
 	       symlist.c \
+		   doutput.c \
 	       output.c
 OBJ = $(patsubst %.c,%.o,$(SRC))
-CFLAGS = -O0 -w -ggdb
+CFLAGS = -O0 -Wall -ggdb -DDEBUG
 INCLUDES = -I../shared
 
 %.o: %.c
