@@ -13,10 +13,8 @@
 struct symlist_el {
     char *name;
     bool prompt;
-    struct cnfexpr *def;
-    size_t def_size;
 
-    struct cnfexpr *dep, *rev_dep;
+    struct boolexpr *def, *dep, *rev_dep;
 };
 
 struct symlist {

@@ -19,7 +19,6 @@ void symlist_add(struct symlist *sl, char *name) {
     sl->array[sl->pos].name = name;
     sl->array[sl->pos].prompt = false;
     sl->array[sl->pos].def = NULL;
-    sl->array[sl->pos].def_size = 0;
     sl->array[sl->pos].dep = NULL;
     sl->array[sl->pos].rev_dep = NULL;
     output_push_symbol((unsigned) sl->pos + 1, name);
