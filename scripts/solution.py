@@ -36,7 +36,7 @@ def generate():
 			if ln not in lines:
 				lines.add(ln)
 	if os.path.isfile(sf(conf.required_file)):
-		for lnn in open((conf.required_file), 'r'):
+		for lnn in open(sf(conf.required_file), 'r'):
 			ln = lnn.rstrip()
 			if ln not in lines:
 				lines.add(ln)
@@ -54,9 +54,11 @@ def generate():
 
 	# Execute minisat
 	if conf.minisat_output:
-		subprocess.call(['minisat', w_file.name, sf(conf.solution_file)])
+		subprocess.call(['minisat', w_file.name, sf(conf.solution_file)]
+				+ conf.minisat_args)
 	else:
-		subprocess.call(['minisat', w_file.name, sf(conf.solution_file)], stdout=subprocess.DEVNULL)
+		subprocess.call(['minisat', w_file.name, sf(conf.solution_file)]
+				+ conf.minisat_args, stdout=subprocess.DEVNULL)
 
 	os.remove(w_file.name)
 
@@ -98,6 +100,7 @@ def apply():
 			f.write( ntx + txt + " ")
 		f.write("\n")
 
+	# Load variable count
 	with open(sf(conf.symbol_map_file)) as f:
 		for var_num, l in enumerate(f):
 			pass

@@ -7,9 +7,10 @@ ARCH = SRCARCH
 linux_make_args = ['-j8']
 novaboot_args = ['--qemu=qemu-system-x86_64']
 
+minisat_args = ['-verb=2']
 # Programs output show/hide
 parse_kconfig_output = False
-minisat_output = False
+minisat_output = True
 kernel_config_output = True
 kernel_make_output = False
 boot_output = False

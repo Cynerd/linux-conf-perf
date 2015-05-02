@@ -6,7 +6,7 @@ import shutil
 import utils
 from conf import conf
 from conf import sf
-from exceptions import MissingFile
+import exceptions
 
 def parse_kconfig():
 	"Execute parse_kconfig in linux_sources directory."
@@ -24,7 +24,7 @@ def gen_requred():
 	"Generates required depenpency from .config file in linux source tree."
 
 	if not os.path.isfile(sf(conf.linux_dot_config)):
-		raise MissingFile(sf(conf.linux_dot_config),
+		raise exceptions.MissingFile(sf(conf.linux_dot_config),
 				'Generate initial configuration. Execute make defconfig in linux folder. Or use make menuconfig and change configuration.')
 
 	utils.build_symbol_map() # Ensure smap existence
