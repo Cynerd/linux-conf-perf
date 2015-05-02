@@ -30,6 +30,7 @@ void output_rules_endterm(void) {
     fprintf(frules, "\n");
 }
 
+// Functions for variable_count
 void output_write_variable_count(char *var_file, int count) {
     FILE *f;
     f = fopen(var_file, "w");

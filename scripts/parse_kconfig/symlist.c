@@ -26,7 +26,7 @@ void symlist_add(struct symlist *sl, char *name) {
 }
 
 void symlist_closesym(struct symlist *sl) {
-    sl->lastsym = (unsigned) sl->pos;
+    sl->lastsym = (unsigned) sl->pos + 1;
 }
 
 unsigned symlist_adddummy(struct symlist *sl) {

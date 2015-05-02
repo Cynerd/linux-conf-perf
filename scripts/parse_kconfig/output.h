@@ -20,4 +20,5 @@ void output_rules_endterm(void);
 
 // Functions for variable_count
 void output_write_variable_count(char *var_file, int count);
+
 #endif /* _OUTPUT_H_ */

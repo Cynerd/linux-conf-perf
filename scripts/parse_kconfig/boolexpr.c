@@ -113,11 +113,17 @@ struct boolexpr *boolexpr_sym(struct symlist *sl, struct symbol *sym) {
     struct boolexpr *rtn;
     rtn = malloc(sizeof(struct boolexpr));
     rtn->overusage = 0;
-    rtn->id = symlist_id(sl, sym->name);
-    if (rtn->id != 0)
-        rtn->type = BT_SYM;
-    else
-        rtn->type = BT_FALSE;
+    if (!strcmp(sym->name, "m") || !strcmp(sym->name, "n")) {
+            rtn->type = BT_FALSE;
+    } else if (!strcmp(sym->name, "y")) {
+            rtn->type = BT_TRUE;
+    } else {
+        rtn->id = symlist_id(sl, sym->name);
+        if (rtn->id != 0)
+            rtn->type = BT_SYM;
+        else
+            rtn->type = BT_FALSE;
+    }
     return rtn;
 }
 
