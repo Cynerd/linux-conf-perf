@@ -163,6 +163,8 @@ void cpy_dep() {
                 pw = boolexpr_and(pw, w3);
                 pw = boolexpr_and(pw, w4);
             }
+            Dprintf(" CNF:\n");
+            doutput_boolexpr(pw, gsymlist);
             cnf_boolexpr(gsymlist, pw);
             switch (pw->type) {
             case BT_TRUE:

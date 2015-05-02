@@ -7,7 +7,9 @@
 
 #include <kconfig/lkc.h>
 #include <macros.h>
+#include "boolexpr.h"
 
 void doutput_expr(struct expr *expr);
+void doutput_boolexpr(struct boolexpr *bl, struct symlist *sl);
 
 #endif /* _DOUTPUT_H_ */

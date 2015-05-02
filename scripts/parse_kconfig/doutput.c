@@ -2,7 +2,7 @@
 
 void doutput_expr(struct expr *expr) {
 #ifdef DEBUG
-    if (verbose_level < 3)
+    if (verbose_level <= 3)
         return;
     switch (expr->type) {
     case E_OR:
@@ -58,6 +58,42 @@ void doutput_expr(struct expr *expr) {
         break;
     default:
         printf("  ERROR\n");
+        break;
+    }
+#endif /* DEBUG */
+}
+
+void doutput_boolexpr(struct boolexpr *bl, struct symlist *sl) {
+#ifdef DEBUG
+    if (verbose_level <= 3)
+        return;
+    switch (bl->type) {
+    case BT_TRUE:
+        printf("  true\n");
+        break;
+    case BT_FALSE:
+        printf("  false\n");
+        break;
+    case BT_SYM:
+        printf("  CONFIG_%s\n", sl->array[bl->id - 1].name);
+        break;
+    case BT_OR:
+        printf("  OR\n");
+        doutput_boolexpr(bl->left, sl);
+        doutput_boolexpr(bl->right, sl);
+        break;
+    case BT_AND:
+        printf("  AND\n");
+        doutput_boolexpr(bl->left, sl);
+        doutput_boolexpr(bl->right, sl);
+        break;
+    case BT_NOT:
+        if (bl->left->type == BT_SYM) {
+            printf("  NOT CONFIG_%s\n", sl->array[bl->left->id - 1].name);
+        } else {
+            printf("  NOT\n");
+            doutput_boolexpr(bl->left, sl);
+        }
         break;
     }
 #endif /* DEBUG */
