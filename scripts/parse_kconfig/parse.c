@@ -105,12 +105,15 @@ void cpy_dep() {
                 if (prop->visible.expr != NULL) {
                     doutput_expr(prop->visible.expr);
                     struct boolexpr *vis =
-                        boolexpr_kconfig(gsymlist, prop->visible.expr, false);
+                        boolexpr_kconfig(gsymlist, prop->visible.expr,
+                                         false);
                     if (el->vis == NULL) {
                         el->vis = vis;
                     } else {
                         el->vis = boolexpr_or(el->vis, vis);
                     }
+                } else if (el->vis == NULL) {
+                    el->vis = boolexpr_true();
                 }
             }
             if (el->vis == NULL)
@@ -234,8 +237,8 @@ void cpy_dep() {
             w4 = boolexpr_or(w4, el->vis);
 
             pw = boolexpr_and(w1, w2);
-            pw = boolexpr_and(pw, w3);
-            pw = boolexpr_and(pw, w4);
+            pw = boolexpr_and(w3, pw);
+            pw = boolexpr_and(w4, pw);
             Dprintf(" CNF:\n");
             doutput_boolexpr(pw, gsymlist);
             cnf_boolexpr(gsymlist, pw);
