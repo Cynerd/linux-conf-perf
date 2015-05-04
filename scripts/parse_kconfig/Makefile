@@ -14,7 +14,7 @@ SRC  = parse.c \
 		   doutput.c \
 	       output.c
 OBJ = $(patsubst %.c,%.o,$(SRC))
-CFLAGS = -O0 -Wall -ggdb -DDEBUG
+CFLAGS = -O0 -w -ggdb -DDEBUG
 INCLUDES = -I../shared
 
 %.o: %.c
