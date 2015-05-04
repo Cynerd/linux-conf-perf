@@ -1,5 +1,4 @@
 import os
-from exceptions import MissingFile
 
 # Global configs
 SRCARCH = 'x86' # Kernel architecture
@@ -7,15 +6,18 @@ ARCH = SRCARCH
 linux_make_args = ['-j8']
 novaboot_args = ['--qemu=qemu-system-x86_64']
 
-minisat_args = ['-verb=2']
+minisat_args = []
 # Programs output show/hide
 parse_kconfig_output = False
-minisat_output = True
+minisat_output = False
 kernel_config_output = True
-kernel_make_output = False
-boot_output = False
+kernel_make_output = True
+boot_output = True
 
-step_by_step = True
+step_by_step = False # Executes only single step and exits.
+single_loop = False # Executes only one loop and exits.
+only_config = True # Executes only to configuration phase. Building and booting phases are skipped.
+ignore_misconfig = False
 #######################################
 # Path settings
 dot_confmk = '.conf.mk'

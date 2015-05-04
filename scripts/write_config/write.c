@@ -11,7 +11,10 @@
 int verbose_level;
 char *file, *folder;
 
+int exit_status;
+
 int main(int argc, char **argv) {
+    exit_status = 0;
     verbose_level = 1;
     int i;
     for (i = 1; i < argc; i++) {
@@ -47,6 +50,7 @@ int main(int argc, char **argv) {
     textdomain(PACKAGE);
 
     conf_parse(file);
+    struct symbol *sym;
     //conf_read(def_config_file);
     conf_read(".config");
 
@@ -68,5 +72,5 @@ int main(int argc, char **argv) {
 
     conf_write(".config");
 
-    return 0;
+    return exit_status;
 }

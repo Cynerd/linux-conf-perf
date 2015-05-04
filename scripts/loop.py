@@ -11,7 +11,7 @@ import initialize
 import solution
 import kernel
 import boot
-from exceptions import MissingFile
+import exceptions
 
 def step():
 	phs = phase_get()
@@ -47,11 +47,19 @@ def step():
 		phase_set(7)
 	elif phs == 7:
 		phase_message(7)
-		kernel.config()
+		try:
+			kernel.config()
+		except exceptions.ConfigurationError:
+			if not conf.ignore_misconfig:
+				print("Configuration mismatch. Exiting.")
+				sys.exit(-2)
 		phase_set(8)
 	elif phs == 8:
 		phase_message(8)
-		phase_set(9)
+		if conf.only_config:
+			phase_set(2)
+		else:
+			phase_set(9)
 	elif phs == 9:
 		phase_message(9)
 		kernel.make()
@@ -124,6 +132,12 @@ class mainThread(Thread):
 	def run(self):
 		if conf.step_by_step:
 			step()
+		elif conf.single_loop:
+			while not phase_get() == 2:
+				step()
+			step()
+			while not phase_get() == 2:
+				step()
 		else:
 			while not self.term:
 				step()
