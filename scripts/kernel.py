@@ -4,6 +4,7 @@ import subprocess
 
 from conf import conf
 from conf import sf
+import exceptions
 import utils
 
 def config():
@@ -17,6 +18,8 @@ def config():
 		sprc = subprocess.call([sf(conf.write_config), sf(conf.linux_kconfig_head),
 			sf(conf.build_folder)], stdout=subprocess.DEVNULL,
 			env=utils.get_kernel_env())
+	if sprc > 0:
+		raise exceptions.ConfigurationError("some configs mismatch")
 	os.chdir(wd)
 
 def config_noprogram():
