@@ -12,9 +12,10 @@
 
 struct symlist_el {
     char *name;
-    bool prompt;
-
-    struct boolexpr *def, *dep, *rev_dep;
+    struct boolexpr *def; // default value
+    struct boolexpr *vis; // visibility
+    struct boolexpr *dep; // direct dependency
+    struct boolexpr *rev_dep; // reverse dependency
 };
 
 struct symlist {

@@ -20,11 +20,13 @@ struct boolexpr {
     unsigned overusage;
 };
 
-struct boolexpr *boolexpr_kconfig(struct symlist *sl, struct expr *expr);
+struct boolexpr *boolexpr_kconfig(struct symlist *sl, struct expr *expr,
+                                  bool modulesym);
 
 struct boolexpr *boolexpr_true();
 struct boolexpr *boolexpr_false();
-struct boolexpr *boolexpr_sym(struct symlist *sl, struct symbol *sym);
+struct boolexpr *boolexpr_sym(struct symlist *sl, struct symbol *sym,
+                              bool modulesym);
 struct boolexpr *boolexpr_or(struct boolexpr *e1, struct boolexpr *e2);
 struct boolexpr *boolexpr_and(struct boolexpr *e1, struct boolexpr *e2);
 struct boolexpr *boolexpr_not(struct boolexpr *e);

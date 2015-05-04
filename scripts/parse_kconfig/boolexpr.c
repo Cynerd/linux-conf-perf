@@ -3,7 +3,8 @@
 struct boolexpr *boolexpr_eql(struct symlist *sl, struct symbol *sym1,
                               struct symbol *sym2);
 
-struct boolexpr *boolexpr_kconfig(struct symlist *sl, struct expr *expr) {
+struct boolexpr *boolexpr_kconfig(struct symlist *sl, struct expr *expr,
+                                  bool modulesym) {
     struct stck {
         struct expr *expr;
         struct boolexpr *bl;
@@ -29,7 +30,7 @@ struct boolexpr *boolexpr_kconfig(struct symlist *sl, struct expr *expr) {
         }
         switch (expr->type) {
         case E_SYMBOL:
-            rtn = boolexpr_sym(sl, expr->left.sym);
+            rtn = boolexpr_sym(sl, expr->left.sym, modulesym);
             goto go_up;
         case E_NOT:
             if (rtn == NULL)
@@ -109,14 +110,20 @@ struct boolexpr *boolexpr_false() {
     return rtn;
 }
 
-struct boolexpr *boolexpr_sym(struct symlist *sl, struct symbol *sym) {
+struct boolexpr *boolexpr_sym(struct symlist *sl, struct symbol *sym,
+                              bool modulesym) {
     struct boolexpr *rtn;
     rtn = malloc(sizeof(struct boolexpr));
     rtn->overusage = 0;
-    if (!strcmp(sym->name, "m") || !strcmp(sym->name, "n")) {
-            rtn->type = BT_FALSE;
-    } else if (!strcmp(sym->name, "y")) {
+    if (!strcmp(sym->name, "m")) {
+        if (modulesym)
             rtn->type = BT_TRUE;
+        else
+            rtn->type = BT_FALSE;
+    } else if (!strcmp(sym->name, "n")) {
+        rtn->type = BT_FALSE;
+    } else if (!strcmp(sym->name, "y")) {
+        rtn->type = BT_TRUE;
     } else {
         rtn->id = symlist_id(sl, sym->name);
         if (rtn->id != 0)
@@ -127,8 +134,8 @@ struct boolexpr *boolexpr_sym(struct symlist *sl, struct symbol *sym) {
     return rtn;
 }
 
-struct boolexpr *boolexpr_eql(struct symlist *sl, struct symbol *sym1,
-                              struct symbol *sym2) {
+struct boolexpr *boolexpr_eql(struct symlist *sl,
+                              struct symbol *sym1, struct symbol *sym2) {
     if (!strcmp(sym2->name, "m")) {
         struct boolexpr *rtn = malloc(sizeof(struct boolexpr));
         rtn->overusage = 0;
@@ -137,20 +144,18 @@ struct boolexpr *boolexpr_eql(struct symlist *sl, struct symbol *sym1,
         return rtn;
     }
     if (!strcmp(sym2->name, "n"))
-        return boolexpr_not(boolexpr_sym(sl, sym1));
+        return boolexpr_not(boolexpr_sym(sl, sym1, false));
     if (!strcmp(sym2->name, "y"))
-        return boolexpr_sym(sl, sym1);
-
+        return boolexpr_sym(sl, sym1, false);
     // sym1 <-> sym2
     // (!sym1 || sym2) && (sym1 || !sym2)
     return
         boolexpr_and(boolexpr_or
-                     (boolexpr_not(boolexpr_sym(sl, sym1)),
-                      boolexpr_sym(sl, sym2)), boolexpr_or(boolexpr_sym(sl,
-                                                                        sym1),
-                                                           boolexpr_not
-                                                           (boolexpr_sym
-                                                            (sl, sym2))));
+                     (boolexpr_not(boolexpr_sym(sl, sym1, false)),
+                      boolexpr_sym(sl, sym2, false)),
+                     boolexpr_or(boolexpr_sym(sl, sym1, false),
+                                 boolexpr_not(boolexpr_sym
+                                              (sl, sym2, false))));
 }
 
 struct boolexpr *boolexpr_or(struct boolexpr *e1, struct boolexpr *e2) {
@@ -222,7 +227,6 @@ struct boolexpr *boolexpr_not(struct boolexpr *e) {
     rtn = malloc(sizeof(struct boolexpr));
     rtn->overusage = 0;
     rtn->id = 0;
-
     switch (e->type) {
     case BT_FALSE:
         rtn->type = BT_TRUE;
@@ -244,7 +248,6 @@ void boolexpr_free(struct boolexpr *e) {
     struct boolexpr **stack;
     size_t stack_size = 2, stack_pos = 0;
     stack = malloc(stack_size * sizeof(struct boolexpr *));
-
     struct boolexpr *m;
     while (e != NULL) {
         m = e;
@@ -278,7 +281,6 @@ struct boolexpr *boolexpr_copy(struct boolexpr *e) {
     struct boolexpr **stack;
     size_t stack_size = 2, stack_pos = 0;
     stack = malloc(stack_size * sizeof(struct boolexpr *));
-
     while (e != NULL) {
         e->overusage++;
         switch (e->type) {

@@ -84,16 +84,12 @@ void build_symlist() {
             }
             symlist_add(gsymlist, sym->name);
         }
-        for_all_prompts(sym, prop) {
-            gsymlist->array[gsymlist->pos - 1].prompt = true;
-            break;
-        }
     }
     symlist_closesym(gsymlist);
 }
 
 void cpy_dep() {
-    int i;
+    int i, y;
     struct symbol *sym;
     struct property *prop;
     struct symlist_el *el;
@@ -103,14 +99,39 @@ void cpy_dep() {
             el_id = symlist_id(gsymlist, sym->name);
             el = &(gsymlist->array[el_id - 1]);
             Iprintf("Processing: %s\n", sym->name);
-            if (el->prompt)
-                Dprintf("Is prompt\n");
-
+            // Visibility
+            for_all_prompts(sym, prop) {
+                Dprintf(" Prompt: %s\n", prop->text);
+                if (prop->visible.expr != NULL) {
+                    doutput_expr(prop->visible.expr);
+                    struct boolexpr *vis =
+                        boolexpr_kconfig(gsymlist, prop->visible.expr, false);
+                    if (el->vis == NULL) {
+                        el->vis = vis;
+                    } else {
+                        el->vis = boolexpr_or(el->vis, vis);
+                    }
+                }
+            }
+            if (el->vis == NULL)
+                el->vis = boolexpr_false();
+            // Symbol is choice.. special treatment required
+            if (sym_is_choice(sym)) {
+                Dprintf(" Is Choice\n");
+                goto choice_exception;
+            }
+            // Default value
             for_all_defaults(sym, prop) {
                 Dprintf(" Default value:\n");
                 doutput_expr(prop->expr);
                 struct boolexpr *def =
-                    boolexpr_kconfig(gsymlist, prop->expr);
+                    boolexpr_kconfig(gsymlist, prop->expr, false);
+                if (prop->visible.expr != NULL)
+                    def =
+                        boolexpr_and(def,
+                                     boolexpr_kconfig(gsymlist,
+                                                      prop->visible.expr,
+                                                      false));
                 if (el->def == NULL) {
                     el->def = def;
                 } else {
@@ -119,50 +140,102 @@ void cpy_dep() {
             }
             if (el->def == NULL)
                 el->def = boolexpr_false();
+            // Dependency expression
             if (sym->dir_dep.expr != NULL) {
                 Dprintf(" Dependency:\n");
                 doutput_expr(sym->dir_dep.expr);
-                el->dep = boolexpr_kconfig(gsymlist, sym->dir_dep.expr);
+                el->dep =
+                    boolexpr_kconfig(gsymlist, sym->dir_dep.expr, false);
             } else
                 el->dep = boolexpr_true();
+            // Reverse dependency expression
             if (sym->rev_dep.expr != NULL) {
                 Dprintf(" Reverse dependency:\n");
                 doutput_expr(sym->rev_dep.expr);
                 el->rev_dep =
-                    boolexpr_kconfig(gsymlist, sym->rev_dep.expr);
+                    boolexpr_kconfig(gsymlist, sym->rev_dep.expr, false);
             } else
                 el->rev_dep = boolexpr_false();
+          choice_exception:
+            // Add exclusive rules for choice symbol
+            if (sym_is_choice(sym)) {
+                el->def = boolexpr_true();
+                if (sym->dir_dep.expr != NULL) {
+                    Dprintf(" Reverse dependency:\n");
+                    doutput_expr(sym->dir_dep.expr);
+                    el->rev_dep =
+                        boolexpr_kconfig(gsymlist,
+                                         sym->dir_dep.expr, true);
+                } else
+                    el->rev_dep = boolexpr_false();
+                if (sym->rev_dep.expr != NULL) {
+                    Dprintf(" Dependency:\n");
+                    doutput_expr(sym->rev_dep.expr);
+                    el->dep =
+                        boolexpr_kconfig(gsymlist,
+                                         sym->rev_dep.expr, true);
+                } else
+                    el->dep = boolexpr_true();
+                for_all_choices(sym, prop) {
+                    struct symbol *symw;
+                    struct expr *exprw;
+                    unsigned *symx = NULL;
+                    size_t symx_size;
+                    symx_size = 0;
+                    expr_list_for_each_sym(prop->expr, exprw, symw) {
+                        symx_size++;
+                        symx = realloc(symx, symx_size * sizeof(unsigned));
+                        symx[symx_size - 1] =
+                            symlist_id(gsymlist, symw->name);
+                        output_rules_symbol(symx[symx_size - 1]);
+                    }
+                    output_rules_symbol(-(int)
+                                        el_id);
+                    output_rules_endterm();
+                    for (i = 0; i < symx_size - 1; i++) {
+                        for (y = i + 1; y < symx_size; y++) {
+                            output_rules_symbol(-(int)
+                                                symx[i]);
+                            output_rules_symbol(-(int)
+                                                symx[y]);
+                            output_rules_endterm();
+                        }
+                    }
+                    free(symx);
+                    symx = NULL;
+                }
+            }
 
             struct boolexpr *pw;
-            struct boolexpr *boolsym = boolexpr_sym(gsymlist, sym);
+            struct boolexpr *boolsym = boolexpr_sym(gsymlist, sym,
+                                                    false);
             boolexpr_copy(boolsym);
             struct boolexpr *boolsym_not = boolexpr_not(boolsym);
-            if (!el->prompt) {
-                boolexpr_copy(boolsym);
-                boolexpr_copy(boolsym_not);
-                boolexpr_copy(el->def);
-                boolexpr_copy(el->dep);
-                boolexpr_copy(el->rev_dep);
-            }
-            // (!sym || dep) && (sym || !rev_dep)
-            struct boolexpr *w1 = boolexpr_or(boolsym_not, el->dep);
-            struct boolexpr *w2 =
-                boolexpr_or(boolsym, boolexpr_not(el->rev_dep));
-            pw = boolexpr_and(w1, w2);
+            boolexpr_copy(boolsym);
+            boolexpr_copy(boolsym_not);
+            boolexpr_copy(el->vis);
+            boolexpr_copy(el->def);
+            boolexpr_copy(el->dep);
+            boolexpr_copy(el->rev_dep);
+            // (!sym || dep) && (sym || !rev_dep) &&
+            // && (sym || !dep || !def || vis) &&
+            // (!sym || rev_dep || def || vis)
+            struct boolexpr *w1 = boolexpr_or(boolsym_not,
+                                              el->dep);
+            struct boolexpr *w2 = boolexpr_or(boolsym,
+                                              boolexpr_not(el->rev_dep));
+            struct boolexpr *w3 = boolexpr_or(boolsym,
+                                              boolexpr_not(el->dep));
+            w3 = boolexpr_or(w3, boolexpr_not(el->def));
+            w3 = boolexpr_or(w3, el->vis);
+            struct boolexpr *w4 = boolexpr_or(boolsym_not,
+                                              el->rev_dep);
+            w4 = boolexpr_or(w4, el->def);
+            w4 = boolexpr_or(w4, el->vis);
 
-            if (!el->prompt) {
-                // && (sym || !dep || !def) &&
-                // (!sym || rev_dep || def)
-                struct boolexpr *w31 =
-                    boolexpr_or(boolsym, boolexpr_not(el->dep));
-                struct boolexpr *w3 =
-                    boolexpr_or(w31, boolexpr_not(el->def));
-                struct boolexpr *w41 =
-                    boolexpr_or(boolsym_not, el->rev_dep);
-                struct boolexpr *w4 = boolexpr_or(w41, el->def);
-                pw = boolexpr_and(pw, w3);
-                pw = boolexpr_and(pw, w4);
-            }
+            pw = boolexpr_and(w1, w2);
+            pw = boolexpr_and(pw, w3);
+            pw = boolexpr_and(pw, w4);
             Dprintf(" CNF:\n");
             doutput_boolexpr(pw, gsymlist);
             cnf_boolexpr(gsymlist, pw);
