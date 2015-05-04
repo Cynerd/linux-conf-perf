@@ -128,7 +128,7 @@ void cpy_dep() {
                 Dprintf(" Default value:\n");
                 doutput_expr(prop->expr);
                 struct boolexpr *def =
-                    boolexpr_kconfig(gsymlist, prop->expr, false);
+                    boolexpr_kconfig(gsymlist, prop->expr, true);
                 if (prop->visible.expr != NULL)
                     def =
                         boolexpr_and(def,
