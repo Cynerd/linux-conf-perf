@@ -55,6 +55,7 @@ nbscript = 'scripts/nbscript'
 parse_kconfig = 'scripts/parse_kconfig/parse'
 write_config = 'scripts/write_config/write'
 novaboot = 'scripts/novaboot/novaboot'
+minisat = 'minisat'
 
 
 absroot = os.path.dirname(os.path.realpath(__file__))

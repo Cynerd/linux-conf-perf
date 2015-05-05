@@ -54,10 +54,10 @@ def generate():
 
 	# Execute minisat
 	if conf.minisat_output:
-		subprocess.call(['minisat', w_file.name, sf(conf.solution_file)]
+		subprocess.call([conf.minisat, w_file.name, sf(conf.solution_file)]
 				+ conf.minisat_args)
 	else:
-		subprocess.call(['minisat', w_file.name, sf(conf.solution_file)]
+		subprocess.call([conf.minisat, w_file.name, sf(conf.solution_file)]
 				+ conf.minisat_args, stdout=subprocess.DEVNULL)
 
 	os.remove(w_file.name)
