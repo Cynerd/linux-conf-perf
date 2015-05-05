@@ -54,11 +54,12 @@ def generate():
 
 	# Execute minisat
 	if conf.minisat_output:
-		subprocess.call([conf.minisat, w_file.name, sf(conf.solution_file)]
-				+ conf.minisat_args)
+		subprocess.call([conf.picosat, w_file.name, '-o',
+			sf(conf.solution_file)] + conf.picosat_args)
 	else:
-		subprocess.call([conf.minisat, w_file.name, sf(conf.solution_file)]
-				+ conf.minisat_args, stdout=subprocess.DEVNULL)
+		subprocess.call([conf.picosat, w_file.name, '-o',
+			sf(conf.solution_file)] + conf.picosat_args,
+			stdout=subprocess.DEVNULL)
 
 	os.remove(w_file.name)
 
@@ -72,10 +73,13 @@ def apply():
 	utils.build_symbol_map() # Ensure smap existence
 
 	# Read solution if satisfiable
+	solut = []
 	with open(sf(conf.solution_file), 'r') as f:
-		if not f.readline().rstrip() == 'SAT':
+		if not f.readline().rstrip() == 's SATISFIABLE':
 			raise NoSolution()
-		solut = f.readline().split()
+		for line in f:
+			if line[0] == 'v':
+				solut += line[2:].split()
 	solut.remove('0') # Remove 0 at the end 
 
 	# Write solution to output_confs file
@@ -87,7 +91,6 @@ def apply():
 		for txt in solut:
 			f.write(txt + ' ')
 		f.write('\n')
-
 
 	# Write negotation solution to solver_file
 	with open(sf(conf.solved_file), 'a') as f:

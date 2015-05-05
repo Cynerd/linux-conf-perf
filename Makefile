@@ -1,11 +1,11 @@
-.PHONY: all help parse_kconfig write_config build run test clean clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean
+.PHONY: all help parse_kconfig write_config build run test clean clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean picosat
 
 -include .conf.mk
 
 BENCHMARK_FILES := $(patsubst benchmark/%,scripts/buildroot/system/skeleton/usr/share/benchmark/%,$(shell find benchmark -type f))
 BENCHMARK_FOLDERS := $(shell dirname $(BENCHMARK_FILES))
 
-all: parse_kconfig write_config
+all: parse_kconfig write_config picosat
 
 help:
 	@echo "all         - Builds basic programs and prints message about next steps."
@@ -44,15 +44,16 @@ deflinux:
 test: $(INITRAM) parse_kconfig
 	scripts/test.py
 
-run: parse_kconfig write_config $(INITRAM)
+run: parse_kconfig write_config picosat $(INITRAM)
 	scripts/loop.py
 
 evaluate:
 	@ #TODO
 
 clean:
-	@$(MAKE) -C scripts/parse_kconfig/ clean
-	@$(MAKE) -C scripts/write_config/ clean
+	@$(MAKE) -C scripts/parse_kconfig clean
+	@$(MAKE) -C scripts/write_config clean
+	@if [ -e scripts/picosat-959/makefile ]; then $(MAKE) -C scripts/picosat-959 clean; fi
 	$(RM) -r build
 	$(RM) -r scripts/buildroot/system/skeleton/usr/share/benchmark
 	$(RM) $(INITRAM)
@@ -107,3 +108,8 @@ scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf:
 $(BENCHMARK_FILES): $(BENCHMARK_FOLDERS)
 scripts/buildroot/system/skeleton/usr/share/benchmark/%: benchmark/%
 	cp $< $@
+
+picosat: scripts/picosat-959/picosat
+scripts/picosat-959/picosat:
+	cd scripts/picosat-959 && ./configure
+	$(MAKE) -C scripts/picosat-959

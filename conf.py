@@ -6,7 +6,7 @@ ARCH = SRCARCH
 linux_make_args = ['-j8']
 novaboot_args = ['--qemu=qemu-system-x86_64']
 
-minisat_args = []
+picosat_args = []
 # Programs output show/hide
 parse_kconfig_output = False
 minisat_output = False
@@ -55,7 +55,7 @@ nbscript = 'scripts/nbscript'
 parse_kconfig = 'scripts/parse_kconfig/parse'
 write_config = 'scripts/write_config/write'
 novaboot = 'scripts/novaboot/novaboot'
-minisat = 'minisat'
+picosat = 'scripts/picosat-959/picosat'
 
 
 absroot = os.path.dirname(os.path.realpath(__file__))
