@@ -89,13 +89,14 @@ void build_symlist() {
 }
 
 void cpy_dep() {
-    int i, y;
+    int i;
     struct symbol *sym;
     struct property *prop;
     struct symlist_el *el;
+    struct boolexpr *pw;
     unsigned el_id;
     for_all_symbols(i, sym) {
-        if ((sym->type == S_BOOLEAN || sym->type == S_TRISTATE)) {
+        if (sym->type == S_BOOLEAN || sym->type == S_TRISTATE) {
             el_id = symlist_id(gsymlist, sym->name);
             el = &(gsymlist->array[el_id - 1]);
             Iprintf("Processing: %s\n", sym->name);
@@ -162,29 +163,20 @@ void cpy_dep() {
           choice_exception:
             // Add exclusive rules for choice symbol
             if (sym_is_choice(sym)) {
-                el->def = boolexpr_true();
-                if (sym->dir_dep.expr != NULL) {
-                    Dprintf(" Reverse dependency:\n");
-                    doutput_expr(sym->dir_dep.expr);
-                    el->rev_dep =
-                        boolexpr_kconfig(gsymlist,
-                                         sym->dir_dep.expr, true);
-                } else
-                    el->rev_dep = boolexpr_false();
                 if (sym->rev_dep.expr != NULL) {
                     Dprintf(" Dependency:\n");
                     doutput_expr(sym->rev_dep.expr);
-                    el->dep =
+                    el->rev_dep =
                         boolexpr_kconfig(gsymlist,
                                          sym->rev_dep.expr, true);
                 } else
-                    el->dep = boolexpr_true();
+                    el->rev_dep = boolexpr_true();
                 for_all_choices(sym, prop) {
                     struct symbol *symw;
                     struct expr *exprw;
                     unsigned *symx = NULL;
-                    size_t symx_size;
-                    symx_size = 0;
+                    size_t symx_size = 0;
+                    int x, y;
                     expr_list_for_each_sym(prop->expr, exprw, symw) {
                         symx_size++;
                         symx = realloc(symx, symx_size * sizeof(unsigned));
@@ -195,10 +187,10 @@ void cpy_dep() {
                     output_rules_symbol(-(int)
                                         el_id);
                     output_rules_endterm();
-                    for (i = 0; i < symx_size - 1; i++) {
-                        for (y = i + 1; y < symx_size; y++) {
+                    for (x = 0; x < symx_size - 1; x++) {
+                        for (y = x + 1; y < symx_size; y++) {
                             output_rules_symbol(-(int)
-                                                symx[i]);
+                                                symx[x]);
                             output_rules_symbol(-(int)
                                                 symx[y]);
                             output_rules_endterm();
@@ -207,9 +199,33 @@ void cpy_dep() {
                     free(symx);
                     symx = NULL;
                 }
+                struct boolexpr *boolsym = boolexpr_sym(gsymlist, sym,
+                                                        false);
+                if (!sym_is_optional(sym)) {
+                    boolexpr_copy(boolsym);
+                    boolexpr_copy(el->vis);
+                }
+                struct boolexpr *boolsym_not = boolexpr_not(boolsym);
+                boolexpr_copy(boolsym_not);
+                boolexpr_copy(el->rev_dep);
+                struct boolexpr *notrev_dep = boolexpr_not(el->rev_dep);
+                if (!sym_is_optional(sym)) {
+                    boolexpr_copy(notrev_dep);
+                }
+                struct boolexr *w1 = boolexpr_or(boolsym_not, el->rev_dep);
+                struct boolexpr *w2 = boolexpr_or(boolsym_not, notrev_dep);
+                w2 = boolexpr_or(w2, el->vis);
+                pw = boolexpr_and(w1, w2);
+                if (!sym_is_optional(sym)) {
+                    struct boolexpr *w3 = boolexpr_not(el->vis);
+                    w3 = boolexpr_or(w3, notrev_dep);
+                    w3 = boolexpr_or(w3, boolsym);
+                    pw = boolexpr_and(pw, w3);
+                }
+
+                goto pw_solve;
             }
 
-            struct boolexpr *pw;
             struct boolexpr *boolsym = boolexpr_sym(gsymlist, sym,
                                                     false);
             boolexpr_copy(boolsym);
@@ -239,6 +255,7 @@ void cpy_dep() {
             pw = boolexpr_and(w1, w2);
             pw = boolexpr_and(w3, pw);
             pw = boolexpr_and(w4, pw);
+          pw_solve:
             Dprintf(" CNF:\n");
             doutput_boolexpr(pw, gsymlist);
             cnf_boolexpr(gsymlist, pw);
