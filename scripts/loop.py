@@ -95,9 +95,12 @@ def phase_get():
 
 def phase_set(phs):
 	# TODO
-	global thr
-	if thr.term:
-		return
+	try:
+		global thr
+		if thr.term:
+			return
+	except NameError:
+		pass
 	with open(sf(conf.phase_file), 'w') as f:
 		f.write(phases[phs])
 
