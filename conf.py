@@ -14,6 +14,7 @@ kernel_config_output = True
 kernel_make_output = True
 boot_output = True
 
+# Configs for debugging
 step_by_step = False # Executes only single step and exits.
 single_loop = False # Executes only one loop and exits.
 only_config = True # Executes only to configuration phase. Building and booting phases are skipped.
