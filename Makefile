@@ -41,7 +41,7 @@ deflinux:
 	ARCH=$(SRCARCH) $(MAKE) -C linux defconfig
 
 init: initialize
-initialize:
+initialize: parse_kconfig picosat
 	scripts/initialize.py
 
 test: $(BUILDROOT_INITRAM) parse_kconfig
