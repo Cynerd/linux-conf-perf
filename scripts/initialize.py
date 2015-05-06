@@ -9,15 +9,18 @@ from conf import conf
 from conf import sf
 import exceptions
 import loop
+import solution
 
 def all():
 	base()
+	gen_nbscript()
 	parse_kconfig()
 	gen_requred()
-	gen_nbscript()
+	if conf.gen_all_solution_oninit:
+		solution.generate()
 
 def base():
-	try: os.mkdir(conf.build_folder)
+	try: os.mkdir(sf(conf.build_folder))
 	except FileExistsError:
 		pass
 

@@ -5,6 +5,7 @@ SRCARCH = 'x86' # Kernel architecture
 ARCH = SRCARCH
 linux_make_args = ['-j8']
 novaboot_args = ['--qemu=qemu-system-x86_64']
+gen_all_solution_oninit = True # If True, all solutions are generated at initialization.
 
 picosat_args = []
 # Programs output show/hide

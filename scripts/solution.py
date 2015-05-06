@@ -6,7 +6,7 @@ import subprocess
 import utils
 from conf import conf
 from conf import sf
-from exceptions import NoSolution
+import exceptions
 
 def generate():
 	"""Collect boolean equations from files: rules, solved and required
@@ -14,7 +14,10 @@ def generate():
 	"""
 	# Check if rules_file exist. If it was generated.
 	if not os.path.isfile(sf(conf.rules_file)):
-		raise Exception("Rules file missing. Run parse_kconfig and check ecistence of " + rules_file)
+		raise exceptions.MissingFile(conf.rules_file,"Run parse_kconfig.")
+
+	if sys.path.isfile(sf(conf.solution_file)) and conf.gen_all_solution_oninit:
+		raise exceptions.SolutionGenerated()
 
 	w_file = tempfile.NamedTemporaryFile(delete=False)
 	# Join files to one single temporary file
@@ -47,13 +50,14 @@ def generate():
 	w_file.close()
 
 	# Execute picosat
+	picosat_cmd = [conf.picosat, w_file.name]
+	picosat_cmd += ['-o', sf(conf.solution_file)]
+	if (conf.gen_all_solution_oninit):
+		picosat_cmd += ['--all']
 	if conf.picosat_output:
-		subprocess.call([conf.picosat, w_file.name, '-o',
-			sf(conf.solution_file)] + conf.picosat_args)
+		subprocess.call(picosat_cmd)
 	else:
-		subprocess.call([conf.picosat, w_file.name, '-o',
-			sf(conf.solution_file)] + conf.picosat_args,
-			stdout=subprocess.DEVNULL)
+		subprocess.call(picosat_cmd, stdout=subprocess.DEVNULL)
 
 	os.remove(w_file.name)
 
