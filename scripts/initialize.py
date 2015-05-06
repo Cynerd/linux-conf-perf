@@ -1,3 +1,4 @@
+#!/bin/env python3
 import os
 import sys
 import subprocess
@@ -7,6 +8,29 @@ import utils
 from conf import conf
 from conf import sf
 import exceptions
+import loop
+
+def all():
+	base()
+	parse_kconfig()
+	gen_requred()
+	gen_nbscript()
+
+def base():
+	try: os.mkdir(conf.build_folder)
+	except FileExistsError:
+		pass
+
+	if os.path.isfile(sf(conf.phase_file)):
+		print("Warning: file " + conf.phase_file + " already exists. Not overwritten.")
+	else:
+		loop.phase_set(1)
+
+	if os.path.isfile(sf(conf.iteration_file)):
+		print("Warning: file " + conf.iteration_file + " already exists. Not overwritten.")
+	else:
+		loop.iteration_reset()
+
 
 def parse_kconfig():
 	"Execute parse_kconfig in linux_sources directory."
@@ -19,6 +43,7 @@ def parse_kconfig():
 		subprocess.call([sf(conf.parse_kconfig), sf(conf.linux_kconfig_head), sf(conf.build_folder)], env=utils.get_kernel_env())
 
 	os.chdir(wd)
+
 
 def gen_requred():
 	"Generates required depenpency from .config file in linux source tree."
@@ -54,3 +79,20 @@ def gen_requred():
 					else:
 						fconf.write(line);
 			freq.write("-" + srmap["MODULES"] + "\n"); # force modules no
+
+
+def gen_nbscript():
+	if os.path.isfile(sf(conf.nbscript)):
+		print("Warning: file " + conf.nbscript +
+				" already exists. Generation skipped.")
+		return
+
+	with open(sf(conf.nbscript), 'w') as f:
+		f.write('# generated novaboot script. Please don\'t edit.\n')
+		f.write('load ' + sf(conf.linux_image) + ' console=ttyS0,115200\n')
+		f.write('load ' + sf(conf.buildroot_initram) + '\n')
+
+#################################################################################
+
+if __name__ == '__main__':
+	all()

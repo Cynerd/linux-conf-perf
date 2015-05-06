@@ -5,24 +5,14 @@ import shutil
 import importlib
 
 import utils
+import initialize
 from conf import conf
 from conf import sf
 from exceptions import MissingFile
 
-def gen_nbscript():
-	try:
-		os.remove(sf(conf.nbscript))
-	except OSError:
-		pass
-
-	with open(sf(conf.nbscript), 'w') as f:
-		f.write('# generated novaboot script. Please don\'t edit.\n')
-		f.write('load ' + sf(conf.linux_image) + ' console=ttyS0,115200\n')
-		f.write('load ' + sf(conf.initram) + '\n')
-
 def boot():
 	if not os.path.isfile((conf.nbscript)):
-		gen_nbscript()
+		initialize.gen_nbscript()
 	try:
 		os.mkdir(sf(conf.output_folder))
 	except FileExistsError:
@@ -41,6 +31,8 @@ def boot():
 		if line.startswith('lcp-output: '):
 			output += line[12:]
 	print(output)
+
+	# TODO change
 	data = bench.stdoutput(output)
 
 	iteration = 0

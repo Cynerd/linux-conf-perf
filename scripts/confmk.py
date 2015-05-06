@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/bin/env python3
 import os
 import sys
 from conf import conf
@@ -18,7 +18,7 @@ def gen_confmk():
 		f.write("BUILDROOT_INITSCRIPT := " + conf.buildroot_initscript + "\n")
 		f.write("BUILDROOT_DEF_CONFIG := " + conf.buildroot_def_config + "\n")
 		f.write("\n")
-		f.write("NBSCRIPTS := " + conf.nbscript + "\n")
+		f.write("NBSCRIPT := " + conf.nbscript + "\n")
 
 #################################################################################
 

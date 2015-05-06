@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/bin/env python3
 import os
 import sys
 import subprocess
@@ -15,17 +15,9 @@ import exceptions
 
 def step():
 	phs = phase_get()
-	if phs == 0:
-		try:
-			os.mkdir(conf.build_folder)
-		except FileExistsError:
-			pass
-		phase_set(1)
-	elif phs == 1:
+	if phs == 0 or phs == 1:
 		phase_message(1)
-		initialize.parse_kconfig()
-		initialize.gen_requred()
-		iteration_reset()
+		initialize.all()
 		phase_set(2)
 	elif phs == 2:
 		phase_message(2)
@@ -102,6 +94,7 @@ def phase_get():
 		return 0
 
 def phase_set(phs):
+	# TODO
 	global thr
 	if thr.term:
 		return

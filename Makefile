@@ -13,6 +13,8 @@ help:
 	@echo "              configuration."
 	@echo "deflinux    - Executes 'make defconfig' in linux folder. This generates default"
 	@echo "              linux configuration for architecture specified in conf.py"
+	@echo "initialize  - Executes only initialization. Depending on configuration this"
+	@echo "              can take various amount of time."
 	@echo "test        - Executes boot and benchmark test. You should use this before"
 	@echo "              target run. This target is for testing if initial kernel"
 	@echo "              configuration, buildroot configuration and benchmark are"
@@ -38,6 +40,10 @@ mlinux:
 deflinux:
 	ARCH=$(SRCARCH) $(MAKE) -C linux defconfig
 
+init: initialize
+initialize:
+	scripts/initialize.py
+
 test: $(BUILDROOT_INITRAM) parse_kconfig
 	scripts/test.py
 
@@ -51,6 +57,7 @@ clean:
 	@$(MAKE) -C scripts/parse_kconfig clean
 	@$(MAKE) -C scripts/write_config clean
 	@if [ -e scripts/picosat-959/makefile ]; then $(MAKE) -C scripts/picosat-959 clean; fi
+	$(RM) .conf.mk
 	$(RM) -r build
 	$(RM) $(NBSCRIPT)
 
@@ -94,3 +101,10 @@ picosat: scripts/picosat-959/picosat
 scripts/picosat-959/picosat:
 	cd scripts/picosat-959 && ./configure
 	$(MAKE) -C scripts/picosat-959
+
+#######################################
+
+$(PHASE_FILE): initialize
+$(SYMBOL_MAP_FILE): initialize
+$(RULES_FILE): initialize
+$(VARIABLE_COUNT_FILE): initialize
