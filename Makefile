@@ -2,9 +2,6 @@
 
 -include .conf.mk
 
-BENCHMARK_FILES := $(patsubst benchmark/%,scripts/buildroot/system/skeleton/usr/share/benchmark/%,$(shell find benchmark -type f))
-BENCHMARK_FOLDERS := $(shell dirname $(BENCHMARK_FILES))
-
 all: parse_kconfig write_config picosat
 
 help:
@@ -41,10 +38,10 @@ mlinux:
 deflinux:
 	ARCH=$(SRCARCH) $(MAKE) -C linux defconfig
 
-test: $(INITRAM) parse_kconfig
+test: $(BUILDROOT_INITRAM) parse_kconfig
 	scripts/test.py
 
-run: parse_kconfig write_config picosat $(INITRAM)
+run: parse_kconfig write_config picosat $(BUILDROOT_INITRAM)
 	scripts/loop.py
 
 evaluate:
@@ -55,8 +52,6 @@ clean:
 	@$(MAKE) -C scripts/write_config clean
 	@if [ -e scripts/picosat-959/makefile ]; then $(MAKE) -C scripts/picosat-959 clean; fi
 	$(RM) -r build
-	$(RM) -r scripts/buildroot/system/skeleton/usr/share/benchmark
-	$(RM) $(INITRAM)
 	$(RM) $(NBSCRIPT)
 
 distclean: clean distclean_linux distclean_buildroot
@@ -85,18 +80,8 @@ parse_kconfig:
 write_config:
 	@$(MAKE) -C scripts/write_config/
 
-scripts/buildroot/system/skeleton/usr/share/%:
-	mkdir -p $@
-
-build:
-	mkdir -p $@
-
-$(BUILDROOT_INITRAM): scripts/buildroot/.config scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf $(BENCHMARK_FILES)
+$(BUILDROOT_INITRAM): scripts/buildroot/.config scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf
 	@$(MAKE) -C scripts/buildroot
-
-$(INITRAM): build
-$(INITRAM): $(BUILDROOT_INITRAM)
-	cp $< $@
 
 scripts/buildroot/.config:
 	cp $(BUILDROOT_DEF_CONFIG) $@
@@ -104,10 +89,6 @@ scripts/buildroot/.config:
 scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf:
 	cp $(BUILDROOT_INITSCRIPT) $@
 	cat $(BUILDROOT_INITTAB_DIRECTIVE) >> scripts/buildroot/system/skeleton/etc/inittab
-
-$(BENCHMARK_FILES): $(BENCHMARK_FOLDERS)
-scripts/buildroot/system/skeleton/usr/share/benchmark/%: benchmark/%
-	cp $< $@
 
 picosat: scripts/picosat-959/picosat
 scripts/picosat-959/picosat:
