@@ -10,13 +10,7 @@ from exceptions import NoSolution
 
 def generate():
 	"""Collect boolean equations from files: rules, solved and required
-	And get solution with minisat
-
-	Relevant configurations
-	   rules_file
-	   solver_file
-	   required_file
-	   solution_file
+	And get solution with picosat
 	"""
 	# Check if rules_file exist. If it was generated.
 	if not os.path.isfile(sf(conf.rules_file)):
@@ -52,8 +46,8 @@ def generate():
 
 	w_file.close()
 
-	# Execute minisat
-	if conf.minisat_output:
+	# Execute picosat
+	if conf.picosat_output:
 		subprocess.call([conf.picosat, w_file.name, '-o',
 			sf(conf.solution_file)] + conf.picosat_args)
 	else:

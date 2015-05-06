@@ -9,7 +9,7 @@ novaboot_args = ['--qemu=qemu-system-x86_64']
 picosat_args = []
 # Programs output show/hide
 parse_kconfig_output = False
-minisat_output = False
+picosat_output = False
 kernel_config_output = True
 kernel_make_output = True
 boot_output = True
