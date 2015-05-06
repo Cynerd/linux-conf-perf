@@ -35,7 +35,7 @@ buildroot_inittab_directive = 'scripts/buildroot_recipe/inittab_directive'
 buildroot_initscript = 'scripts/buildroot_recipe/linux-conf-perf'
 buildroot_initram = 'scripts/buildroot/output/images/rootfs.cpio.gz'
 
-build_folder = 'build/'
+build_folder = 'jobfiles/'
 phase_file = build_folder + 'phase'
 symbol_map_file = build_folder + 'symbol_map' # Also defined in parse_kconfig
 rules_file = build_folder + 'rules' # Also defined in parse_kconfig
@@ -48,7 +48,7 @@ solution_file = build_folder + 'solution'
 iteration_file = build_folder + 'iteration'
 output_confs = build_folder + 'output_confs'
 
-output_folder = build_folder + 'output/'
+output_folder = 'output/'
 
 nbscript = 'scripts/nbscript'
 

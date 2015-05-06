@@ -4,7 +4,7 @@
 
 *.o
 
-build
+jobfiles
 __*__
 
 scripts/nbscript
