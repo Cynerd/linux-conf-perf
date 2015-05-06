@@ -28,6 +28,11 @@ linux_kconfig_head = linux_sources + 'Kconfig'
 linux_dot_config = linux_sources + '.config'
 linux_image = linux_sources + 'arch/' + ARCH + '/boot/bzImage'
 
+buildroot_def_config = 'scripts/buildroot_recipe/buildroot.def.config'
+buildroot_inittab_directive = 'scripts/buildroot_recipe/inittab_directive'
+buildroot_initscript = 'scripts/buildroot_recipe/linux-conf-perf'
+buildroot_initram = 'scripts/buildroot/output/images/rootfs.cpio.gz'
+
 build_folder = 'build/'
 phase_file = build_folder + 'phase'
 symbol_map_file = build_folder + 'symbol_map' # Also defined in parse_kconfig
@@ -42,12 +47,6 @@ iteration_file = build_folder + 'iteration'
 output_confs = build_folder + 'output_confs'
 
 output_folder = build_folder + 'output/'
-
-buildroot_def_config = 'scripts/buildroot_recipe/buildroot.def.config'
-buildroot_inittab_directive = 'scripts/buildroot_recipe/inittab_directive'
-buildroot_initscript = 'scripts/buildroot_recipe/linux-conf-perf'
-buildroot_initram = 'scripts/buildroot/output/images/rootfs.cpio.gz'
-initram = build_folder + 'initram.gz'
 
 nbscript = 'scripts/nbscript'
 
