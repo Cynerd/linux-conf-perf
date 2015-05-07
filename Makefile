@@ -1,8 +1,8 @@
-.PHONY: all help parse_kconfig write_config build run test clean clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean picosat init initialize
+.PHONY: all help parse_kconfig write_config build run test clean clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean picosat init initialize permute
 
 -include .conf.mk
 
-all: parse_kconfig write_config picosat
+all: parse_kconfig write_config permute picosat
 
 help:
 	@echo "all         - Builds basic programs and prints message about next steps."
@@ -86,6 +86,9 @@ parse_kconfig:
 
 write_config:
 	@$(MAKE) -C scripts/write_config/
+
+permute:
+	@$(MAKE) -C scripts/permute/
 
 $(BUILDROOT_INITRAM): scripts/buildroot/.config scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf
 	@$(MAKE) -C scripts/buildroot
