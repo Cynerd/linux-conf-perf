@@ -2,7 +2,7 @@ MAKEFLAGS += --no-builtin-rules
 .PHONY: all clean
 .SUFFIXES:
 
-all: setpermute
+all: permute
 
 KCONFIG_PREFIX = ../shared/kconfig
 include $(KCONFIG_PREFIX)/files.mk
