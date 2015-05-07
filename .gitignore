@@ -5,6 +5,8 @@
 *.o
 
 jobfiles
+output
+log
 __*__
 
 scripts/nbscript
