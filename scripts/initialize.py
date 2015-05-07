@@ -40,11 +40,11 @@ def parse_kconfig():
 	env = dict(os.environ)
 	wd = os.getcwd()
 	os.chdir(sf(conf.linux_sources))
-	if conf.parse_kconfig_output:
-		subprocess.call([sf(conf.parse_kconfig), sf(conf.linux_kconfig_head), sf(conf.build_folder), "-v", "-v"], env=utils.get_kernel_env())
-	else:
-		subprocess.call([sf(conf.parse_kconfig), sf(conf.linux_kconfig_head), sf(conf.build_folder)], env=utils.get_kernel_env())
-
+	parse_kconfig_cmd = [sf(conf.parse_kconfig)]
+	parse_kconfig_cmd += [sf(conf.linux_kconfig_head), sf(conf.build_folder)]
+	parse_kconfig_cmd += ['-v', '-v']
+	utils.callsubprocess("parse_kconfig", parse_kconfig_cmd,
+			conf.parse_kconfig_output, env=utils.get_kernel_env())
 	os.chdir(wd)
 
 
@@ -58,12 +58,6 @@ def gen_requred():
 	utils.build_symbol_map() # Ensure smap existence
 	srmap = {value:key for key, value in utils.smap.items()}
 
-	try:
-		os.remove(sf(conf.required_file))
-		os.remove(sf(conf.dot_config_fragment_file))
-	except OSError:
-		pass
-
 	shutil.copy(sf(conf.linux_dot_config), sf(conf.dot_config_back_file))
 
 	with open(sf(conf.linux_dot_config), 'r') as f:
@@ -76,12 +70,12 @@ def gen_requred():
 					if (line[7:indx] == "MODULES"): # skip if modules set
 						raise exceptions.ConfigurationError("Initial kernel configuration must have MODULES disabled.")
 					if (line[indx + 1] == 'y'):
-						freq.write(srmap[line[7:indx]] + "\n")
+						freq.write(str(srmap[line[7:indx]]) + "\n")
 					elif (line[indx + 1] == 'n' or line[indx + 1] == 'm'):
-						freq.write("-" + srmap[line[7:indx]] + "\n")
+						freq.write("-" + str(srmap[line[7:indx]]) + "\n")
 					else:
 						fconf.write(line);
-			freq.write("-" + srmap["MODULES"] + "\n"); # force modules no
+			freq.write("-" + str(srmap["MODULES"]) + "\n"); # force modules no
 
 
 def gen_nbscript():

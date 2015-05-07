@@ -26,8 +26,16 @@ class ConfigurationError(Exception):
 	def __str__(self):
 		return "Configuration error: " + message
 
-class SolutionGenerated(Exception):
+class NoApplicableSolution(Exception):
 	def __init__(self):
 		pass
 	def __str__(self):
-		return "Solution already generated."
+		return "No applicable solution find. All generated solutions were already applied."
+
+class ProcessFailed(Exception):
+	def __init__(self, process, returncode):
+		self.process = process
+		self.returncode = returncode
+	def __str__(self):
+		return "Process failed: " + str(self.process) + \
+			" with return code: " + str(self.returncode)

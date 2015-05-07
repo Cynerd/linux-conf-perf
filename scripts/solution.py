@@ -2,6 +2,7 @@ import os
 import sys
 import tempfile
 import subprocess
+import time
 
 import utils
 from conf import conf
@@ -16,7 +17,7 @@ def generate():
 	if not os.path.isfile(sf(conf.rules_file)):
 		raise exceptions.MissingFile(conf.rules_file,"Run parse_kconfig.")
 
-	if sys.path.isfile(sf(conf.solution_file)) and conf.gen_all_solution_oninit:
+	if os.path.isfile(sf(conf.solution_file)) and conf.gen_all_solution_oninit:
 		raise exceptions.SolutionGenerated()
 
 	w_file = tempfile.NamedTemporaryFile(delete=False)
@@ -50,56 +51,69 @@ def generate():
 	w_file.close()
 
 	# Execute picosat
-	picosat_cmd = [conf.picosat, w_file.name]
-	picosat_cmd += ['-o', sf(conf.solution_file)]
+	try:
+		os.mkdir(sf(conf.log_folder))
+	except OSError:
+		pass
+
+	picosat_cmd = [sf(conf.picosat), w_file.name]
 	if (conf.gen_all_solution_oninit):
 		picosat_cmd += ['--all']
-	if conf.picosat_output:
-		subprocess.call(picosat_cmd)
-	else:
-		subprocess.call(picosat_cmd, stdout=subprocess.DEVNULL)
+
+	satprc = subprocess.Popen(picosat_cmd, stdout = subprocess.PIPE)
+	with open(os.path.join(sf(conf.log_folder), "picosat.log"), 'a') as f:
+		f.write("::" + time.strftime("%y-%m-%d-%H-%M-%S") + "::\n")
+		solut = []
+		for linen in satprc.stdout:
+			line = linen.decode(sys.getdefaultencoding())
+			f.write(line)
+			if conf.picosat_output:
+				print(line, end="")
+			if line[0] == 's':
+				if line.rstrip() == 's SATISFIABLE':
+					try:
+						solut.remove(0)
+						with open(sf(conf.config_map_file), 'a') as fm:
+							fm.write(str(utils.hash_config(solut)) + ':')
+							for sl in solut:
+								fm.write(str(sl) + ' ')
+							fm.write('\n')
+						with open(sf(conf.solved_file), 'a') as fs:
+							for sl in solut:
+								fs.write(str(-1 * sl) + ' ')
+							fs.write('\n')
+					except ValueError:
+						pass
+					solut = []
+				else:
+					os.remove(w_file.name)
+					raise exceptions.NoSolution()
+			elif line[0] == 'v':
+				for sl in line[2:].split():
+					solut.append(int(sl))
 
 	os.remove(w_file.name)
 
 def apply():
 	"""Apply generated solution to kernel source.
 	"""
-	# Check if solution_file exist
-	if not os.path.isfile(sf(conf.solution_file)):
-		raise Exception("Solution file is missing. Run sat_solution and check existence of " + sf(conf.solution_file))
-	
 	utils.build_symbol_map() # Ensure smap existence
 
-	# Read solution if satisfiable
-	solut = []
-	with open(sf(conf.solution_file), 'r') as f:
-		if not f.readline().rstrip() == 's SATISFIABLE':
-			raise NoSolution()
-		for line in f:
-			if line[0] == 'v':
-				solut += line[2:].split()
-	solut.remove('0') # Remove 0 at the end 
+	solved = set()
+	solution = []
+	if os.path.isfile(sf(config_solved_file)):
+		with open(sf(conf.config_solved_file)) as f:
+			for ln in f:
+				solved.add(ln.strip())
 
-	# Write solution to output_confs file
-	with open(sf(conf.output_confs), 'a') as f:
-		iteration = 0
-		with open(sf(conf.iteration_file)) as ff:
-			iteration = int(ff.readline())
-		f.write(str(iteration) + ':')
-		for txt in solut:
-			f.write(txt + ' ')
-		f.write('\n')
-
-	# Write negotation solution to solver_file
-	with open(sf(conf.solved_file), 'a') as f:
-		for txt in solut:
-			if txt[0] == '-':
-				ntx = ""
-				txt = txt[1:]
-			else:
-				ntx = "-"
-			f.write( ntx + txt + " ")
-		f.write("\n")
+	with open(sf(conf.config_map_file)) as f:
+			while True:
+				w = f.readline().split(sep=':')
+				if not w[0] in solved:
+					solution = utils.config_strtoint(w[1])
+					break;
+	if not solution:
+		raise exceptions.NoApplicableSolution()
 
 	# Load variable count
 	with open(sf(conf.symbol_map_file)) as f:
@@ -108,18 +122,18 @@ def apply():
 		var_num += 1
 	# Write solution to .config file in linux source folder
 	with open(sf(conf.linux_dot_config), 'w') as f:
-		for txt in solut:
-			if txt[0] == '-':
+		for s in solution:
+			if s < 0:
 				nt = True
-				txt = txt[1:]
+				s *= -1
 			else:
 				nt = False
-			if int(txt) >= var_num:
+			if s >= var_num:
 				break;
-			if 'NONAMEGEN' in utils.smap[txt]: # ignore generated names
+			if 'NONAMEGEN' in utils.smap[s]: # ignore generated names
 				continue
 
-			f.write('CONFIG_' + utils.smap[txt] + '=')
+			f.write('CONFIG_' + utils.smap[s] + '=')
 			if not nt:
 				f.write('y')
 			else:
