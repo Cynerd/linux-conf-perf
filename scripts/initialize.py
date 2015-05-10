@@ -20,6 +20,7 @@ def all():
 		solution.generate()
 
 def base():
+	print('Initialize base...')
 	try: os.mkdir(sf(conf.build_folder))
 	except FileExistsError:
 		pass
@@ -37,6 +38,7 @@ def base():
 
 def parse_kconfig():
 	"Execute parse_kconfig in linux_sources directory."
+	print('Executing parse_kconfig...')
 	env = dict(os.environ)
 	wd = os.getcwd()
 	os.chdir(sf(conf.linux_sources))
@@ -50,6 +52,7 @@ def parse_kconfig():
 
 def gen_requred():
 	"Generates required depenpency from .config file in linux source tree."
+	print('Generating required configuration...')
 
 	if not os.path.isfile(sf(conf.linux_dot_config)):
 		raise exceptions.MissingFile(sf(conf.linux_dot_config),
@@ -58,27 +61,25 @@ def gen_requred():
 	utils.build_symbol_map() # Ensure smap existence
 	srmap = {value:key for key, value in utils.smap.items()}
 
-	shutil.copy(sf(conf.linux_dot_config), sf(conf.dot_config_back_file))
+	shutil.copy(sf(conf.dot_config), sf(conf.dot_config_back_file))
 
-	with open(sf(conf.linux_dot_config), 'r') as f:
+	with open(sf(conf.dot_config), 'r') as f:
 		with open(sf(conf.required_file), 'w') as freq:
-			with open(sf(conf.dot_config_fragment_file), 'w') as fconf:
-				for line in f:
-					if (line[0] == '#') or (not '=' in line):
-						continue
-					indx = line.index('=')
-					if (line[7:indx] == "MODULES"): # skip if modules set
+			for line in f:
+				if (line[0] == '#') or (not '=' in line):
+					continue
+				indx = line.index('=')
+				if (line[indx + 1] == 'y'):
+					if line[7:indx] == "MODULES": # skip if modules set
 						raise exceptions.ConfigurationError("Initial kernel configuration must have MODULES disabled.")
-					if (line[indx + 1] == 'y'):
-						freq.write(str(srmap[line[7:indx]]) + "\n")
-					elif (line[indx + 1] == 'n' or line[indx + 1] == 'm'):
-						freq.write("-" + str(srmap[line[7:indx]]) + "\n")
-					else:
-						fconf.write(line);
+					freq.write(str(srmap[line[7:indx]]) + "\n")
+				elif (line[indx + 1] == 'n' or line[indx + 1] == 'm'):
+					freq.write("-" + str(srmap[line[7:indx]]) + "\n")
 			freq.write("-" + str(srmap["MODULES"]) + "\n"); # force modules no
 
 
 def gen_nbscript():
+	print('Generating nbscript...')
 	if os.path.isfile(sf(conf.nbscript)):
 		print("Warning: file " + conf.nbscript +
 				" already exists. Generation skipped.")

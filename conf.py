@@ -23,7 +23,7 @@ ignore_misconfig = False
 #######################################
 # Path settings
 dot_confmk = '.conf.mk'
-benchmark_python = 'benchmark.py'
+dot_config = 'dot_config'
 
 linux_sources = 'linux/'
 linux_kconfig_head = linux_sources + 'Kconfig'
