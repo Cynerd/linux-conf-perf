@@ -7,7 +7,9 @@ all: permute
 KCONFIG_PREFIX = ../shared/kconfig
 include $(KCONFIG_PREFIX)/files.mk
 
-SRC  = permute.c
+SRC  = permute.c \
+	   menudata.c \
+	   dotconf.c
 OBJ = $(patsubst %.c,%.o,$(SRC))
 CFLAGS = -O0 -Wall -ggdb -DDEBUG
 INCLUDES = -I../shared
@@ -20,4 +22,4 @@ permute: $(OBJ) $(KCONFIG_OBJ)
 
 clean::
 	$(RM) $(OBJ)
-	$(RM) setpermute
+	$(RM) permute
