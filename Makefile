@@ -90,15 +90,15 @@ write_config:
 permute:
 	@$(MAKE) -C scripts/permute/
 
-$(BUILDROOT_INITRAM): scripts/buildroot/.config scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf
+$(BUILDROOT_INITRAM): buildroot/.config buildroot/system/skeleton/usr/bin/linux-conf-perf
 	@$(MAKE) -C scripts/buildroot
 
-scripts/buildroot/.config:
+buildroot/.config:
 	cp $(BUILDROOT_DEF_CONFIG) $@
 
-scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf:
+buildroot/system/skeleton/usr/bin/linux-conf-perf:
 	cp $(BUILDROOT_INITSCRIPT) $@
-	cat $(BUILDROOT_INITTAB_DIRECTIVE) >> scripts/buildroot/system/skeleton/etc/inittab
+	cat $(BUILDROOT_INITTAB_DIRECTIVE) >> buildroot/system/skeleton/etc/inittab
 
 picosat: scripts/picosat-959/picosat
 scripts/picosat-959/picosat:
