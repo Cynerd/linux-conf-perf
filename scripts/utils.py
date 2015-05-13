@@ -83,9 +83,7 @@ def callsubprocess(process_name, process, show_output = True, regular = "",
 
 def get_kernel_env():
 	env = dict(os.environ)
-	env['SRCARCH'] = conf.SRCARCH
-	env['ARCH'] = conf.ARCH
-	env['KERNELVERSION'] = 'KERNELVERSION' # hides error
+	env.update(conf.kernel_env)
 	return env
 
 

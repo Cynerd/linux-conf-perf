@@ -9,10 +9,13 @@ ARCH = 'x86'
 # This defines environment variable for linux kernel.
 # You most probably don't want to changing this.
 SRCARCH = ARCH
+gen_all_solution_oninit = True # If True, all solutions are generated at initialization.
+
 # linux_make_args
 # These are arguments passed to make when linux is build
 linux_make_args = ['-j8']
-gen_all_solution_oninit = True # If True, all solutions are generated at initialization.
+build_command = ['make'] + linux_make_args
+kernel_env = {'SRCARCH': SRCARCH, 'ARCH': ARCH, 'KERNELVERSION': ARCH}
 
 # novaboot_args
 # These are arguments passed to novaboot,
