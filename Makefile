@@ -40,6 +40,9 @@ mlinux:
 deflinux:
 	ARCH=$(ARCH) $(MAKE) -C linux defconfig
 
+mpermute: permute
+	cd linux && SRCARCH=$(ARCH) ARCH=$(ARCH) KERNELVERSION=$(ARCH) ../scripts/permute/permute Kconfig
+
 init: initialize
 initialize: parse_kconfig picosat
 	scripts/initialize.py
