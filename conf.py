@@ -12,12 +12,14 @@ SRCARCH = ARCH
 # linux_make_args
 # These are arguments passed to make when linux is build
 linux_make_args = ['-j8']
+gen_all_solution_oninit = True # If True, all solutions are generated at initialization.
+
 # novaboot_args
 # These are arguments passed to novaboot,
 # but only if you don't remove it from boot_command.
 novaboot_args = ['--qemu=qemu-system-x86_64']
-gen_all_solution_oninit = True # If True, all solutions are generated at initialization.
-boot_command = [novaboot, nbscript] + novaboot_args
+nbscript = 'scripts/nbscript'
+boot_command = ['scripts/novaboot/novaboot', nbscript] + novaboot_args
 
 picosat_args = []
 ## Programs output show/hide
@@ -66,12 +68,10 @@ output_confs = build_folder + 'output_confs'
 output_folder = 'output/'
 log_folder = 'log/'
 
-nbscript = 'scripts/nbscript'
 
 ## Programs paths
 parse_kconfig = 'scripts/parse_kconfig/parse'
 write_config = 'scripts/write_config/write'
-novaboot = 'scripts/novaboot/novaboot'
 picosat = 'scripts/picosat-959/picosat'
 
 
