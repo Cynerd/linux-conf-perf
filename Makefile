@@ -31,14 +31,14 @@ help:
 	@echo "clean_buildroot     - Executes 'make clean' in buildroot folder."
 	@echo "distclean_buildroot - Executes 'make distclean' in buildroot folder."
 
-mbuildroot: scripts/buildroot/.config scripts/buildroot/system/skeleton/usr/bin/linux-conf-perf $(BENCHMARK_FILES)
-	$(MAKE) -C scripts/buildroot menuconfig
+mbuildroot: buildroot/.config buildroot/system/skeleton/usr/bin/linux-conf-perf
+	$(MAKE) -C buildroot menuconfig
 
 mlinux:
-	ARCH=$(SRCARCH) $(MAKE) -C linux menuconfig
+	ARCH=$(ARCH) $(MAKE) -C linux menuconfig
 
 deflinux:
-	ARCH=$(SRCARCH) $(MAKE) -C linux defconfig
+	ARCH=$(ARCH) $(MAKE) -C linux defconfig
 
 init: initialize
 initialize: parse_kconfig picosat

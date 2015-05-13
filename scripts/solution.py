@@ -101,11 +101,13 @@ def apply():
 
 	solved = set()
 	solution = []
+	# Load set of solved solutions
 	if os.path.isfile(sf(config_solved_file)):
 		with open(sf(conf.config_solved_file)) as f:
 			for ln in f:
 				solved.add(ln.strip())
 
+	# Load one solution if it is not in solved
 	with open(sf(conf.config_map_file)) as f:
 			while True:
 				w = f.readline().split(sep=':')

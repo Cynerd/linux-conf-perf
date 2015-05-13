@@ -1,27 +1,40 @@
 import os
 
-# Global configs
-SRCARCH = 'x86' # Kernel architecture
-ARCH = SRCARCH
+## Global configs
+# ARCH
+# This defines environment variable for linux kernel.
+# Change this to change target architecture
+ARCH = 'x86'
+# SRCARCH
+# This defines environment variable for linux kernel.
+# You most probably don't want to changing this.
+SRCARCH = ARCH
+# linux_make_args
+# These are arguments passed to make when linux is build
 linux_make_args = ['-j8']
+# novaboot_args
+# These are arguments passed to novaboot,
+# but only if you don't remove it from boot_command.
 novaboot_args = ['--qemu=qemu-system-x86_64']
 gen_all_solution_oninit = True # If True, all solutions are generated at initialization.
+boot_command = [conf.novaboot, conf.nbscript] + novaboot_args
 
 picosat_args = []
-# Programs output show/hide
+## Programs output show/hide
 parse_kconfig_output = False
 picosat_output = False
 kernel_config_output = True
 kernel_make_output = True
 boot_output = True
 
-# Configs for debugging
+## Configs for debugging
 step_by_step = False # Executes only single step and exits.
 single_loop = False # Executes only one loop and exits.
 only_config = True # Executes only to configuration phase. Building and booting phases are skipped.
 ignore_misconfig = False
 #######################################
-# Path settings
+# Most probably you don't want touch rest of these.
+## Path settings
 dot_confmk = '.conf.mk'
 dot_config = 'dot_config'
 
@@ -55,7 +68,7 @@ log_folder = 'log/'
 
 nbscript = 'scripts/nbscript'
 
-# Programs paths
+## Programs paths
 parse_kconfig = 'scripts/parse_kconfig/parse'
 write_config = 'scripts/write_config/write'
 novaboot = 'scripts/novaboot/novaboot'
