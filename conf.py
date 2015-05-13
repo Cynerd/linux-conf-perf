@@ -17,7 +17,7 @@ linux_make_args = ['-j8']
 # but only if you don't remove it from boot_command.
 novaboot_args = ['--qemu=qemu-system-x86_64']
 gen_all_solution_oninit = True # If True, all solutions are generated at initialization.
-boot_command = [conf.novaboot, conf.nbscript] + novaboot_args
+boot_command = [novaboot, nbscript] + novaboot_args
 
 picosat_args = []
 ## Programs output show/hide
