@@ -114,3 +114,32 @@ def config_strtoint(str):
 	except ValueError:
 		pass
 	return rtn
+
+def get_config_from_hash(hash):
+	with open(sf(conf.config_map_file), "r") as f:
+		for line in f:
+			w = line.rstrip().split(sep=':')
+			if w[0] == hash:
+				return config_strtoint(w[1])
+	return None
+
+def get_last_configuration():
+	hsh = ""
+	try:
+		with open(sf(conf.config_solved_file), "r") as f:
+			for line in f:
+				sline = line.rstrip()
+				if sline != '':
+					hsh = sline
+	except FileNotFoundError:
+		try:
+			with open(sf(conf.config_map_file), "r") as f:
+				w = f.readline().split(sep=':')
+				hsh = w[0]
+		except FileNotFoundError:
+			pass
+
+	if hsh != '':
+		return hsh
+	else:
+		return 'NoConfig'

@@ -18,27 +18,15 @@ def boot():
 	except FileExistsError:
 			pass
 
-	bench = importlib.machinery.SourceFileLoader("module.name",
-			sf(conf.benchmark_python)).load_module()
+	wd = os.getcwd()
 
-	sprc = subprocess.Popen([sf(conf.novaboot), sf(conf.nbscript)] + conf.novaboot_args,
+	sprc = subprocess.Popen(conf.boot_command,
 			stdout = subprocess.PIPE)
-	output = ''
-	for linen in sprc.stdout:
-		line = linen.decode('utf-8')
-		if conf.boot_output:
-			print(line, end="")
-		if line.startswith('lcp-output: '):
-			output += line[12:]
-	print(output)
+	with open(os.path.join(sf(conf.output_folder), utils.get_last_configuration()), "w") as f:
+		for linen in sprc.stdout:
+			line = linen.decode('utf-8')
+			if conf.boot_output:
+				print(line, end="")
+			f.write(line)
 
-	# TODO change
-	data = bench.stdoutput(output)
-
-	iteration = 0
-	with open(sf(conf.iteration_file), 'r') as f:
-		iteration = int(f.readline())
-
-	for key, val in data.items():
-		with open(os.path.join(sf(conf.output_folder),key), 'w') as f:
-			f.write(str(iteration) + ':' + str(val) + '\n')
+	os.chdir(wd)

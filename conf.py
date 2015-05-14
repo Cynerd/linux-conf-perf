@@ -48,10 +48,10 @@ linux_kconfig_head = linux_sources + 'Kconfig'
 linux_dot_config = linux_sources + '.config'
 linux_image = linux_sources + 'arch/' + ARCH + '/boot/bzImage'
 
-buildroot_def_config = 'scripts/buildroot_recipe/buildroot.def.config'
-buildroot_inittab_directive = 'scripts/buildroot_recipe/inittab_directive'
+buildroot_def_config = 'buildroot_recipe/buildroot.def.config'
+buildroot_inittab_directive = 'buildroot_recipe/inittab_directive'
 buildroot_initscript = 'scripts/buildroot_recipe/linux-conf-perf'
-buildroot_initram = 'scripts/buildroot/output/images/rootfs.cpio.gz'
+buildroot_initram = 'buildroot/output/images/rootfs.cpio.gz'
 
 build_folder = 'jobfiles/'
 phase_file = build_folder + 'phase'

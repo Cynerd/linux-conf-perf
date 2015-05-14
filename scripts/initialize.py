@@ -89,10 +89,14 @@ def gen_nbscript():
 				" already exists. Generation skipped.")
 		return
 
+	wd = os.getcwd()
+	os.chdir(os.path.dirname(sf(conf.nbscript)))
+	prefix = os.path.relpath(conf.absroot)
+	os.chdir(wd)
 	with open(sf(conf.nbscript), 'w') as f:
 		f.write('# generated novaboot script. Please don\'t edit unless you know what are you doing.\n')
-		f.write('load ' + sf(conf.linux_image) + ' console=ttyS0,115200\n')
-		f.write('load ' + sf(conf.buildroot_initram) + '\n')
+		f.write('load ' + os.path.join(prefix, conf.linux_image) + ' console=ttyS0,115200\n')
+		f.write('load ' + os.path.join(prefix, conf.buildroot_initram) + '\n')
 
 #################################################################################
 

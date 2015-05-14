@@ -39,8 +39,8 @@ def make():
 	wd = os.getcwd()
 	os.chdir(sf(conf.linux_sources))
 	if conf.kernel_make_output:
-		subprocess.call(build_command, env=utils.get_kernel_env())
+		subprocess.call(conf.build_command, env=utils.get_kernel_env())
 	else:
-		subprocess.call(build_command, stdout=subprocess.DEVNULL,
+		subprocess.call(conf.build_command, stdout=subprocess.DEVNULL,
 				env=utils.get_kernel_env())
 	os.chdir(wd)
