@@ -2,4 +2,5 @@
 #define DEFAULT_VARIABLE_COUNT_FILE "variable_count"
 #define DEFAULT_SYMBOL_MAP_FILE "symbol_map"
 #define DEFAULT_DEF_CONFIG_FILE "def_config"
-#define DEFAULT_SOLUTION_FILE "solution"
+#define DEFAULT_CONFIG_MAP_FILE "config_map"
+#define DEFAULT_CONFIG_SOLVED_FILE "config_solved"

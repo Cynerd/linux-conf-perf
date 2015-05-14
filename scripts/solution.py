@@ -107,14 +107,23 @@ def apply():
 				solved.add(ln.strip())
 
 	# Load one solution if it is not in solved
+	hash = ''
 	with open(sf(conf.config_map_file)) as f:
 			while True:
 				w = f.readline().split(sep=':')
+				if not w[0]:
+					break
 				if not w[0] in solved:
 					solution = utils.config_strtoint(w[1])
-					break;
+					hash = w[0]
+					break
 	if not solution:
 		raise exceptions.NoApplicableSolution()
+
+	# Write hash to config_solved
+	with open(sf(conf.config_solved_file), 'a') as f:
+		f.write(hash)
+		f.write('\n')
 
 	# Load variable count
 	with open(sf(conf.symbol_map_file)) as f:

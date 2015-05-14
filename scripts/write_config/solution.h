@@ -8,6 +8,14 @@
 #ifndef _SOLUTION_H_
 #define _SOLUTION_H_
 
-void solution_check(struct symlist *sl, FILE * f);
+#define BUFFER_SIZE 32
+
+struct solution {
+    int *sol;
+    size_t size;
+};
+
+struct solution *solution_load(FILE *fmap, FILE *fsolved);
+void solution_check(struct symlist *sl, struct solution *s);
 
 #endif /* _SOLUTION_H_ */

@@ -35,7 +35,7 @@ boot_output = True
 ## Configs for debugging
 step_by_step = False # Executes only single step and exits.
 single_loop = False # Executes only one loop and exits.
-only_config = True # Executes only to configuration phase. Building and booting phases are skipped.
+only_config = False # Executes only to configuration phase. Building and booting phases are skipped.
 ignore_misconfig = False
 #######################################
 # Most probably you don't want touch rest of these.
