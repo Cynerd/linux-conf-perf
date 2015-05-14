@@ -47,10 +47,10 @@ init: initialize
 initialize: parse_kconfig picosat
 	scripts/initialize.py
 
-test: $(BUILDROOT_INITRAM) parse_kconfig
+test: parse_kconfig
 	scripts/test.py
 
-run: parse_kconfig write_config picosat $(BUILDROOT_INITRAM)
+run: parse_kconfig write_config picosat
 	scripts/loop.py
 
 evaluate:
@@ -93,9 +93,6 @@ write_config:
 permute:
 	@$(MAKE) -C scripts/permute/
 
-$(BUILDROOT_INITRAM): buildroot/.config buildroot/system/skeleton/usr/bin/linux-conf-perf
-	@$(MAKE) -C scripts/buildroot
-
 buildroot/.config:
 	cp $(BUILDROOT_DEF_CONFIG) $@
 
@@ -107,10 +104,3 @@ picosat: scripts/picosat-959/picosat
 scripts/picosat-959/picosat:
 	cd scripts/picosat-959 && ./configure
 	$(MAKE) -C scripts/picosat-959
-
-#######################################
-
-$(PHASE_FILE): initialize
-$(SYMBOL_MAP_FILE): initialize
-$(RULES_FILE): initialize
-$(VARIABLE_COUNT_FILE): initialize
