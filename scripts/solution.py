@@ -101,7 +101,7 @@ def apply():
 	solved = set()
 	solution = []
 	# Load set of solved solutions
-	if os.path.isfile(sf(config_solved_file)):
+	if os.path.isfile(sf(conf.config_solved_file)):
 		with open(sf(conf.config_solved_file)) as f:
 			for ln in f:
 				solved.add(ln.strip())
