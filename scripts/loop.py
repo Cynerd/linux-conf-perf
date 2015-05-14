@@ -23,8 +23,9 @@ def step():
 		phase_message(2)
 		phase_set(3)
 	elif phs == 3:
-		phase_message(3)
-		solution.generate()
+		if not conf.gen_all_solution_oninit:
+			phase_message(3)
+			solution.generate()
 		iteration_inc()
 		phase_set(4)
 	elif phs == 4:
