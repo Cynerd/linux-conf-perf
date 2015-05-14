@@ -7,6 +7,7 @@
 jobfiles
 output
 log
+dot_config
 __*__
 
 scripts/nbscript
