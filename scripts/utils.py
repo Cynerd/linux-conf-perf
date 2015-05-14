@@ -107,7 +107,7 @@ def config_strtoint(str):
 	"""Reads list of configured symbols from string
 	"""
 	rtn = []
-	for s in str.split(sep=' '):
+	for s in str.rstrip().split(sep=' '):
 		rtn.append(int(s))
 	try:
 		rtn.remove(0)
