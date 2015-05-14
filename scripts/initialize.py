@@ -43,6 +43,11 @@ def base():
 
 def parse_kconfig():
 	"Execute parse_kconfig in linux_sources directory."
+	if os.path.isfile(sf(conf.symbol_map_file)) and \
+			os.path.isfile(sf(conf.rules_file)) and \
+			os.path.isfile(sf(conf.variable_count_file)):
+		print('Warning: parse_kconfig not executed. Files already exists.')
+		return
 	print('Executing parse_kconfig...')
 	env = dict(os.environ)
 	wd = os.getcwd()
