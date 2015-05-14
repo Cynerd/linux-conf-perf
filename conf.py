@@ -11,11 +11,11 @@ ARCH = 'x86'
 SRCARCH = ARCH
 gen_all_solution_oninit = True # If True, all solutions are generated at initialization.
 
+kernel_env = {'SRCARCH': SRCARCH, 'ARCH': ARCH, 'KERNELVERSION': ARCH}
 # linux_make_args
 # These are arguments passed to make when linux is build
 linux_make_args = ['-j8']
 build_command = ['make'] + linux_make_args
-kernel_env = {'SRCARCH': SRCARCH, 'ARCH': ARCH, 'KERNELVERSION': ARCH}
 
 # novaboot_args
 # These are arguments passed to novaboot,

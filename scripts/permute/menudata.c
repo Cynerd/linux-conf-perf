@@ -8,11 +8,14 @@ struct menudata *menudata_new(void) {
 
 void menudata_set_permute(struct menu *m, bool perm) {
     ((struct menudata *) m->data)->permute = perm;
-    ((struct menudata *) m->data)->subpermute = perm;
     struct menu *prnt;
-    for (prnt = m->parent; prnt != NULL; prnt = prnt->parent) {
+    for (prnt = m; prnt != NULL; prnt = prnt->parent) {
         menudata_cal(prnt);
     }
+}
+
+void menudata_set_all_permute(struct menu *m, bool perm) {
+    menudata_set_permute(m, perm);
 
     struct menu **stack;
     size_t stack_size = 2, stack_pos = 0;
@@ -37,23 +40,19 @@ void menudata_set_permute(struct menu *m, bool perm) {
         if (m == NULL && stack_pos > 0)
             m = stack[--stack_pos];
     }
+
 }
 
 void menudata_cal(struct menu *m) {
-    bool perm = true;
     bool subperm = false;
     struct menu *w;
     for (w = m->list; w != NULL; w = w->next) {
         if (w->data != NULL && (((struct menudata *) w->data)->permute
                                 || ((struct menudata *) w->data)->
                                 subpermute)) {
-            subperm = true;
-        } else {
-            perm = false;
+            if (m->data == NULL)
+                m->data = menudata_new();
+            ((struct menudata *) m->data)->subpermute = subperm;
         }
     }
-    if (m->data == NULL)
-        m->data = menudata_new();
-    ((struct menudata *) m->data)->permute = perm && subperm;
-    ((struct menudata *) m->data)->subpermute = subperm;
 }

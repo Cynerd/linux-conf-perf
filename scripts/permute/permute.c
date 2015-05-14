@@ -9,7 +9,9 @@
 #include <build_files.h>
 #include "menudata.h"
 #include "dotconf.h"
+
 #define INPUT_SIZE 1024
+
 int verbose_level;
 char *file;
 
@@ -44,10 +46,7 @@ int main(int argc, char **argv) {
     conf_parse(file);
     conf_read(".config");
 
-    if (!dotconfig_read())
-        reqsave = true;
-    else
-        reqsave = false;
+    dotconfig_read(&reqsave);
 
     struct menu *wroot, *wmenu, *wwmenu;
     wroot = &rootmenu;
@@ -136,7 +135,11 @@ int main(int argc, char **argv) {
                 goto input;
             break;
         case 'v':
-            menudata_set_permute(wwmenu, true);
+            if (input[1] == 'a') {
+                menudata_set_all_permute(wwmenu, true);
+            } else {
+                menudata_set_permute(wwmenu, true);
+            }
             reqsave = true;
             break;
         case 'f':
@@ -154,14 +157,15 @@ int main(int argc, char **argv) {
 
 void printf_help(void) {
     printf("As input are accepted these commands:\n");
-    printf("  e <NUM> Enter menu according to number.\n");
-    printf("  u       Go to previous upper menu.\n");
-    printf("  v <NUM> Set menu and all its submenus as variable.\n");
-    printf("  f <NUM> Set menu and all its submenus as fixed.\n");
-    printf("  s       Save settings.\n");
-    printf("  r       Reprint menu.\n");
-    printf("  h       Prints this text.\n");
-    printf("  q       Quit this program\n");
+    printf("  e <NUM>  Enter menu according to number.\n");
+    printf("  u        Go to previous upper menu.\n");
+    printf("  v <NUM>  Set config as variable.\n");
+    printf("  va <NUM> Set menu and all its submenus as variable.\n");
+    printf("  f <NUM>  Set menu and all its submenus as fixed.\n");
+    printf("  s        Save settings.\n");
+    printf("  r        Reprint menu.\n");
+    printf("  h        Prints this text.\n");
+    printf("  q        Quit this program\n");
 }
 
 void exit_save(void) {

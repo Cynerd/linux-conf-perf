@@ -1,23 +1,28 @@
 #include "dotconf.h"
 
-bool dotconfig_read(void) {
+void dotconfig_read(bool * reqsave) {
     FILE *f;
     f = fopen(DOTCONFIG_FILE, "r");
-    if (f == NULL)
-        return false;
+    if (f == NULL) {
+        *reqsave = true;
+        return;
+    }
 
     char buffer[READBUFFER_SIZE];
     while (fgets(buffer, READBUFFER_SIZE, f) != NULL) {
         if (buffer[0] == '\0' || buffer[1] == '\0')
             continue;
-        if (buffer[0] == '#') {
-        } else {
+        if (buffer[0] != '#') {
             char *wstr = buffer + 7;
             char *end = strchr(wstr, '=');
             *end = '\0';
             struct symbol *sym = sym_find(wstr);
             if (sym->type != S_BOOLEAN && sym->type != S_TRISTATE)
                 continue;
+            if ((sym_get_tristate_value(sym) == yes && *(end + 1) != 'y')
+                || (sym_get_tristate_value(sym) == no
+                    && *(end + 1) != 'n'))
+                *reqsave = true;
             struct property *prop;
             for_all_prompts(sym, prop) {
                 if (prop->menu->data == NULL)
@@ -68,8 +73,6 @@ bool dotconfig_read(void) {
         if (wmenu == NULL && stack_pos > 0)
             wmenu = stack[--stack_pos];
     }
-
-    return true;
 }
 
 void dotconfig_write(void) {
@@ -81,8 +84,8 @@ void dotconfig_write(void) {
     int i;
     unsigned variable = 0, fixed = 0;
     for_all_symbols(i, sym)
-    if ((sym->type == S_BOOLEAN || sym->type == S_TRISTATE)
-        && sym->name != NULL) {
+        if ((sym->type == S_BOOLEAN || sym->type == S_TRISTATE)
+            && sym->name != NULL) {
         for_all_prompts(sym, prop) {
             if (prop->menu->data == NULL
                 || !((struct menudata *) prop->menu->data)->permute) {
@@ -92,8 +95,9 @@ void dotconfig_write(void) {
                 break;
             } else {
                 variable++;
-                printf("%s\n=%s\n", sym->name,
-                        sym_get_tristate_value(sym) == no ? "n" : "y");
+                if (verbose_level > 1)
+                    printf("%s=%s\n", sym->name,
+                           sym_get_tristate_value(sym) == no ? "n" : "y");
             }
         }
     }
