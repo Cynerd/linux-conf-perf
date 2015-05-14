@@ -70,22 +70,21 @@ def generate():
 			if conf.picosat_output:
 				print(line, end="")
 			if line[0] == 's':
-				if line.rstrip() == 's SATISFIABLE':
-					try:
-						solut.remove(0)
-						with open(sf(conf.config_map_file), 'a') as fm:
-							fm.write(str(utils.hash_config(solut)) + ':')
-							for sl in solut:
-								fm.write(str(sl) + ' ')
-							fm.write('\n')
-						with open(sf(conf.solved_file), 'a') as fs:
-							for sl in solut:
-								fs.write(str(-1 * sl) + ' ')
-							fs.write('\n')
-					except ValueError:
-						pass
-					solut = []
-				else:
+				try:
+					solut.remove(0)
+					with open(sf(conf.config_map_file), 'a') as fm:
+						fm.write(str(utils.hash_config(solut)) + ':')
+						for sl in solut:
+							fm.write(str(sl) + ' ')
+						fm.write('\n')
+					with open(sf(conf.solved_file), 'a') as fs:
+						for sl in solut:
+							fs.write(str(-1 * sl) + ' ')
+						fs.write('\n')
+				except ValueError:
+					pass
+				solut = []
+				if not line.rstrip() == 's SATISFIABLE':
 					os.remove(w_file.name)
 					raise exceptions.NoSolution()
 			elif line[0] == 'v':

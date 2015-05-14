@@ -11,13 +11,18 @@ import exceptions
 import loop
 import solution
 
+import exceptions
+
 def all():
 	base()
 	gen_nbscript()
 	parse_kconfig()
 	gen_requred()
 	if conf.gen_all_solution_oninit:
-		solution.generate()
+		try:
+			solution.generate()
+		except exceptions.NoSolution:
+			pass
 
 def base():
 	print('Initialize base...')
@@ -75,7 +80,6 @@ def gen_requred():
 					freq.write(str(srmap[line[7:indx]]) + "\n")
 				elif (line[indx + 1] == 'n' or line[indx + 1] == 'm'):
 					freq.write("-" + str(srmap[line[7:indx]]) + "\n")
-			freq.write("-" + str(srmap["MODULES"]) + "\n"); # force modules no
 
 
 def gen_nbscript():
