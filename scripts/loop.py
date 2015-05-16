@@ -33,7 +33,15 @@ def step():
 		phase_set(5)
 	elif phs == 5:
 		phase_message(5)
-		solution.apply()
+		try:
+			solution.apply()
+		except exceptions.NoApplicableSolution:
+			try:
+				os.mkdir(sf(conf.result_folder))
+			except FileExistsError:
+				pass
+			print('\nAll done.')
+			exit(0)
 		phase_set(6)
 	elif phs == 6:
 		phase_message(6)
@@ -50,7 +58,7 @@ def step():
 	elif phs == 8:
 		phase_message(8)
 		if conf.only_config:
-			phase_set(2)
+			phase_set(3)
 		else:
 			phase_set(9)
 	elif phs == 9:
@@ -66,7 +74,7 @@ def step():
 		phase_set(12)
 	elif phs == 12:
 		phase_message(12)
-		phase_set(2)
+		phase_set(3)
 
 # Phase #
 phases = ("Not Initialized",		#0
