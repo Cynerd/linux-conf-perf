@@ -41,9 +41,7 @@ def reduce_matrix(A, symrow):
 			columns.append(column)
 		i -= 1
 
-
-def evaluate():
-	print("Collect data...")
+def collect_data():
 	hashs = {}
 	for fl in os.listdir(sf(conf.result_folder)):
 		if os.path.isfile(os.path.join(sf(conf.result_folder), fl)):
@@ -67,8 +65,9 @@ def evaluate():
 			for ln in f:
 				vec.append(float(ln))
 			hashs[hash][1] = vec
+	return hashs
 
-	print('Build matrix...')
+def build_matrix(hashs):
 	A = []
 	B = []
 	for hash,data in hashs.items():
@@ -83,6 +82,14 @@ def evaluate():
 				A[x][y] = 0
 			else:
 				A[x][y] = 1
+	return A, B, symrow
+
+def evaluate():
+	print("Collect data...")
+	hashs = collect_data()
+
+	print('Build matrix...')
+	A, B, symrow = build_matrix(hashs)
 
 	# Reduce matrix A
 	print('Simplify matrix...')
