@@ -54,7 +54,7 @@ run: parse_kconfig write_config picosat
 	scripts/loop.py
 
 evaluate:
-	@ #TODO
+	scripts/evaluate.py
 
 clean:
 	@$(MAKE) -C scripts/parse_kconfig clean
