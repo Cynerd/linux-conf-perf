@@ -103,12 +103,24 @@ def hash_config(cf):
 	hsh = hashlib.md5(bytes(str, sys.getdefaultencoding()))
 	return hsh.hexdigest()
 
-def config_strtoint(str):
+def config_strtoint(str, full):
 	"""Reads list of configured symbols from string
 	"""
 	rtn = []
-	for s in str.rstrip().split(sep=' '):
-		rtn.append(int(s))
+	if full:
+		for s in str.rstrip().split(sep=' '):
+			rtn.append(int(s))
+	else:
+		count = 0
+		with open(sf(conf.variable_count_file)) as f:
+			f.readline()
+			count = int(f.readline())
+		for s in str.rstrip().split(sep=' '):
+			val = int(s)
+			if abs(val) <= count:
+				rtn.append(val)
+			else:
+				break;
 	try:
 		rtn.remove(0)
 	except ValueError:
@@ -120,7 +132,7 @@ def get_config_from_hash(hash):
 		for line in f:
 			w = line.rstrip().split(sep=':')
 			if w[0] == hash:
-				return config_strtoint(w[1])
+				return config_strtoint(w[1], True)
 	return None
 
 def get_last_configuration():

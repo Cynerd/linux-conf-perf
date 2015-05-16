@@ -31,9 +31,11 @@ void output_rules_endterm(void) {
 }
 
 // Functions for variable_count
-void output_write_variable_count(char *var_file, int count) {
+void output_write_variable_count(char *var_file, int count,
+                                 unsigned lastoption) {
     FILE *f;
     f = fopen(var_file, "w");
-    fprintf(f, "%d", count);
+    fprintf(f, "%d\n", count);
+    fprintf(f, "%d", lastoption);
     fclose(f);
 }

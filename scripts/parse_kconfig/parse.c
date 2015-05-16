@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
     cpy_dep();
 
     output_write_variable_count(variable_count_file,
-                                gsymlist->lastsym - 1);
+                                gsymlist->lastsym - 1, gsymlist->pos);
 
     output_finish();
     return 0;

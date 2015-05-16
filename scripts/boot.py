@@ -22,7 +22,7 @@ def boot():
 
 	sprc = subprocess.Popen(conf.boot_command,
 			stdout = subprocess.PIPE)
-	with open(os.path.join(sf(conf.output_folder), utils.get_last_configuration()), "w") as f:
+	with open(os.path.join(sf(conf.output_folder), utils.get_last_configuration()), "a") as f:
 		for linen in sprc.stdout:
 			line = linen.decode('utf-8')
 			if conf.boot_output:

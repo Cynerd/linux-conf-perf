@@ -69,6 +69,7 @@ iteration_file = build_folder + 'iteration'
 output_confs = build_folder + 'output_confs'
 
 output_folder = 'output/'
+result_folder = 'result/'
 log_folder = 'log/'
 
 

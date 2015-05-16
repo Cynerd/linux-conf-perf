@@ -114,7 +114,7 @@ def apply():
 				if not w[0]:
 					break
 				if not w[0] in solved:
-					solution = utils.config_strtoint(w[1])
+					solution = utils.config_strtoint(w[1], True)
 					hash = w[0]
 					break
 	if not solution:

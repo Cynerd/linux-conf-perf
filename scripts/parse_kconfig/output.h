@@ -19,6 +19,7 @@ void output_rules_symbol(int id);
 void output_rules_endterm(void);
 
 // Functions for variable_count
-void output_write_variable_count(char *var_file, int count);
+void output_write_variable_count(char *var_file, int count,
+                                 unsigned lastoption);
 
 #endif /* _OUTPUT_H_ */
