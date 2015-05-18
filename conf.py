@@ -54,6 +54,7 @@ buildroot_initscript = 'scripts/buildroot_recipe/linux-conf-perf'
 buildroot_initram = 'buildroot/output/images/rootfs.cpio.gz'
 
 build_folder = 'jobfiles/'
+jobfolder_linux_image = build_folder + 'linuxImage'
 phase_file = build_folder + 'phase'
 symbol_map_file = build_folder + 'symbol_map' # Also defined in parse_kconfig
 rules_file = build_folder + 'rules' # Also defined in parse_kconfig

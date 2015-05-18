@@ -15,7 +15,6 @@ import exceptions
 
 def all():
 	base()
-	gen_nbscript()
 	parse_kconfig()
 	gen_requred()
 	if conf.gen_all_solution_oninit:
@@ -86,22 +85,6 @@ def gen_requred():
 				elif (line[indx + 1] == 'n' or line[indx + 1] == 'm'):
 					freq.write("-" + str(srmap[line[7:indx]]) + "\n")
 
-
-def gen_nbscript():
-	print('Generating nbscript...')
-	if os.path.isfile(sf(conf.nbscript)):
-		print("Warning: file " + conf.nbscript +
-				" already exists. Generation skipped.")
-		return
-
-	wd = os.getcwd()
-	os.chdir(os.path.dirname(sf(conf.nbscript)))
-	prefix = os.path.relpath(conf.absroot)
-	os.chdir(wd)
-	with open(sf(conf.nbscript), 'w') as f:
-		f.write('# generated novaboot script. Please don\'t edit unless you know what are you doing.\n')
-		f.write('load ' + os.path.join(prefix, conf.linux_image) + ' console=ttyS0,115200\n')
-		f.write('load ' + os.path.join(prefix, conf.buildroot_initram) + '\n')
 
 #################################################################################
 

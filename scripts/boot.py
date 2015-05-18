@@ -11,8 +11,6 @@ from conf import sf
 from exceptions import MissingFile
 
 def boot():
-	if not os.path.isfile((conf.nbscript)):
-		initialize.gen_nbscript()
 	try:
 		os.mkdir(sf(conf.output_folder))
 	except FileExistsError:

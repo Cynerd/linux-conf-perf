@@ -1,0 +1,4 @@
+#!/usr/bin/env novaboot
+# Novaboot script
+load ../jobfiles/linuxImage console=ttyS0,115200
+load ../buildroot/output/images/rootfs.cpio.gz

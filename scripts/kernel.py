@@ -43,4 +43,10 @@ def make():
 	else:
 		subprocess.call(conf.build_command, stdout=subprocess.DEVNULL,
 				env=utils.get_kernel_env())
+
+	try:
+		os.symlink(sf(conf.linux_image), sf(conf.jobfolder_linux_image))
+	except FileExistsError:
+		pass
+
 	os.chdir(wd)
