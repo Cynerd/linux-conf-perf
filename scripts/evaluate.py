@@ -85,7 +85,7 @@ def reduce_matrix(A, symrow, bases):
 			bases[0].append(base)
 
 	# Generate new Base
-	if not bases:
+	if bases == [[]]:
 		for x in range(0, len(A)):
 			A[x].append(1)
 		symrow.append(0)
