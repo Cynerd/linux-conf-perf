@@ -8,12 +8,49 @@ from conf import conf
 from conf import sf
 import utils
 
+def reduce_matrix_search_for_base_recurse(wset, columns, contains, ignore):
+	bases = []
+	for x in range(0, len(columns)):
+		if x in contains or x in ignore:
+			continue
+		colide = False
+		for i in range(0, len(wset)):
+			if wset[i] == 1 and columns[x][i] == 1:
+				colide = True
+				break
+		if not colide:
+			newset = list(wset)
+			onecount = 0
+			for i in range(0, len(newset)):
+				newset[i] = newset[i] | columns[x][i]
+				if (newset[i] == 1):
+					onecount += 1
+			contains.add(x)
+			if onecount == len(newset):
+				bases.append(set(contains))
+			else:
+				rbases = reduce_matrix_search_for_base_recurse(newset, columns, contains, ignore)
+				for rbase in rbases:
+					if not rbase in bases:
+						bases.append(rbase)
+			contains.remove(x)
+	return bases
+0
+def reduce_matrix_search_for_base(columns):
+	bases = []
+	ignore = []
+	for i in range(0, len(columns)):
+		wset = list(columns[i])
+		ignore.append(i)
+		bases.extend(reduce_matrix_search_for_base_recurse(wset, columns, {i}, ignore))
+	return bases
+
 def reduce_matrix_remove_symbol(A, symrow, indx):
 	del symrow[indx]
 	for i in range(0, len(A)):
 		del A[i][indx]
 
-def reduce_matrix(A, symrow):
+def reduce_matrix(A, symrow, bases):
 	# Remove fixed symbols
 	i = len(A[0]) - 1
 	while i >= 0:
@@ -40,6 +77,18 @@ def reduce_matrix(A, symrow):
 		else:
 			columns.append(column)
 		i -= 1
+
+	# Search for Bases
+	basesx = reduce_matrix_search_for_base(columns)
+	if bases:
+		for base in basesx:
+			bases[0].append(base)
+
+	# Generate new Base
+	if not bases:
+		for x in range(0, len(A)):
+			A[x].append(1)
+		symrow.append(0)
 
 def collect_data():
 	hashs = {}
@@ -93,11 +142,8 @@ def evaluate():
 
 	# Reduce matrix A
 	print('Simplify matrix...')
-	reduce_matrix(A, symrow)
-
-	for x in range(0, len(A)):
-		A[x].append(1)
-	symrow.append(0)
+	bases = []
+	reduce_matrix(A, symrow, [bases])
 
 	# Calculate value
 	print('Figuring values...')
@@ -110,6 +156,9 @@ def evaluate():
 		if symrow[i] == 0:
 			print("Base", end=' ')
 		else:
+			for base in bases:
+				if i in base:
+					print("Base", end=' ')
 			for s in symrow[i]:
 				print(utils.smap[s], end=' ')
 		print("=", end=' ')
