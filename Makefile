@@ -61,7 +61,7 @@ clean:
 	@$(MAKE) -C scripts/write_config clean
 	@if [ -e scripts/picosat-959/makefile ]; then $(MAKE) -C scripts/picosat-959 clean; fi
 	$(RM) .conf.mk
-	$(RM) -r jobfiles
+	$(RM) -r jobfiles output result
 	$(RM) $(NBSCRIPT)
 
 distclean: clean distclean_linux distclean_buildroot
