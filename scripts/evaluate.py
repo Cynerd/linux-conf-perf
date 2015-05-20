@@ -156,9 +156,13 @@ def evaluate():
 		if symrow[i] == 0:
 			print("Base", end=' ')
 		else:
-			for base in bases:
-				if i in base:
+			if len(bases) > 0:
+				if i in bases[0]:
 					print("Base", end=' ')
+			elif len(bases) > 1:
+				for x in range(0, len(bases)):
+					if i in bases[x]:
+						print("Base" + x, end=' ')
 			for s in symrow[i]:
 				print(utils.smap[s], end=' ')
 		print("=", end=' ')
