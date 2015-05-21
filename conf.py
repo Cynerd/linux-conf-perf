@@ -5,27 +5,40 @@ import os
 # This defines environment variable for linux kernel.
 # Change this to change target architecture
 ARCH = 'x86'
-# SRCARCH
-# This defines environment variable for linux kernel.
-# You most probably don't want to changing this.
-SRCARCH = ARCH
+# gen_all_solutions_oninit
+# If True, all solutions are generated at initalization.
+# If False, every loop is generated one solution.
 gen_all_solution_oninit = True # If True, all solutions are generated at initialization.
 
-kernel_env = {'SRCARCH': SRCARCH, 'ARCH': ARCH, 'KERNELVERSION': ARCH}
+# kernle_env
+# Enviroment variables for Linux
+kernel_env = {'SRCARCH': ARCH, 'ARCH': ARCH, 'KERNELVERSION': ARCH}
 # linux_make_args
-# These are arguments passed to make when linux is build
+# These are arguments passed to make when linux is build.
 linux_make_args = ['-j8']
+# build_command
+# Command executed for kernel build in linux folder.
 build_command = ['make'] + linux_make_args
 
 # novaboot_args
-# These are arguments passed to novaboot,
+# These are arguments passed to Novaboot,
 # but only if you don't remove it from boot_command.
 novaboot_args = ['--qemu=qemu-system-x86_64']
+# nbscript
+# This variable is path to Novaboot script.
 nbscript = 'scripts/nbscript'
+# boot_command
+# Command executed for booting. Output of this command is saved to output folder.
 boot_command = ['scripts/novaboot/novaboot', nbscript] + novaboot_args
 
+# picosat_args
+# Arguments passed to PicoSAT.
 picosat_args = []
+
 ## Programs output show/hide
+# These options hides output of launched programs from terminal.
+# If variable is True, output is printed. Otherwise is hidden.
+# What ever are these settings, output is always written to files in folder log.
 parse_kconfig_output = False
 picosat_output = False
 kernel_config_output = True
@@ -36,7 +49,7 @@ boot_output = True
 step_by_step = False # Executes only single step and exits.
 single_loop = False # Executes only one loop and exits.
 only_config = False # Executes only to configuration phase. Building and booting phases are skipped.
-ignore_misconfig = False
+ignore_misconfig = False # Ignore if configuration wasn't applied correctly.
 #######################################
 # Most probably you don't want touch rest of these.
 ## Path settings
@@ -72,7 +85,6 @@ output_confs = build_folder + 'output_confs'
 output_folder = 'output/'
 result_folder = 'result/'
 log_folder = 'log/'
-
 
 ## Programs paths
 parse_kconfig = 'scripts/parse_kconfig/parse'

@@ -11,7 +11,7 @@ def gen_confmk():
 
 	with open(conf.dot_confmk, 'w') as f:
 		f.write("# This file is generated. Please don't edit this file.\n")
-		f.write("ARCH := " + conf.SRCARCH + "\n")
+		f.write("ARCH := " + conf.ARCH + "\n")
 		f.write("\n")
 		f.write("BUILDROOT_INITRAM := " + conf.buildroot_initram + "\n")
 		f.write("BUILDROOT_INITTAB_DIRECTIVE := " + conf.buildroot_inittab_directive + "\n")
