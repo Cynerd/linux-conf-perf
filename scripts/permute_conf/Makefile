@@ -2,12 +2,12 @@ MAKEFLAGS += --no-builtin-rules
 .PHONY: all clean
 .SUFFIXES:
 
-all: permute
+all: permute_conf
 
 KCONFIG_PREFIX = ../shared/kconfig
 include $(KCONFIG_PREFIX)/files.mk
 
-SRC  = permute.c \
+SRC  = permute_conf.c \
 	   menudata.c \
 	   dotconf.c
 OBJ = $(patsubst %.c,%.o,$(SRC))
@@ -17,9 +17,9 @@ INCLUDES = -I../shared
 %.o: %.c
 	gcc -c $(CFLAGS) -o $@ $^ $(INCLUDES)
 
-permute: $(OBJ) $(KCONFIG_OBJ)
+permute_conf: $(OBJ) $(KCONFIG_OBJ)
 	gcc -o $@ $^
 
 clean::
 	$(RM) $(OBJ)
-	$(RM) permute
+	$(RM) permute_conf
