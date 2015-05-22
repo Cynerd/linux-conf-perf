@@ -74,10 +74,10 @@ distclean_linux:
 	@$(MAKE) -C linux distclean
 
 clean_buildroot:
-	@$(MAKE) -C scripts/buildroot clean
+	@$(MAKE) -C buildroot clean
 
 distclean_buildroot:
-	@$(MAKE) -C scripts/buildroot distclean
+	@$(MAKE) -C buildroot distclean
 
 #######################################
 
