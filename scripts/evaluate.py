@@ -79,7 +79,10 @@ def reduce_matrix(A, symrow, bases):
 		i -= 1
 
 	# Search for Bases
-	basesx = reduce_matrix_search_for_base(columns)
+	columnsr = []
+	for i in range(len(columns) - 1, -1,-1):
+		columnsr.append(columns[i])
+	basesx = reduce_matrix_search_for_base(columnsr)
 	if bases:
 		for base in basesx:
 			bases[0].append(base)
