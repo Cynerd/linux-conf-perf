@@ -17,7 +17,7 @@ def generate():
 	if not os.path.isfile(sf(conf.rules_file)):
 		raise exceptions.MissingFile(conf.rules_file,"Run parse_kconfig.")
 
-	if os.path.isfile(sf(conf.solution_file)) and conf.gen_all_solution_oninit:
+	if os.path.isfile(sf(conf.solution_file)):
 		raise exceptions.SolutionGenerated()
 
 	w_file = tempfile.NamedTemporaryFile(delete=False)
@@ -25,11 +25,6 @@ def generate():
 	lines = set()
 	with open(sf(conf.rules_file), 'r') as f:
 		for lnn in open(sf(conf.rules_file), 'r'):
-			ln = lnn.rstrip()
-			if ln not in lines:
-				lines.add(ln)
-	if os.path.isfile(sf(conf.solved_file)):
-		for lnn in open(sf(conf.solved_file), 'r'):
 			ln = lnn.rstrip()
 			if ln not in lines:
 				lines.add(ln)
@@ -57,8 +52,7 @@ def generate():
 		pass
 
 	picosat_cmd = [sf(conf.picosat), w_file.name]
-	if (conf.gen_all_solution_oninit):
-		picosat_cmd += ['--all']
+	picosat_cmd += conf.picosat_args
 
 	satprc = subprocess.Popen(picosat_cmd, stdout = subprocess.PIPE)
 	with open(os.path.join(sf(conf.log_folder), "picosat.log"), 'a') as f:
@@ -77,10 +71,6 @@ def generate():
 						for sl in solut:
 							fm.write(str(sl) + ' ')
 						fm.write('\n')
-					with open(sf(conf.solved_file), 'a') as fs:
-						for sl in solut:
-							fs.write(str(-1 * sl) + ' ')
-						fs.write('\n')
 				except ValueError:
 					pass
 				solut = []

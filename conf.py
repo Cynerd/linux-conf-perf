@@ -5,10 +5,6 @@ import os
 # This defines environment variable for linux kernel.
 # Change this to change target architecture
 ARCH = 'x86'
-# gen_all_solutions_oninit
-# If True, all solutions are generated at initalization.
-# If False, every loop is generated one solution.
-gen_all_solution_oninit = True # If True, all solutions are generated at initialization.
 
 # kernle_env
 # Enviroment variables for Linux
@@ -33,7 +29,7 @@ boot_command = ['scripts/novaboot/novaboot', nbscript] + novaboot_args
 
 # picosat_args
 # Arguments passed to PicoSAT.
-picosat_args = []
+picosat_args = ['--all']
 
 ## Programs output show/hide
 # These options hides output of launched programs from terminal.
@@ -74,7 +70,6 @@ rules_file = build_folder + 'rules' # Also defined in parse_kconfig
 variable_count_file = build_folder + 'variable_count' # Also defined in parse_kconfig
 config_map_file = build_folder + 'config_map'
 config_solved_file = build_folder + 'config_solved'
-solved_file = build_folder + 'solved'
 required_file = build_folder + 'required'
 dot_config_fragment_file = build_folder + 'dot_config_fragment'
 dot_config_back_file = build_folder + 'dot_config_back'

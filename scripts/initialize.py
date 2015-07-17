@@ -17,11 +17,10 @@ def all():
 	base()
 	parse_kconfig()
 	gen_requred()
-	if conf.gen_all_solution_oninit:
-		try:
-			solution.generate()
-		except exceptions.NoSolution:
-			pass
+	try:
+		solution.generate()
+	except exceptions.NoSolution:
+		pass
 
 def base():
 	print('Initialize base...')

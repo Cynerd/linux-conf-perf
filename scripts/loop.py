@@ -23,16 +23,7 @@ def step():
 		phase_message(2)
 		phase_set(3)
 	elif phs == 3:
-		if not conf.gen_all_solution_oninit:
-			phase_message(3)
-			solution.generate()
-		iteration_inc()
-		phase_set(4)
-	elif phs == 4:
-		phase_message(4)
-		phase_set(5)
-	elif phs == 5:
-		phase_message(5)
+		phase_message(3)
 		try:
 			solution.apply()
 		except exceptions.NoApplicableSolution:
@@ -42,54 +33,52 @@ def step():
 				pass
 			print('\nAll done.')
 			exit(0)
-		phase_set(6)
-	elif phs == 6:
-		phase_message(6)
-		phase_set(7)
-	elif phs == 7:
-		phase_message(7)
+		phase_set(4)
+	elif phs == 4:
+		phase_message(4)
+		phase_set(5)
+	elif phs == 5:
+		phase_message(5)
 		try:
 			kernel.config()
 		except exceptions.ConfigurationError:
 			if not conf.ignore_misconfig:
 				print("Configuration mismatch. Exiting.")
 				sys.exit(-2)
-		phase_set(8)
-	elif phs == 8:
-		phase_message(8)
+		phase_set(6)
+	elif phs == 6:
+		phase_message(6)
 		if conf.only_config:
 			phase_set(3)
 		else:
-			phase_set(9)
+			phase_set(7)
+	elif phs == 7:
+		phase_message(7)
+		kernel.make()
+		phase_set(8)
+	elif phs == 8:
+		phase_message(8)
+		phase_set(9)
 	elif phs == 9:
 		phase_message(9)
-		kernel.make()
+		boot.boot()
 		phase_set(10)
 	elif phs == 10:
 		phase_message(10)
-		phase_set(11)
-	elif phs == 11:
-		phase_message(11)
-		boot.boot()
-		phase_set(12)
-	elif phs == 12:
-		phase_message(12)
 		phase_set(3)
 
 # Phase #
 phases = ("Not Initialized",		#0
 		  "Initializing",			#1
 		  "Initialized",			#2
-		  "Solution generating",	#3
-		  "Solution generated",		#4
-		  "Solution applying",		#5
-		  "Solution applied",		#6
-		  "Kernel configuration",	#7
-		  "Kernel configured",		#8
-		  "Kernel build",			#9
-		  "Kernel built",			#10
-		  "System boot",			#11
-		  "Benchmark successful"	#12
+		  "Solution applying",		#3
+		  "Solution applied",		#4
+		  "Kernel configuration",	#5
+		  "Kernel configured",		#6
+		  "Kernel build",			#7
+		  "Kernel built",			#8
+		  "System boot",			#9
+		  "Benchmark successful"	#10
 		  )
 
 def phase_get():
