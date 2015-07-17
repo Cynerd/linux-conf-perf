@@ -1,0 +1,10 @@
+#!/bin/bash
+
+FOLDER=linux/arch
+
+CONF=`find $FOLDER -name Kconfig | xargs grep -e ^config | cut -d ' ' -f2`
+
+REG=`echo $CONF | tr " " "|" | sed 's/^/\(/' | sed 's/$/\)/'`
+
+#egrep "$REG" $1
+egrep -v "$REG" $1 > $2
