@@ -59,15 +59,15 @@ def parse_kconfig():
 
 
 def gen_requred():
-	"Generates required depenpency from .config file in linux source tree."
+	"Generates required depenpency from dot_config file."
 	print('Generating required configuration...')
 
-	if not os.path.isfile(sf(conf.linux_dot_config)):
-		raise exceptions.MissingFile(sf(conf.linux_dot_config),
-				'Generate initial configuration. Execute make defconfig in linux folder. Or use make menuconfig and change configuration.')
+	if not os.path.isfile(sf(conf.dot_config)):
+		raise exceptions.MissingFile(sf(conf.dot_config),
+				'Generate fixed configuration.')
 
 	utils.build_symbol_map() # Ensure smap existence
-	srmap = {value:key for key, value in utils.smap.items()}
+	srmap = {value:key for key, value in utils.smap.items()} # swap dictionary
 
 	shutil.copy(sf(conf.dot_config), sf(conf.dot_config_back_file))
 
@@ -78,8 +78,8 @@ def gen_requred():
 					continue
 				indx = line.index('=')
 				if (line[indx + 1] == 'y'):
-					if line[7:indx] == "MODULES": # skip if modules set
-						raise exceptions.ConfigurationError("Initial kernel configuration must have MODULES disabled.")
+					if line[7:indx] == "MODULES": # exception if modules set
+						raise exceptions.ConfigurationError("Fixed kernel configuration must have MODULES disabled.")
 					freq.write(str(srmap[line[7:indx]]) + "\n")
 				elif (line[indx + 1] == 'n' or line[indx + 1] == 'm'):
 					freq.write("-" + str(srmap[line[7:indx]]) + "\n")
