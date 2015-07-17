@@ -2,7 +2,7 @@
 
 -include .conf.mk
 
-all: parse_kconfig write_config permute_conf picosat
+all: parse_kconfig write_config allconfig permute_conf picosat
 
 help:
 	@echo "all         - Builds basic programs and prints message about next steps."
@@ -60,6 +60,7 @@ clean:
 	@$(MAKE) -C scripts/parse_kconfig clean
 	@$(MAKE) -C scripts/write_config clean
 	@$(MAKE) -C scripts/permute_conf clean
+	@$(MAKE) -C scripts/allconfig clean
 	@if [ -e scripts/picosat-959/makefile ]; then $(MAKE) -C scripts/picosat-959 clean; fi
 	$(RM) .conf.mk
 	$(RM) -r jobfiles output result
@@ -89,6 +90,9 @@ parse_kconfig:
 
 write_config:
 	@$(MAKE) -C scripts/write_config/
+
+allconfig:
+	@$(MAKE) -C scripts/allconfig/
 
 permute_conf:
 	@$(MAKE) -C scripts/permute_conf/
