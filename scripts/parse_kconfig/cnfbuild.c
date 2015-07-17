@@ -14,14 +14,10 @@ void cnf_or(struct symlist *sl, struct boolexpr *bl);
 void cnf_not(struct symlist *sl, struct boolexpr *bl);
 
 void cnf_boolexpr(struct symlist *sl, struct boolexpr *bl) {
-    if (bl->type == BT_TRUE) {
-        // Term is always true. No write required.
+    if (bl->type == BT_TRUE || bl->type == BT_FALSE)
         return;
-    } else if (bl->type == BT_FALSE) {
-        fprintf(stderr,
-                "E: Trying to write false term. This shouldn't happen.\n");
-        exit(6);
-    }
+    if (bl->id != 0)
+        return;
 
     struct stck *stack = stack_create();
     while (bl != NULL) {
@@ -131,13 +127,18 @@ void cnf_or(struct symlist *sl, struct boolexpr *bl) {
 void cnf_not(struct symlist *sl, struct boolexpr *bl) {
     if (bl->id != 0)
         return;
-    bl->id = symlist_adddummy(sl);
-    // bl->id <-> !bl->left->id
-    // (bl->id || bl->left->id) && (!bl->id || !bl->left->id)
-    output_rules_symbol((int) bl->id);
-    output_rules_symbol((int) bl->left->id);
-    output_rules_endterm();
-    output_rules_symbol(-(int) bl->id);
-    output_rules_symbol(-(int) bl->left->id);
-    output_rules_endterm();
+    bl->id = -1 * bl->left->id;
+    /*
+       bl->id = symlist_adddummy(sl);
+       // bl->id <-> !bl->left->id
+       // (bl->id || bl->left->id) && (!bl->id || !bl->left->id)
+       output_rules_symbol((int) bl->id);
+       output_rules_symbol((int) bl->left->id);
+       output_rules_endterm();
+       output_rules_symbol(-(int) bl->id);
+       output_rules_symbol(-(int) bl->left->id);
+       output_rules_endterm();
+       output_rules_symbol((int) bl->id);
+       output_rules_symbol((int) bl->left->id);
+     */
 }

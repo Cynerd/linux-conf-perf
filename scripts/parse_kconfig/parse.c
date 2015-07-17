@@ -93,12 +93,13 @@ void cpy_dep() {
     struct symbol *sym;
     struct property *prop;
     struct symlist_el *el;
-    struct boolexpr *pw;
     unsigned el_id;
+    struct boolexpr *boolsym;
     for_all_symbols(i, sym) {
         if (sym->type == S_BOOLEAN || sym->type == S_TRISTATE) {
             el_id = symlist_id(gsymlist, sym->name);
             el = &(gsymlist->array[el_id - 1]);
+            boolsym = boolexpr_sym(gsymlist, sym, false);
             Iprintf("Processing: %s\n", sym->name);
             // Visibility
             for_all_prompts(sym, prop) {
@@ -160,117 +161,142 @@ void cpy_dep() {
                     boolexpr_kconfig(gsymlist, sym->rev_dep.expr, false);
             } else
                 el->rev_dep = boolexpr_false();
-          choice_exception:
-            // Add exclusive rules for choice symbol
-            if (sym_is_choice(sym)) {
-                if (sym->rev_dep.expr != NULL) {
-                    Dprintf(" Dependency:\n");
-                    doutput_expr(sym->rev_dep.expr);
-                    el->rev_dep =
-                        boolexpr_kconfig(gsymlist,
-                                         sym->rev_dep.expr, true);
-                } else
-                    el->rev_dep = boolexpr_true();
-                for_all_choices(sym, prop) {
-                    struct symbol *symw;
-                    struct expr *exprw;
-                    unsigned *symx = NULL;
-                    size_t symx_size = 0;
-                    int x, y;
-                    expr_list_for_each_sym(prop->expr, exprw, symw) {
-                        symx_size++;
-                        symx = realloc(symx, symx_size * sizeof(unsigned));
-                        symx[symx_size - 1] =
-                            symlist_id(gsymlist, symw->name);
-                        output_rules_symbol(symx[symx_size - 1]);
-                    }
-                    output_rules_symbol(-(int)
-                                        el_id);
-                    output_rules_endterm();
-                    for (x = 0; x < symx_size - 1; x++) {
-                        for (y = x + 1; y < symx_size; y++) {
-                            output_rules_symbol(-(int)
-                                                symx[x]);
-                            output_rules_symbol(-(int)
-                                                symx[y]);
-                            output_rules_endterm();
-                        }
-                    }
-                    free(symx);
-                    symx = NULL;
-                }
-                struct boolexpr *boolsym = boolexpr_sym(gsymlist, sym,
-                                                        false);
-                if (!sym_is_optional(sym)) {
-                    boolexpr_copy(boolsym);
-                    boolexpr_copy(el->vis);
-                }
-                struct boolexpr *boolsym_not = boolexpr_not(boolsym);
-                boolexpr_copy(boolsym_not);
-                boolexpr_copy(el->rev_dep);
-                struct boolexpr *notrev_dep = boolexpr_not(el->rev_dep);
-                if (!sym_is_optional(sym)) {
-                    boolexpr_copy(notrev_dep);
-                }
-                struct boolexr *w1 = boolexpr_or(boolsym_not, el->rev_dep);
-                struct boolexpr *w2 = boolexpr_or(boolsym_not, notrev_dep);
-                w2 = boolexpr_or(w2, el->vis);
-                pw = boolexpr_and(w1, w2);
-                if (!sym_is_optional(sym)) {
-                    struct boolexpr *w3 = boolexpr_not(el->vis);
-                    w3 = boolexpr_or(w3, notrev_dep);
-                    w3 = boolexpr_or(w3, boolsym);
-                    pw = boolexpr_and(pw, w3);
-                }
 
-                goto pw_solve;
-            }
-
-            struct boolexpr *boolsym = boolexpr_sym(gsymlist, sym,
-                                                    false);
-            boolexpr_copy(boolsym);
-            struct boolexpr *boolsym_not = boolexpr_not(boolsym);
-            boolexpr_copy(boolsym);
-            boolexpr_copy(boolsym_not);
-            boolexpr_copy(el->vis);
-            boolexpr_copy(el->def);
-            boolexpr_copy(el->dep);
-            boolexpr_copy(el->rev_dep);
+            if (el->dep->type != BT_FALSE && el->dep->type != BT_TRUE)
+                cnf_boolexpr(gsymlist, el->dep);
+            if (el->rev_dep->type != BT_FALSE
+                && el->rev_dep->type != BT_TRUE)
+                cnf_boolexpr(gsymlist, el->rev_dep);
+            if (el->def->type != BT_FALSE && el->def->type != BT_TRUE)
+                cnf_boolexpr(gsymlist, el->def);
+            if (el->vis->type != BT_FALSE && el->vis->type != BT_TRUE)
+                cnf_boolexpr(gsymlist, el->vis);
             // (!sym || dep) && (sym || !rev_dep) &&
             // && (sym || !dep || !def || vis) &&
             // (!sym || rev_dep || def || vis)
-            struct boolexpr *w1 = boolexpr_or(boolsym_not,
-                                              el->dep);
-            struct boolexpr *w2 = boolexpr_or(boolsym,
-                                              boolexpr_not(el->rev_dep));
-            struct boolexpr *w3 = boolexpr_or(boolsym,
-                                              boolexpr_not(el->dep));
-            w3 = boolexpr_or(w3, boolexpr_not(el->def));
-            w3 = boolexpr_or(w3, el->vis);
-            struct boolexpr *w4 = boolexpr_or(boolsym_not,
-                                              el->rev_dep);
-            w4 = boolexpr_or(w4, el->def);
-            w4 = boolexpr_or(w4, el->vis);
-
-            pw = boolexpr_and(w1, w2);
-            pw = boolexpr_and(w3, pw);
-            pw = boolexpr_and(w4, pw);
-          pw_solve:
-            Dprintf(" CNF:\n");
-            doutput_boolexpr(pw, gsymlist);
-            cnf_boolexpr(gsymlist, pw);
-            switch (pw->type) {
-            case BT_TRUE:
-                break;
-            case BT_FALSE:
-                Eprintf
-                    ("E: Root terms is false. This shouldn't happen.\n");
-                break;
-            default:
-                output_rules_symbol((int) pw->id);
+            if (el->dep->type != BT_TRUE) {
+                output_rules_symbol(-1 * boolsym->id);
+                if (el->dep->type != BT_FALSE) {
+                    output_rules_symbol(el->dep->id);
+                }
                 output_rules_endterm();
             }
-            boolexpr_free(pw);
+            if (el->rev_dep->type != BT_FALSE) {
+                output_rules_symbol(boolsym->id);
+                if (el->rev_dep->type != BT_TRUE) {
+                    output_rules_symbol(-1 * el->rev_dep->id);
+                }
+                output_rules_endterm();
+            }
+            if (el->dep->type != BT_FALSE && el->def->type != BT_FALSE
+                && el->vis->type != BT_TRUE) {
+                output_rules_symbol(boolsym->id);
+                if (el->dep->type != BT_TRUE) {
+                    output_rules_symbol(-1 * el->dep->id);
+                }
+                if (el->def->type != BT_TRUE) {
+                    output_rules_symbol(-1 * el->def->id);
+                }
+                if (el->vis->type != BT_FALSE) {
+                    output_rules_symbol(el->vis->id);
+                }
+                output_rules_endterm();
+            }
+            if (el->rev_dep->type != BT_TRUE && el->def->type != BT_TRUE
+                && el->vis->type != BT_TRUE) {
+                output_rules_symbol(-1 * boolsym->id);
+                if (el->rev_dep->type != BT_FALSE) {
+                    output_rules_symbol(el->rev_dep->id);
+                }
+                if (el->def->type != BT_FALSE) {
+                    output_rules_symbol(el->def->id);
+                }
+                if (el->vis->type != BT_FALSE) {
+                    output_rules_symbol(el->vis->id);
+                }
+                output_rules_endterm();
+            }
+
+            boolexpr_free(el->def);
+            boolexpr_free(el->vis);
+            boolexpr_free(el->dep);
+            boolexpr_free(el->rev_dep);
+
+            continue;
+
+          choice_exception:
+            // Add exclusive rules for choice symbol
+            if (sym->rev_dep.expr != NULL) {
+                Dprintf(" Dependency:\n");
+                doutput_expr(sym->rev_dep.expr);
+                el->rev_dep =
+                    boolexpr_kconfig(gsymlist, sym->rev_dep.expr, true);
+            } else
+                el->rev_dep = boolexpr_true();
+            for_all_choices(sym, prop) {
+                struct symbol *symw;
+                struct expr *exprw;
+                unsigned *symx = NULL;
+                size_t symx_size = 0;
+                int x, y;
+                expr_list_for_each_sym(prop->expr, exprw, symw) {
+                    symx_size++;
+                    symx = realloc(symx, symx_size * sizeof(unsigned));
+                    symx[symx_size - 1] = symlist_id(gsymlist, symw->name);
+                    output_rules_symbol(symx[symx_size - 1]);
+                }
+                output_rules_symbol(-(int)
+                                    el_id);
+                output_rules_endterm();
+                for (x = 0; x < symx_size - 1; x++) {
+                    for (y = x + 1; y < symx_size; y++) {
+                        output_rules_symbol(-(int)
+                                            symx[x]);
+                        output_rules_symbol(-(int)
+                                            symx[y]);
+                        output_rules_endterm();
+                    }
+                }
+                free(symx);
+                symx = NULL;
+            }
+            if (el->rev_dep->type != BT_FALSE && el->rev_dep->type != BT_TRUE)
+                cnf_boolexpr(gsymlist, el->rev_dep);
+            if (el->vis->type != BT_FALSE && el->vis->type != BT_TRUE)
+                cnf_boolexpr(gsymlist, el->vis);
+            // (!sym || rev_dep) && (!sym || !rev_dep || vis)
+            // For nonoptional add:
+            // (sym || !rev_dep || !vis)
+            if (el->rev_dep->type != BT_TRUE) {
+                output_rules_symbol(-1 * boolsym->id);
+                if (el->rev_dep->type != BT_FALSE) {
+                    output_rules_symbol(el->rev_dep->id);
+                }
+                output_rules_endterm();
+            }
+            if (el->rev_dep->type != BT_FALSE && el->vis->type != BT_TRUE) {
+                output_rules_symbol(-1 * boolsym->id);
+                if (el->rev_dep->type != BT_TRUE) {
+                    output_rules_symbol(-1 * el->rev_dep->id);
+                }
+                if (el->vis != BT_FALSE) {
+                    output_rules_symbol(el->vis->id);
+                }
+                output_rules_endterm();
+            }
+            if (!sym_is_optional(sym)) {
+                if (el->rev_dep->type != BT_FALSE
+                    && el->vis->type != BT_FALSE) {
+                    output_rules_symbol(boolsym->id);
+                    if (el->rev_dep->type != BT_TRUE) {
+                        output_rules_symbol(-1 * el->rev_dep->id);
+                    }
+                    if (el->vis->type != BT_TRUE) {
+                        output_rules_symbol(-1 * el->vis->id);
+                    }
+                    output_rules_endterm();
+                }
+            }
         }
     }
 }
