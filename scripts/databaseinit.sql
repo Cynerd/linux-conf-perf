@@ -1,14 +1,3 @@
---
--- Drop all tables
---
-DROP TABLE IF EXISTS measure;
-DROP TABLE IF EXISTS configurations;
-DROP TABLE IF EXISTS toolsgit;
-
---
--- Initialize database
---
-
 -- In this table are tracked versions of tools in git
 CREATE TABLE toolsgit (
 	id BIGSERIAL PRIMARY KEY, -- Id

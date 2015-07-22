@@ -1,14 +1,14 @@
 import os
 
 ## Global configs
-# ARCH
-# This defines environment variable for linux kernel.
+# kernel_arch
+# This defines environment variable ARCH for linux kernel.
 # Change this to change target architecture
-ARCH = 'x86'
+kernel_arch = 'x86'
 
 # kernle_env
 # Enviroment variables for Linux
-kernel_env = {'SRCARCH': ARCH, 'ARCH': ARCH, 'KERNELVERSION': ARCH}
+kernel_env = {'SRCARCH': kernel_arch, 'ARCH': kernel_arch, 'KERNELVERSION': kernel_arch}
 # linux_make_args
 # These are arguments passed to make when linux is build.
 linux_make_args = ['-j8']
@@ -78,7 +78,7 @@ dot_config = 'dot_config'
 linux_sources = 'linux/'
 linux_kconfig_head = linux_sources + 'Kconfig'
 linux_dot_config = linux_sources + '.config'
-linux_image = linux_sources + 'arch/' + ARCH + '/boot/bzImage'
+linux_image = linux_sources + 'arch/' + kernel_arch + '/boot/bzImage'
 
 buildroot_def_config = 'buildroot_recipe/buildroot.def.config'
 buildroot_inittab_directive = 'buildroot_recipe/inittab_directive'

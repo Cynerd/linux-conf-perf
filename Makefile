@@ -1,4 +1,4 @@
-.PHONY: all help parse_kconfig write_config build run test clean clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean picosat init initialize permute_conf
+.PHONY: all help parse_kconfig write_config build run test clean clean_db clean_database clean_measure clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean picosat init initialize initialize_database initdb permute_conf
 
 -include .conf.mk
 
@@ -35,17 +35,26 @@ mbuildroot: buildroot/.config buildroot/system/skeleton/usr/bin/linux-conf-perf
 	$(MAKE) -C buildroot menuconfig
 
 mlinux:
-	ARCH=$(ARCH) $(MAKE) -C linux menuconfig
+	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C linux menuconfig
 
 deflinux:
-	ARCH=$(ARCH) $(MAKE) -C linux defconfig
+	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C linux defconfig
 
 mpermute_conf: permute_conf
-	cd linux && SRCARCH=$(ARCH) ARCH=$(ARCH) KERNELVERSION=$(ARCH) ../scripts/permute_conf/permute_conf Kconfig
+	cd linux && \
+	SRCARCH=$(CONF_KERNEL_ARCH) ARCH=$(CONF_KERNEL_ARCH) \
+	KERNELVERSION=$(CONF_KERNEL_ARCH) \
+	../scripts/permute_conf/permute_conf Kconfig
 
 init: initialize
 initialize: parse_kconfig picosat
 	scripts/initialize.py
+
+initdb: initialize_database
+initialize_database:
+	echo "$(CONF_DB_HOST):$(CONF_DB_PORT):$(CONF_DB_DATABASE):$(CONF_DB_USER):$(CONF_DB_PASSWORD)" > .pgpass
+	psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseinit.sql
+	$(RM) .pgpass
 
 test: parse_kconfig
 	scripts/test.py
@@ -63,7 +72,18 @@ clean:
 	@$(MAKE) -C scripts/allconfig clean
 	@if [ -e scripts/picosat-959/makefile ]; then $(MAKE) -C scripts/picosat-959 clean; fi
 	$(RM) .conf.mk
-	$(RM) -r jobfiles output result
+	$(RM) -r jobfiles
+
+clean_measure: cleandb
+	$(RM) -r configurations
+	$(RM) -r output
+	$(RM) -r result
+
+cleandb: clean_database
+clean_database:
+	echo "$(CONF_DB_HOST):$(CONF_DB_PORT):$(CONF_DB_DATABASE):$(CONF_DB_USER):$(CONF_DB_PASSWORD)" > .pgpass
+	psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseclean.sql
+	rm -f .pgpass
 
 distclean: clean distclean_linux distclean_buildroot
 	$(RM) .conf.mk
@@ -98,11 +118,11 @@ permute_conf:
 	@$(MAKE) -C scripts/permute_conf/
 
 buildroot/.config:
-	cp $(BUILDROOT_DEF_CONFIG) $@
+	cp $(CONF_BUILDROOT_DEF_CONFIG) $@
 
 buildroot/system/skeleton/usr/bin/linux-conf-perf:
-	cp $(BUILDROOT_INITSCRIPT) $@
-	cat $(BUILDROOT_INITTAB_DIRECTIVE) >> buildroot/system/skeleton/etc/inittab
+	cp $(CONF_BUILDROOT_INITSCRIPT) $@
+	cat $(CONF_BUILDROOT_INITTAB_DIRECTIVE) >> buildroot/system/skeleton/etc/inittab
 
 picosat: scripts/picosat-959/picosat
 scripts/picosat-959/picosat:

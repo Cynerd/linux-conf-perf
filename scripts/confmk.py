@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+import re
 from conf import conf
 
 def gen_confmk():
@@ -11,12 +12,12 @@ def gen_confmk():
 
 	with open(conf.dot_confmk, 'w') as f:
 		f.write("# This file is generated. Please don't edit this file.\n")
-		f.write("ARCH := " + conf.ARCH + "\n")
-		f.write("\n")
-		f.write("BUILDROOT_INITRAM := " + conf.buildroot_initram + "\n")
-		f.write("BUILDROOT_INITTAB_DIRECTIVE := " + conf.buildroot_inittab_directive + "\n")
-		f.write("BUILDROOT_INITSCRIPT := " + conf.buildroot_initscript + "\n")
-		f.write("BUILDROOT_DEF_CONFIG := " + conf.buildroot_def_config + "\n")
+		for var in dir(conf):
+			if not re.match('__.*__', var):
+				val = eval('conf.' + var)
+				if type(val) is str:
+					f.write("CONF_" + var.upper() + " := ")
+					f.write(val + '\n')
 
 #################################################################################
 
