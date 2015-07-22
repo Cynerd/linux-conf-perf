@@ -31,6 +31,29 @@ boot_command = ['scripts/novaboot/novaboot', nbscript] + novaboot_args
 # Arguments passed to PicoSAT.
 picosat_args = ['--all']
 
+# db_database
+# Database in PostgreSQL to be used for this tools
+db_database = 'lcp'
+# db_user
+# Define PostgreSQL user
+db_user = 'cynerd'
+# db_password
+# Define PostrgreSQL user password
+db_password = 'cynerd'
+# db_host
+# Address of PostgreSQL database server
+db_host = 'localhost'
+# db_port
+# Port of PotgreSQL database server
+db_port = 5432
+
+# git_describe_cmd
+# Command used for getting tools version and status from git
+git_describe_cmd = ['git', 'describe', '--always', '--tags', '--dirty']
+# git_commit_cmd
+# Command used for getting commit hash from git
+git_commit_cmd = ['git', 'rev-parse', '--verify', 'HEAD']
+
 ## Programs output show/hide
 # These options hides output of launched programs from terminal.
 # If variable is True, output is printed. Otherwise is hidden.
