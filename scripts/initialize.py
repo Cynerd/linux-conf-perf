@@ -9,7 +9,7 @@ from conf import conf
 from conf import sf
 import exceptions
 import loop
-import solution
+import configurations
 
 import exceptions
 
@@ -18,7 +18,7 @@ def all():
 	parse_kconfig()
 	gen_requred()
 	try:
-		solution.generate()
+		configurations.generate()
 	except exceptions.NoSolution:
 		pass
 	# check if database is initialized

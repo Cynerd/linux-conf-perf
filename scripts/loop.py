@@ -8,7 +8,7 @@ from threading import Thread
 from conf import conf
 from conf import sf
 import initialize
-import solution
+import configurations
 import kernel
 import boot
 import exceptions
@@ -25,7 +25,7 @@ def step():
 	elif phs == 3:
 		phase_message(3)
 		try:
-			solution.apply()
+			configurations.apply()
 		except exceptions.NoApplicableSolution:
 			try:
 				os.mkdir(sf(conf.result_folder))
