@@ -1,8 +1,8 @@
-.PHONY: all help parse_kconfig write_config build run test clean clean_db clean_database clean_measure clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean picosat init initialize initialize_database initdb permute_conf
+.PHONY: all help parse_kconfig write_config build run test clean clean_db clean_database clean_measure clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean picosat init initialize initialize_database initdb
 
 -include .conf.mk
 
-all: parse_kconfig write_config allconfig permute_conf picosat
+all: parse_kconfig write_config allconfig picosat
 
 help:
 	@echo "all         - Builds basic programs and prints message about next steps."
@@ -40,12 +40,6 @@ mlinux:
 deflinux:
 	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C linux defconfig
 
-mpermute_conf: permute_conf
-	cd linux && \
-	SRCARCH=$(CONF_KERNEL_ARCH) ARCH=$(CONF_KERNEL_ARCH) \
-	KERNELVERSION=$(CONF_KERNEL_ARCH) \
-	../scripts/permute_conf/permute_conf Kconfig
-
 init: initialize
 initialize: parse_kconfig picosat
 	scripts/initialize.py
@@ -68,7 +62,6 @@ evaluate:
 clean:
 	@$(MAKE) -C scripts/parse_kconfig clean
 	@$(MAKE) -C scripts/write_config clean
-	@$(MAKE) -C scripts/permute_conf clean
 	@$(MAKE) -C scripts/allconfig clean
 	@if [ -e scripts/picosat-959/makefile ]; then $(MAKE) -C scripts/picosat-959 clean; fi
 	$(RM) .conf.mk
@@ -113,9 +106,6 @@ write_config:
 
 allconfig:
 	@$(MAKE) -C scripts/allconfig/
-
-permute_conf:
-	@$(MAKE) -C scripts/permute_conf/
 
 buildroot/.config:
 	cp $(CONF_BUILDROOT_DEF_CONFIG) $@
