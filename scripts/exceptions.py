@@ -39,3 +39,7 @@ class ProcessFailed(Exception):
 	def __str__(self):
 		return "Process failed: " + str(self.process) + \
 			" with return code: " + str(self.returncode)
+
+class DatabaseUninitialized(Exception):
+	def __str__(self):
+		return "Database seems to be uninitialized."

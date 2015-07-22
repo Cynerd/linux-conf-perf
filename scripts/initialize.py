@@ -21,6 +21,8 @@ def all():
 		solution.generate()
 	except exceptions.NoSolution:
 		pass
+	# check if database is initialized
+	database.database()
 
 def base():
 	print('Initialize base...')

@@ -3,6 +3,7 @@ import postgresql
 import collections
 
 import utils
+import exceptions
 from conf import conf
 
 def __git_describe__():
@@ -28,6 +29,13 @@ class database:
 				host = conf.db_host,
 				port = conf.db_port
 				)
+		# check if tables are present
+		tables = ('toolsgit', 'configurations', 'measure')
+		for tab in tables:
+			val = self.db.prepare("""SELECT COUNT(*) FROM pg_class
+							   WHERE relname = $1""")(tab)[0][0]
+			if val < 1:
+				raise exceptions.DatabaseUninitialized()
 
 	def check_toolsgit(self):
 		"Return id of toolsgit row. If missing, it is inserted"
