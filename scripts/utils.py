@@ -58,8 +58,14 @@ def callsubprocess(process_name, process, show_output = True,
 		return_output = False, env=os.environ, allowed_exit_codes = [0]):
 	sprc = subprocess.Popen(process, stdout = subprocess.PIPE, env = env)
 
+	try:
+		os.mkdir(os.path.join(sf(conf.log_folder), process_name))
+	except OSError:
+		pass
+
+	rtn = []
 	with open(os.path.join(sf(conf.log_folder),
-			process_name + '-' + time.strftime("%y-%m-%d-%H-%M-%S") + ".log"),
+			process_name, time.strftime("%y-%m-%d-%H-%M-%S") + ".log"),
 			"a") as f:
 		f.write('::' + time.strftime("%y-%m-%d-%H-%M-%S-%f") + '::\n')
 		for linen in sprc.stdout:
