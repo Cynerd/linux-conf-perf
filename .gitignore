@@ -5,6 +5,7 @@
 *.o
 
 jobfiles
+configurations
 output
 log
 result
