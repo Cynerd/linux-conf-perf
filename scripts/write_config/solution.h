@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <kconfig/lkc.h>
 #include <build_files.h>
-#include "symlist.h"
 
 #ifndef _SOLUTION_H_
 #define _SOLUTION_H_
@@ -15,7 +14,7 @@ struct solution {
     size_t size;
 };
 
-struct solution *solution_load(FILE *fmap, FILE *fsolved);
-void solution_check(struct symlist *sl, struct solution *s);
+struct solution *solution_load(char *source_config);
+int solution_check(struct solution *s);
 
 #endif /* _SOLUTION_H_ */
