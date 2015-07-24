@@ -94,11 +94,8 @@ variable_count_file = build_folder + 'variable_count' # Also defined in parse_kc
 config_map_file = build_folder + 'config_map'
 config_solved_file = build_folder + 'config_solved'
 required_file = build_folder + 'required'
-dot_config_fragment_file = build_folder + 'dot_config_fragment'
 dot_config_back_file = build_folder + 'dot_config_back'
-solution_file = build_folder + 'solution'
 iteration_file = build_folder + 'iteration'
-output_confs = build_folder + 'output_confs'
 
 output_folder = 'output/'
 result_folder = 'result/'
