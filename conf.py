@@ -28,8 +28,8 @@ nbscript = 'scripts/nbscript'
 boot_command = ['scripts/novaboot/novaboot', nbscript] + novaboot_args
 
 # picosat_args
-# Arguments passed to PicoSAT.
-picosat_args = ['--all']
+# Additional arguments passed to PicoSAT.
+picosat_args = []
 
 # db_database
 # Database in PostgreSQL to be used for this tools
@@ -91,11 +91,12 @@ phase_file = build_folder + 'phase'
 symbol_map_file = build_folder + 'symbol_map' # Also defined in parse_kconfig
 rules_file = build_folder + 'rules' # Also defined in parse_kconfig
 variable_count_file = build_folder + 'variable_count' # Also defined in parse_kconfig
-config_map_file = build_folder + 'config_map'
-config_solved_file = build_folder + 'config_solved'
 required_file = build_folder + 'required'
 dot_config_back_file = build_folder + 'dot_config_back'
 iteration_file = build_folder + 'iteration'
+
+configurations_folder = 'configurations/'
+hashconfigsort = configurations_folder + 'hashconfigsort'
 
 output_folder = 'output/'
 result_folder = 'result/'
