@@ -62,7 +62,8 @@ def callsubprocess(process_name, process, show_output = True, regular = "",
 	rtn = ""
 	with open(os.path.join(sf(conf.log_folder),
 			process_name + '-' + time.strftime("%y-%m-%d-%H-%M-%S") + ".log"),
-			"w") as f:
+			"a") as f:
+		f.write('::' + time.strftime("%y-%m-%d-%H-%M-%S-%f") + '::')
 		for linen in sprc.stdout:
 			line = linen.decode(sys.getdefaultencoding())
 			f.write(line)
