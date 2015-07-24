@@ -8,11 +8,11 @@ from conf import conf
 
 def __git_describe__():
 	return utils.callsubprocess('git_describe',
-			conf.git_describe_cmd, False).rstrip()
+			conf.git_describe_cmd, False, True)[0]
 
 def __git_commit__():
 	return utils.callsubprocess('git_rev_parse',
-			conf.git_commit_cmd, False).rstrip()
+			conf.git_commit_cmd, False, True)[0]
 
 def __timestamp__():
 	return datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')

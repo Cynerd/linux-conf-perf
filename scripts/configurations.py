@@ -1,8 +1,10 @@
 import os
 import sys
 import tempfile
+import shutil
 import subprocess
 import time
+import hashlib
 
 import utils
 from conf import conf
@@ -38,7 +40,8 @@ def __exec_sat__(file, args):
 	"""Executes SAT solver and returns configuration."""
 	picosat_cmd = [sf(conf.picosat), file]
 	picosat_cmd += conf.picosat_args
-	stdout = utils.callsubprocess('picosat', conf.picosat_cmd, conf.picosat_output, ".")
+	stdout = utils.callsubprocess('picosat', picosat_cmd, conf.picosat_output,
+			True, allowed_exit_codes = [10])
 
 	rtn = []
 	solut = []
@@ -55,18 +58,23 @@ def __exec_sat__(file, args):
 		elif line[0] == 'v':
 			for sl in line[2:].split():
 				solut.append(int(sl))
+	try:
+		solut.remove(0)
+		rtn.append(solut)
+	except ValueError:
+		pass
 	return rtn
 
-def __write_temp_config_file__(conf):
+def __write_temp_config_file__(con):
 	# Ensure smap existence
 	utils.build_symbol_map()
 	# Load variable count
 	with open(sf(conf.variable_count_file)) as f:
 		f.readline()
-		var_num = int(f,readline())
+		var_num = int(f.readline())
 	# Write temporally file
 	wfile = tempfile.NamedTemporaryFile(delete=False)
-	for s in conf:
+	for s in con:
 		if s < 0:
 			nt = True
 			s *= -1
@@ -76,12 +84,13 @@ def __write_temp_config_file__(conf):
 			break;
 		if 'NONAMEGEN' in utils.smap[s]: # ignore generated names
 			continue
-		wfile.write('CONFIG_' + utils.smap[s] + '=')
+		wfile.write(bytes('CONFIG_' + utils.smap[s] + '=',
+			sys.getdefaultencoding()))
 		if not nt:
-			wfile.write('y')
+			wfile.write(bytes('y', sys.getdefaultencoding()))
 		else:
-			wfile.write('n')
-		wfile.write('\n')
+			wfile.write(bytes('n', sys.getdefaultencoding()))
+		wfile.write(bytes('\n', sys.getdefaultencoding()))
 	wfile.close()
 	return wfile.name
 
@@ -93,9 +102,9 @@ def __load_config_file__(file):
 				continue
 			indx = ln.index('=')
 			if (ln[indx + 1] == 'y'):
-				rtn[line[7:indx]] = True
+				rtn[ln[7:indx]] = True
 			else:
-				rtn[line[7:indx]] = True
+				rtn[ln[7:indx]] = True
 	return rtn
 
 def __calchash__(file):
@@ -109,11 +118,11 @@ def __calchash__(file):
 	except FileNotFoundError:
 		pass
 
-	conf = __load_config_file__(file)
+	con = __load_config_file__(file)
 	cstr = ""
 	for c in csort:
 		try:
-			if conf[c]:
+			if con[c]:
 				cstr += '+'
 			else:
 				cstr += '-'
@@ -121,8 +130,8 @@ def __calchash__(file):
 			cstr += '0'
 
 	# Add missing
-	csortfile = open(conf.hashconfigsort, 'a');
-	for key, val in conf:
+	csortfile = open(sf(conf.hashconfigsort), 'a');
+	for key, val in con.items():
 		try:
 			csort.index(key)
 		except ValueError:
@@ -133,30 +142,26 @@ def __calchash__(file):
 				cstr += '+'
 			else:
 				cstr += '-'
-	close(csortfile)
+	csortfile.close()
 
 	hsh = hashlib.md5(bytes(cstr, 'UTF-8'))
 	return hsh.hexdigest()
 
-def __register_conf__(conf):
-	with open(sf(conf.variable_count_file)) as f:
-		var_num = int(f.readline())
-
+def __register_conf__(con):
 	dtb = database.database()
-		# Solution to configuration
-	wfile = __write_temp_config_file__(conf)
-	hsh = __calchash__(wfile.name)
-	filen = os.path.join(sf(conf.configuration_folder, hsh))
+	# Solution to configuration
+	wfile = __write_temp_config_file__(con)
+	hsh = __calchash__(wfile)
+	filen = os.path.join(sf(conf.configurations_folder), hsh)
 	hshf = hsh
 	if os.path.isfile(filen):
 		if compare(filen, wfile):
 			print("I: Generated existing configuration.")
-			continue
 		else:
 			print("W: Generated configuration with collision hash.")
 			# TODO this might have to be tweaked
 			raise Exception()
-	os.rename(wfile.name, filen)
+	shutil.move(wfile, filen)
 	dtb.add_configuration(hsh, hshf)
 
 
@@ -170,12 +175,15 @@ def generate():
 	if not os.path.isfile(sf(conf.required_file)):
 		raise exceptions.MissingFile(conf.required_file,"Run allconfig.")
 
-	tfile = __buildtempcnf__(var_num, (conf.rules_file, conf.required_file), ())
+	# Load variable clount
+	with open(sf(conf.variable_count_file)) as f:
+		var_num = f.readline()
+	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file), sf(conf.required_file)), ())
 	try:
-		confs = __exec_sat__(tfile)
+		confs = __exec_sat__(tfile, [])
 		os.remove(tfile)
-		for conf in confs:
-			__register_conf__(conf)
+		for con in confs:
+			__register_conf__(con)
 	except exceptions.NoSolution:
 		os.remove(tfile)
 		raise exceptions.NoSolution()
@@ -186,13 +194,13 @@ def compare(file1, file2):
 	conf2 = __load_config_file__(file2)
 
 	# This is not exactly best comparison method
-	for key, val in conf1:
+	for key, val in conf1.items():
 		try:
 			if conf2[key] != val:
 				return False
 		except ValueError:
 			return False
-	for key, val in conf2:
+	for key, val in conf2.items():
 		try:
 			if conf1[key] != val:
 				return False

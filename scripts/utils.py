@@ -54,28 +54,25 @@ def build_conf_map():
 					except KeyError:
 						pass
 
-
-def callsubprocess(process_name, process, show_output = True, regular = "",
-		env=os.environ):
+def callsubprocess(process_name, process, show_output = True,
+		return_output = False, env=os.environ, allowed_exit_codes = [0]):
 	sprc = subprocess.Popen(process, stdout = subprocess.PIPE, env = env)
 
-	rtn = ""
 	with open(os.path.join(sf(conf.log_folder),
 			process_name + '-' + time.strftime("%y-%m-%d-%H-%M-%S") + ".log"),
 			"a") as f:
-		f.write('::' + time.strftime("%y-%m-%d-%H-%M-%S-%f") + '::')
+		f.write('::' + time.strftime("%y-%m-%d-%H-%M-%S-%f") + '::\n')
 		for linen in sprc.stdout:
 			line = linen.decode(sys.getdefaultencoding())
 			f.write(line)
 			if show_output:
 				print(line, end="")
-			if re.search(regular, line):
-				rtn += line
+			if return_output:
+				rtn.append(line.rstrip())
 
 	rtncode = sprc.wait()
-	if rtncode != 0:
+	if rtncode not in allowed_exit_codes:
 		raise exceptions.ProcessFailed(process, rtncode)
-
 	return rtn
 
 def get_kernel_env():
