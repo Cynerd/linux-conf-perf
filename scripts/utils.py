@@ -57,16 +57,12 @@ def build_conf_map():
 
 def callsubprocess(process_name, process, show_output = True, regular = "",
 		env=os.environ):
-	try:
-		os.mkdir(sf(conf.log_folder))
-	except OSError:
-		pass
-
 	sprc = subprocess.Popen(process, stdout = subprocess.PIPE, env = env)
 
 	rtn = ""
-	with open(os.path.join(sf(conf.log_folder), process_name + ".log"), "a") as f:
-		f.write("::" + time.strftime("%y-%m-%d-%H-%M-%S") + "::\n")
+	with open(os.path.join(sf(conf.log_folder),
+			process_name + '-' + time.strftime("%y-%m-%d-%H-%M-%S") + ".log"),
+			"w") as f:
 		for linen in sprc.stdout:
 			line = linen.decode(sys.getdefaultencoding())
 			f.write(line)

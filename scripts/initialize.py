@@ -26,7 +26,9 @@ def all():
 
 def base():
 	print('Initialize base...')
-	try: os.mkdir(sf(conf.build_folder))
+	try:
+		os.mkdir(sf(conf.build_folder))
+		os.mkdir(sf(conf.log_folder))
 	except FileExistsError:
 		pass
 
