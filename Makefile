@@ -45,7 +45,7 @@ dot_config: allconfig
 		../scripts/allconfig/allconfig Kconfig .config ../$(CONF_DOT_CONFIG)
 
 init: initialize
-initialize: parse_kconfig picosat
+initialize: parse_kconfig picosat initdb
 	scripts/initialize.py
 
 initdb: initialize_database
@@ -82,8 +82,7 @@ clean_database:
 	psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseclean.sql
 	rm -f .pgpass
 
-distclean: clean distclean_linux distclean_buildroot
-	$(RM) .conf.mk
+distclean: clean distclean_linux distclean_buildroot clean_measure
 
 clean_linux:
 	@$(MAKE) -C linux clean
