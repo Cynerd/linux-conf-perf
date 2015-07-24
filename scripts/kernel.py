@@ -7,33 +7,29 @@ from conf import sf
 import exceptions
 import utils
 
-def config():
-	env = dict(os.environ)
+def config(cfile):
 	wd = os.getcwd()
+	infile = os.path.join(sf(conf.configurations_folder), cfile)
 	os.chdir(sf(conf.linux_sources))
-	if conf.kernel_config_output:
-		sprc = subprocess.call([sf(conf.write_config), sf(conf.linux_kconfig_head),
-			sf(conf.build_folder)], env=utils.get_kernel_env())
-	else:
-		sprc = subprocess.call([sf(conf.write_config), sf(conf.linux_kconfig_head),
-			sf(conf.build_folder)], stdout=subprocess.DEVNULL,
-			env=utils.get_kernel_env())
-	if sprc > 0:
+	try:
+		utils.callsubprocess('write_config', [sf(conf.write_config), infile],
+			conf.kernel_config_output, env=utils.get_kernel_env())
+	except exceptions.ProcessFailed:
 		raise exceptions.ConfigurationError("some configs mismatch")
 	os.chdir(wd)
 
-def config_noprogram():
-	# Executing old linux config
-	env = dict(os.environ)
-	wd = os.getcwd()
-	os.chdir(sf(conf.linux_sources))
-	if conf.kernel_config_output:
-		sprc = subprocess.call('yes "" | make oldconfig', shell=True,
-			env=utils.get_kernel_env())
-	else:
-		sprc = subprocess.call('yes "" | make oldconfig', shell=True,
-			stdout=subprocess.DEVNULL, env=utils.get_kernel_env())
-	os.chdir(wd)
+#def config_noprogram():
+#	# Executing old linux config
+#	env = dict(os.environ)
+#	wd = os.getcwd()
+#	os.chdir(sf(conf.linux_sources))
+#	if conf.kernel_config_output:
+#		sprc = subprocess.call('yes "" | make oldconfig', shell=True,
+#			env=utils.get_kernel_env())
+#	else:
+#		sprc = subprocess.call('yes "" | make oldconfig', shell=True,
+#			stdout=subprocess.DEVNULL, env=utils.get_kernel_env())
+#	os.chdir(wd)
 
 def make():
 	wd = os.getcwd()
