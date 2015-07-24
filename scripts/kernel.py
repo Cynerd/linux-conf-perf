@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import shutil
 
 from conf import conf
 from conf import sf
@@ -31,7 +32,7 @@ def config(cfile):
 #			stdout=subprocess.DEVNULL, env=utils.get_kernel_env())
 #	os.chdir(wd)
 
-def make():
+def make(confhash):
 	wd = os.getcwd()
 	os.chdir(sf(conf.linux_sources))
 	if conf.kernel_make_output:
@@ -39,10 +40,7 @@ def make():
 	else:
 		subprocess.call(conf.build_command, stdout=subprocess.DEVNULL,
 				env=utils.get_kernel_env())
-
-	try:
-		os.symlink(sf(conf.linux_image), sf(conf.jobfolder_linux_image))
-	except FileExistsError:
-		pass
-
+	jobimage = os.path.join(sf(conf.build_folder), confhash + '_linux.img')
+	shutil.move(sf(conf.linux_image), jobimage)
 	os.chdir(wd)
+	return confhash + '_linux.img'
