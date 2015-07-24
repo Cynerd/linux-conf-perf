@@ -40,6 +40,10 @@ mlinux:
 deflinux:
 	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C linux defconfig
 
+dot_config: allconfig
+	cd linux && SRCARCH=$(CONF_KERNEL_ARCH) ARCH=$(CONF_KERNEL_ARCH) KERNELVERSION=$(CONF_KERNEL_ARCH) \
+		../scripts/allconfig/allconfig Kconfig .config ../$(CONF_DOT_CONFIG)
+
 init: initialize
 initialize: parse_kconfig picosat
 	scripts/initialize.py

@@ -68,7 +68,7 @@ def gen_requred():
 
 	if not os.path.isfile(sf(conf.dot_config)):
 		raise exceptions.MissingFile(sf(conf.dot_config),
-				'Generate fixed configuration.')
+				'Generate fixed configuration. Use make dot_config.')
 
 	utils.build_symbol_map() # Ensure smap existence
 	srmap = {value:key for key, value in utils.smap.items()} # swap dictionary
