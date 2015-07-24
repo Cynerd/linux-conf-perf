@@ -5,13 +5,12 @@ import subprocess
 import shutil
 
 import utils
+import database
 from conf import conf
 from conf import sf
 import exceptions
 import loop
 import configurations
-
-import exceptions
 
 def all():
 	base()
@@ -28,6 +27,13 @@ def base():
 	print('Initialize base...')
 	try:
 		os.mkdir(sf(conf.build_folder))
+	except FileExistsError:
+		pass
+	try:
+		os.mkdir(sf(conf.configurations_folder))
+	except FileExistsError:
+		pass
+	try:
 		os.mkdir(sf(conf.log_folder))
 	except FileExistsError:
 		pass
