@@ -28,32 +28,6 @@ def build_symbol_map():
 				smap[int(w[0])] = w[1]
 
 
-def build_conf_map():
-	"""Generates global variable cmap from config_map_file and config_solved_file.
-	cmap is dictionary containing list ([configuration], bool solved)
-	cmap is rebuild every time this function is called.
-	"""
-	global cmap
-	cmap = dict()
-	if os.path.isfile(sf(conf.config_map_file)):
-		with open(sf(conf.config_map_file)) as f:
-			for ln in f:
-				w = ln.rstrip().split(sep=':')
-				cf = list()
-				for vr in w[1].split(sep=" "):
-					if vf[0] == '-':
-						cf.append(-1 * int(vf[1:]))
-					cf.append(int(vf))
-				cmap[w[0]] = [w[1], False]
-
-		if os.path.isfile(sf(conf.config_solved_file)):
-			with open(sf(conf.config_solved_file)) as f:
-				for ln in f:
-					try:
-						cmap[ln.rstrip()][1] = True
-					except KeyError:
-						pass
-
 def callsubprocess(process_name, process, show_output = True,
 		return_output = False, env=os.environ, allowed_exit_codes = [0]):
 	sprc = subprocess.Popen(process, stdout = subprocess.PIPE, env = env)
