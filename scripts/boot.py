@@ -26,12 +26,17 @@ def boot(config, to_database = True):
 			f.write(line)
 
 	# Let user script parse double value
-	out = utils.callsubprocess('parse_command', conf.parse_command,
-			conf.parse_output, True)
-	value = float(out[0])
+
+	value = None
+	try:
+		out = utils.callsubprocess('parse_command', conf.parse_command,
+				conf.parse_output, True)
+		value = float(out[0])
+	except Exception as e:
+		print("W: parse exception: " + e.__str__())
 
 	if to_database:
-		dtb = database.database()
-		dtb.add_measure(config.cfile, config.id, value)
+			dtb = database.database()
+			dtb.add_measure(config.cfile, config.id, value)
 
 	return config.cfile
