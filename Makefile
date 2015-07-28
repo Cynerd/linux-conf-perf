@@ -45,7 +45,7 @@ dot_config: allconfig
 		../scripts/allconfig/allconfig Kconfig .config ../$(CONF_DOT_CONFIG)
 
 init: initialize
-initialize: parse_kconfig picosat initdb
+initialize: all
 	scripts/initialize.py
 
 initdb: initialize_database
@@ -57,7 +57,7 @@ initialize_database:
 test: parse_kconfig
 	scripts/test.py
 
-run: parse_kconfig write_config picosat
+run: all
 	scripts/loop.py
 
 evaluate:
@@ -75,6 +75,7 @@ clean_measure: cleandb
 	$(RM) -r configurations
 	$(RM) -r output
 	$(RM) -r result
+	$(RM) $(CONF_DOT_CONFIG)
 
 cleandb: clean_database
 clean_database:
@@ -102,13 +103,22 @@ distclean_buildroot:
 	scripts/confmk.py
 
 parse_kconfig:
-	@$(MAKE) -C scripts/parse_kconfig/
+	@if [[ `$(MAKE) -C scripts/parse_kconfig/ -q; echo $$?` != "0" ]]; then \
+	$(MAKE) -C scripts/parse_kconfig/; fi
 
 write_config:
-	@$(MAKE) -C scripts/write_config/
+	@if [[ `$(MAKE) -C scripts/write_config/ -q; echo $$?` != "0" ]]; then \
+	$(MAKE) -C scripts/write_config/; fi
 
 allconfig:
-	@$(MAKE) -C scripts/allconfig/
+	@if [[ `$(MAKE) -C scripts/allconfig/ -q; echo $$?` != "0" ]]; then \
+	$(MAKE) -C scripts/allconfig/; fi
+
+picosat:
+	@if [ ! -e scripts/picosat-959/makefile ]; then \
+	cd scripts/picosat-959 && ./configure; fi
+	@if [[ `$(MAKE) -C scripts/picosat-959 -q; echo $$?` != "0" ]]; then \
+	$(MAKE) -C scripts/picosat-959; fi
 
 buildroot/.config:
 	cp $(CONF_BUILDROOT_DEF_CONFIG) $@
@@ -116,8 +126,3 @@ buildroot/.config:
 buildroot/system/skeleton/usr/bin/linux-conf-perf:
 	cp $(CONF_BUILDROOT_INITSCRIPT) $@
 	cat $(CONF_BUILDROOT_INITTAB_DIRECTIVE) >> buildroot/system/skeleton/etc/inittab
-
-picosat: scripts/picosat-959/picosat
-scripts/picosat-959/picosat:
-	cd scripts/picosat-959 && ./configure
-	$(MAKE) -C scripts/picosat-959
