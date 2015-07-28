@@ -1,3 +1,4 @@
+import os
 import datetime
 import postgresql
 import collections
@@ -5,6 +6,7 @@ import collections
 import utils
 import exceptions
 from conf import conf
+from conf import sf
 
 def __git_describe__():
 	return utils.callsubprocess('git_describe',
@@ -55,16 +57,38 @@ class database:
 		ps(ds, cm)
 		return self.check_toolsgit()
 
+	def check_linuxgit(self):
+		"Return id of linuxgit row. If missing, it is inserted."
+		wd = os.getcwd()
+		os.chdir(sf(conf.linux_sources))
+		ds = __git_describe__()
+		cm = __git_commit__()
+		os.chdir(wd)
+		ps = self.db.prepare("""SELECT id FROM linuxgit
+							  WHERE git_describe = $1 AND git_commit = $2
+							  """)
+		id = ps(ds, cm)
+		if id:
+			return id[0][0]
+		ps = self.db.prepare("""INSERT INTO linuxgit
+						   (git_describe, git_commit)
+						   VALUES
+						   ($1, $2);
+						   """)
+		ps(ds, cm)
+		return self.check_linuxgit()
+
 	def add_configuration(self, hash, cfile):
 		"Add configuration to database."
 		ps = self.db.prepare("""INSERT INTO configurations
-								(hash, cfile, gtime, toolgit)
+								(hash, cfile, gtime, toolgit, linuxgit)
 								VALUES
-								($1, $2, $3, $4);
+								($1, $2, $3, $4, $5);
 								""")
 		gt = self.check_toolsgit()
+		lgt = self.check_linuxgit()
 		tm = datetime.datetime.now()
-		ps(hash, cfile, tm, gt)
+		ps(hash, cfile, tm, gt, lgt)
 
 	def get_configration(self, hash):
 		"Return configration id for inserted hash."
@@ -78,13 +102,14 @@ class database:
 	def add_measure(self, mfile, conf_id, value = None):
 		"Add measurement."
 		ps = self.db.prepare("""INSERT INTO measure
-								(conf, mfile, value, mtime, toolgit)
+								(conf, mfile, value, mtime, toolgit, linuxgit)
 								VALUES
-								($1, $2, $3, $4, $5);
+								($1, $2, $3, $4, $5, $6);
 								""")
 		gt = self.check_toolsgit()
+		lgt = self.check_linuxgit()
 		tm = datetime.datetime.now()
-		ps(conf_id, mfile, value, tm, gt)
+		ps(conf_id, mfile, value, tm, gt, lgt)
 
 	def update_measure(self, measure_id, value):
 		"Update measured value"
@@ -107,9 +132,9 @@ class database:
 
 	def get_unmeasured(self):
 		"Returns list of all unmeasured configurations."
-		ps = self.db.prepare("""SELECT c.id, c.hash, c.cfile
-								FROM configurations AS c, measure AS m
-								WHERE c.id NOT IN m.conf;
+		ps = self.db.prepare("""SELECT * FROM configurations
+								WHERE NOT EXISTS
+								(SELECT conf FROM measure)
 								""")
 		rtn = []
 		for dt in ps():

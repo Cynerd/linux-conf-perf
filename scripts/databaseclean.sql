@@ -1,3 +1,4 @@
 DROP TABLE IF EXISTS measure;
 DROP TABLE IF EXISTS configurations;
 DROP TABLE IF EXISTS toolsgit;
+DROP TABLE IF EXISTS linuxgit;
