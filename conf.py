@@ -14,7 +14,7 @@ kernel_env = {'SRCARCH': kernel_arch, 'ARCH': kernel_arch, 'KERNELVERSION': kern
 linux_make_args = ['-j8']
 # build_command
 # Command executed for kernel build in linux folder.
-build_command = ['measure_scripts/30-compile']
+build_command = ['../build_script']
 
 # novaboot_args
 # These are arguments passed to Novaboot,

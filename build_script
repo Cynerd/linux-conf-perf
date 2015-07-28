@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# This script is called from linux folder
+cd ../measure_scripts
+
+./30-compile
