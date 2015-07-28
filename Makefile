@@ -50,9 +50,7 @@ initialize: all
 
 initdb: initialize_database
 initialize_database:
-	echo "$(CONF_DB_HOST):$(CONF_DB_PORT):$(CONF_DB_DATABASE):$(CONF_DB_USER):$(CONF_DB_PASSWORD)" > .pgpass
-	psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseinit.sql
-	$(RM) .pgpass
+	PGPASSWORD="$(CONF_DB_PASSWORD)" psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseinit.sql
 
 test: parse_kconfig
 	scripts/test.py
@@ -79,9 +77,7 @@ clean_measure: cleandb
 
 cleandb: clean_database
 clean_database:
-	echo "$(CONF_DB_HOST):$(CONF_DB_PORT):$(CONF_DB_DATABASE):$(CONF_DB_USER):$(CONF_DB_PASSWORD)" > .pgpass
-	psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseclean.sql
-	rm -f .pgpass
+	PGPASSWORD="$(CONF_DB_PASSWORD)" psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseclean.sql
 
 distclean: clean distclean_linux distclean_buildroot clean_measure
 
