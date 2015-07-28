@@ -9,12 +9,11 @@ import database
 from conf import conf
 from conf import sf
 import exceptions
-import loop
 
 def all():
 	base()
 	parse_kconfig()
-	gen_requred()
+	gen_fixed()
 	# check if database is initialized
 	database.database()
 
@@ -33,17 +32,6 @@ def base():
 	except FileExistsError:
 		pass
 
-	if os.path.isfile(sf(conf.phase_file)):
-		print("Warning: file " + conf.phase_file + " already exists. Not overwritten.")
-	else:
-		loop.phase_set(1)
-
-	if os.path.isfile(sf(conf.iteration_file)):
-		print("Warning: file " + conf.iteration_file + " already exists. Not overwritten.")
-	else:
-		loop.iteration_reset()
-
-
 def parse_kconfig():
 	"Execute parse_kconfig in linux_sources directory."
 	if os.path.isfile(sf(conf.symbol_map_file)) and \
@@ -52,7 +40,6 @@ def parse_kconfig():
 		print('Warning: parse_kconfig not executed. Files already exists.')
 		return
 	print('Executing parse_kconfig...')
-	env = dict(os.environ)
 	wd = os.getcwd()
 	os.chdir(sf(conf.linux_sources))
 	parse_kconfig_cmd = [sf(conf.parse_kconfig)]
@@ -63,8 +50,18 @@ def parse_kconfig():
 	os.chdir(wd)
 
 
-def gen_requred():
-	"Generates required depenpency from dot_config file."
+def __gen_allconfig_fixed__():
+	wd = os.getcwd()
+	os.chdir(sf(conf.linux_sources))
+	allconfig_cmd = [sf(conf.allconfig)]
+	allconfig_cmd += ['Kconfig', sf(conf.dot_config), sf(conf.dot_measure_file)]
+	allconfig_cmd += ['--inv']
+	utils.callsubprocess("allconfig_fixed", allconfig_cmd, False,
+			env = utils.get_kernel_env())
+	os.chdir(wd)
+
+def gen_fixed():
+	"Generates fixed depenpency from dot_config file."
 	print('Generating required configuration...')
 
 	if not os.path.isfile(sf(conf.dot_config)):
@@ -75,9 +72,10 @@ def gen_requred():
 	srmap = {value:key for key, value in utils.smap.items()} # swap dictionary
 
 	shutil.copy(sf(conf.dot_config), sf(conf.dot_config_back_file))
+	__gen_allconfig_fixed__()
 
 	with open(sf(conf.dot_config), 'r') as f:
-		with open(sf(conf.required_file), 'w') as freq:
+		with open(sf(conf.fixed_file), 'w') as ffix:
 			for line in f:
 				if (line[0] == '#') or (not '=' in line):
 					continue
@@ -85,9 +83,18 @@ def gen_requred():
 				if (line[indx + 1] == 'y'):
 					if line[7:indx] == "MODULES": # exception if modules set
 						raise exceptions.ConfigurationError("Fixed kernel configuration must have MODULES disabled.")
-					freq.write(str(srmap[line[7:indx]]) + "\n")
+					ffix.write(str(srmap[line[7:indx]]) + "\n")
 				elif (line[indx + 1] == 'n' or line[indx + 1] == 'm'):
-					freq.write("-" + str(srmap[line[7:indx]]) + "\n")
+					ffix.write("-" + str(srmap[line[7:indx]]) + "\n")
+	with open(sf(conf.dot_measure_file), 'r') as f:
+		with open(sf(conf.measure_file), 'w') as fmes:
+			for line in f:
+				if (line[0] == '#') or (not '=' in line):
+					continue
+				indx = line.index('=')
+				if line[7:indx] == "MODULES":
+					raise exceptions.ConfigurationError("Can't measure configuraion option MODULES. Not supported.")
+				fmes.write(str(srmap[line[7:indx]]) + "\n")
 
 
 #################################################################################

@@ -14,23 +14,17 @@ class NoSolution(Exception):
 	def __str__(self):
 		return "SAT solver found no solution. Statement is not satisfiable."
 
-class PhaseMismatch(Exception):
-	def __init__(self):
-		pass
-	def __str__(self):
-		return "Phase in " + conf.phase_file + " is unknown."
-
 class ConfigurationError(Exception):
 	def __init__(self, message):
 		self.message = message;
 	def __str__(self):
 		return "Configuration error: " + message
 
-class NoApplicableSolution(Exception):
+class NoApplicableConfiguration(Exception):
 	def __init__(self):
 		pass
 	def __str__(self):
-		return "No applicable solution find. All generated solutions were already applied."
+		return "No applicable configuration find. All generated configurations were already applied."
 
 class ProcessFailed(Exception):
 	def __init__(self, process, returncode):

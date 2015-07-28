@@ -29,7 +29,8 @@ def build_symbol_map():
 
 
 def callsubprocess(process_name, process, show_output = True,
-		return_output = False, env=os.environ, allowed_exit_codes = [0]):
+		return_output = False, env=os.environ, allowed_exit_codes = [0],
+		allow_all_exit_codes = False):
 	sprc = subprocess.Popen(process, stdout = subprocess.PIPE, env = env)
 
 	try:
@@ -51,7 +52,7 @@ def callsubprocess(process_name, process, show_output = True,
 				rtn.append(line.rstrip())
 
 	rtncode = sprc.wait()
-	if rtncode not in allowed_exit_codes:
+	if rtncode not in allowed_exit_codes and not allow_all_exit_codes:
 		raise exceptions.ProcessFailed(process, rtncode)
 	return rtn
 
@@ -59,73 +60,3 @@ def get_kernel_env():
 	env = dict(os.environ)
 	env.update(conf.kernel_env)
 	return env
-
-
-def hash_config(cf):
-	"""Hashes configuration using MD5 hash.
-	"""
-	try:
-		cf.remove(0)
-	except ValueError:
-		pass
-	str = ""
-	for c in cf:
-		if c < 0:
-			str += '-'
-		else:
-			str += '+'
-	hsh = hashlib.md5(bytes(str, sys.getdefaultencoding()))
-	return hsh.hexdigest()
-
-def config_strtoint(str, full):
-	"""Reads list of configured symbols from string
-	"""
-	rtn = []
-	if full:
-		for s in str.rstrip().split(sep=' '):
-			rtn.append(int(s))
-	else:
-		count = 0
-		with open(sf(conf.variable_count_file)) as f:
-			f.readline()
-			count = int(f.readline())
-		for s in str.rstrip().split(sep=' '):
-			val = int(s)
-			if abs(val) <= count:
-				rtn.append(val)
-			else:
-				break;
-	try:
-		rtn.remove(0)
-	except ValueError:
-		pass
-	return rtn
-
-def get_config_from_hash(hash):
-	with open(sf(conf.config_map_file), "r") as f:
-		for line in f:
-			w = line.rstrip().split(sep=':')
-			if w[0] == hash:
-				return config_strtoint(w[1], True)
-	return None
-
-def get_last_configuration():
-	hsh = ""
-	try:
-		with open(sf(conf.config_solved_file), "r") as f:
-			for line in f:
-				sline = line.rstrip()
-				if sline != '':
-					hsh = sline
-	except FileNotFoundError:
-		try:
-			with open(sf(conf.config_map_file), "r") as f:
-				w = f.readline().split(sep=':')
-				hsh = w[0]
-		except FileNotFoundError:
-			pass
-
-	if hsh != '':
-		return hsh
-	else:
-		return 'NoConfig'

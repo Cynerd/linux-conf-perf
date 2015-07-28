@@ -41,7 +41,7 @@ def __exec_sat__(file, args):
 	picosat_cmd = [sf(conf.picosat), file]
 	picosat_cmd += conf.picosat_args
 	stdout = utils.callsubprocess('picosat', picosat_cmd, conf.picosat_output,
-			True, allowed_exit_codes = [10])
+			True, allow_all_exit_codes = True)
 
 	rtn = []
 	solut = []
@@ -65,13 +65,9 @@ def __exec_sat__(file, args):
 		pass
 	return rtn
 
-def __write_temp_config_file__(con):
+def __write_temp_config_file__(con, conf_num):
 	# Ensure smap existence
 	utils.build_symbol_map()
-	# Load variable count
-	with open(sf(conf.variable_count_file)) as f:
-		f.readline()
-		var_num = int(f.readline())
 	# Write temporally file
 	wfile = tempfile.NamedTemporaryFile(delete=False)
 	for s in con:
@@ -80,7 +76,7 @@ def __write_temp_config_file__(con):
 			s *= -1
 		else:
 			nt = False
-		if s > var_num:
+		if s > conf_num:
 			break;
 		if 'NONAMEGEN' in utils.smap[s]: # ignore generated names
 			continue
@@ -147,10 +143,10 @@ def __calchash__(file):
 	hsh = hashlib.md5(bytes(cstr, 'UTF-8'))
 	return hsh.hexdigest()
 
-def __register_conf__(con):
+def __register_conf__(con, conf_num):
 	dtb = database.database()
 	# Solution to configuration
-	wfile = __write_temp_config_file__(con)
+	wfile = __write_temp_config_file__(con, conf_num)
 	hsh = __calchash__(wfile)
 	filen = os.path.join(sf(conf.configurations_folder), hsh)
 	hshf = hsh
@@ -164,6 +160,32 @@ def __register_conf__(con):
 	shutil.move(wfile, filen)
 	dtb.add_configuration(hsh, hshf)
 
+def __generate_single__(var_num, conf_num):
+	if os.path.isfile(sf(conf.single_generated_file)):
+		return False
+	measure_list = []
+	with open(sf(conf.measure_file), 'r') as f:
+		for ln in f:
+			measure_list.append(int(ln))
+	for measure in measure_list:
+		tfile = __buildtempcnf__(var_num, (sf(conf.rules_file),
+			sf(conf.fixed_file)), (str(measure)))
+		try:
+			confs = __exec_sat__(tfile, ['-i', '0'])
+			for con in confs:
+				__register_conf__(con, conf_num)
+		except exceptions.NoSolution:
+			pass
+		finally:
+			os.remove(tfile)
+	with open(sf(conf.single_generated_file), 'w') as f:
+		f.write("This file informs scripts, that all single selected configurations are already generated.\n")
+		f.write("Remove this file if you want run generating process again.")
+		return True
+
+def __generate_random__(var_num, conf_num):
+	# TODO
+	pass
 
 def generate():
 	"""Collect boolean equations from files rules and required
@@ -172,21 +194,24 @@ def generate():
 	# Check if rules_file exist. If it was generated.
 	if not os.path.isfile(sf(conf.rules_file)):
 		raise exceptions.MissingFile(conf.rules_file,"Run parse_kconfig.")
-	if not os.path.isfile(sf(conf.required_file)):
-		raise exceptions.MissingFile(conf.required_file,"Run allconfig.")
+	if not os.path.isfile(sf(conf.fixed_file)):
+		raise exceptions.MissingFile(conf.required_file,"Run allconfig and initialization process.")
 
-	# Load variable clount
+	# Load variable count
 	with open(sf(conf.variable_count_file)) as f:
 		var_num = f.readline()
-	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file), sf(conf.required_file)), ())
-	try:
-		confs = __exec_sat__(tfile, [])
-		os.remove(tfile)
-		for con in confs:
-			__register_conf__(con)
-	except exceptions.NoSolution:
-		os.remove(tfile)
-		raise exceptions.NoSolution()
+		conf_num = f.readline()
+
+	if __generate_single__(var_num, conf_num):
+		return
+
+	#tfile = __buildtempcnf__(var_num, (sf(conf.rules_file), sf(conf.fixed_file)), ())
+	#try:
+		#confs = __exec_sat__(tfile, [])
+		#for con in confs:
+			#__register_conf__(con, conf_num)
+	#finally:
+		#os.remove(tfile)
 
 def compare(file1, file2):
 	"""Compared two configuration"""

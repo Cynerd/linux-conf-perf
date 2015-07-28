@@ -4,6 +4,7 @@ import sys
 import subprocess
 import signal
 from threading import Thread
+from threading import Lock
 
 from conf import conf
 from conf import sf
@@ -12,145 +13,100 @@ import configurations
 import kernel
 import boot
 import exceptions
+import database
 
-def step():
-	phs = phase_get()
-	if phs == 0 or phs == 1:
-		phase_message(1)
-		initialize.all()
-		phase_set(2)
-	elif phs == 2:
-		phase_message(2)
-		phase_set(3)
-	elif phs == 3:
-		phase_message(3)
-		try:
-			configurations.apply()
-		except exceptions.NoApplicableSolution:
-			try:
-				os.mkdir(sf(conf.result_folder))
-			except FileExistsError:
-				pass
-			print('\nAll done.')
-			exit(0)
-		phase_set(4)
-	elif phs == 4:
-		phase_message(4)
-		phase_set(5)
-	elif phs == 5:
-		phase_message(5)
-		try:
-			kernel.config()
-		except exceptions.ConfigurationError:
-			if not conf.ignore_misconfig:
-				print("Configuration mismatch. Exiting.")
-				sys.exit(-2)
-		phase_set(6)
-	elif phs == 6:
-		phase_message(6)
-		if conf.only_config:
-			phase_set(3)
-		else:
-			phase_set(7)
-	elif phs == 7:
-		phase_message(7)
-		kernel.make()
-		phase_set(8)
-	elif phs == 8:
-		phase_message(8)
-		phase_set(9)
-	elif phs == 9:
-		phase_message(9)
-		boot.boot()
-		phase_set(10)
-	elif phs == 10:
-		phase_message(10)
-		phase_set(3)
+__confs_unmeasured__ = []
 
-# Phase #
-phases = ("Not Initialized",		#0
-		  "Initializing",			#1
-		  "Initialized",			#2
-		  "Solution applying",		#3
-		  "Solution applied",		#4
-		  "Kernel configuration",	#5
-		  "Kernel configured",		#6
-		  "Kernel build",			#7
-		  "Kernel built",			#8
-		  "System boot",			#9
-		  "Benchmark successful"	#10
-		  )
+def prepare():
+	"""Prepare for measuring
+	Outcome is Linux image for generated configuration."""
+	global __confs_unmeasured__
+	if len(__confs_unmeasured__) == 0:
+		dtb = database.database()
+		confs = dtb.get_unmeasured()
+		if len(confs) == 0:
+			configurations.generate()
+			confs = dtb.get_unmeasured()
+			if len(confs) == 0:
+				raise exceptions.NoApplicableConfiguration()
+		__confs_unmeasured__ = list(confs)
+	con = __confs_unmeasured__.pop()
+	kernel.config(con.cfile)
+	img = kernel.make(con.hash)
+	print("Prepared image: " + img)
+	return img, con
 
-def phase_get():
+def measure(kernelimg, con):
 	try:
-		with open(sf(conf.phase_file)) as f:
-			txtPhase = f.readline().rstrip()
-		if not txtPhase in phases:
-			raise PhaseMismatch()
-		return phases.index(txtPhase)
+		os.remove(sf(conf.jobfolder_linux_image))
 	except FileNotFoundError:
-		return 0
-
-def phase_set(phs):
-	# TODO
-	try:
-		global thr
-		if thr.term:
-			return
-	except NameError:
 		pass
-	with open(sf(conf.phase_file), 'w') as f:
-		f.write(phases[phs])
+	os.symlink(os.path.join(sf(conf.build_folder), kernelimg),
+			sf(conf.jobfolder_linux_image))
+	boot.boot(con)
+	print("Configuration '" + con.hash + "' measured.")
 
-def phase_message(phs):
-	"Prints message signaling running phase_"
-	print("-- " + phases[phs])
-
-# Iteration #
-def iteration_reset():
-	with open(sf(conf.iteration_file), 'w') as f:
-		f.write('0')
-
-def iteration_inc():
-	with open(sf(conf.iteration_file), 'r') as f:
-		it = int(f.readline())
-	it += 1
-	with open(sf(conf.iteration_file), 'w') as f:
-		f.write(str(it))
-
-# Thread #
+# Threads #
+__terminate__ = False
 class mainThread(Thread):
-	def __init__(self, name):
-		Thread.__init__(self, name=name)
-		self.term = False
 	def run(self):
-		if conf.step_by_step:
-			step()
-		elif conf.single_loop:
-			while not phase_get() == 2:
-				step()
-			step()
-			while not phase_get() == 2:
-				step()
+		if conf.single_loop:
+			img, config = prepare()
+			measure(img, config)
 		else:
-			while not self.term:
-				step()
+			while not __terminate__:
+				img, config = prepare()
+				measure(img, config)
 
-def loop_term():
-	global thr
-	thr.term = True
+# Multithread section #
+__conflist__ = []
+__listlock__ = Lock()
 
+class prepareThread(Thread):
+	def __init__(self, name='prepare'):
+		Thread.__init__(self, name=name)
+	def run(self):
+		__listlock__.aquire()
+		while not __terminate__ and len(__conflist__) <= conf.multithread_buffer:
+			__listlock__.release()
+			config = prepare()
+			__listlock__.aquire()
+			__conflist__.append(config)
+			if not __measurethread__.isActive():
+				__measurethread__.start()
+		__listlock__.release()
+
+class measureThread(Thread):
+	def __init__(self, name='measure'):
+		Thread.__init__(self, name=name)
+	def run(self):
+		__listlock__.aquire()
+		while not __terminate__ and len(__conflist__) > 0:
+			config = __conflist__[0]
+			del __conflist__[0]
+			__listlock__.release()
+			if not __preparethread__.isActive():
+				__preparethread__.start()
+			measure(config)
+			__listlock__.aquire()
+		__listlock__.release()
+
+__preparethread__ = prepareThread()
+__measurethread__ = measureThread()
+
+# Start and sigterm handler #
 def sigterm_handler(_signo, _stack_frame):
-	loop_term()
+	__terminate__ = True
 
 def loop():
+	initialize.all()
 	global thr
-	thr = mainThread("thred")
+	thr = mainThread()
 	thr.start()
 	try:
 		thr.join()
 	except KeyboardInterrupt:
-		loop_term()
+		__terminate__ = True
 
 #################################################################################
 

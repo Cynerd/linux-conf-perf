@@ -25,7 +25,11 @@ novaboot_args = ['--qemu=qemu-system-x86_64']
 nbscript = 'scripts/nbscript'
 # boot_command
 # Command executed for booting. Output of this command is saved to output folder.
-boot_command = ['scripts/novaboot/novaboot', nbscript] + novaboot_args
+boot_command = ['echo', 'bootit']
+
+# parse_command
+# Command to parse double value from boot output
+parse_command = ['echo', '0']
 
 # picosat_args
 # Additional arguments passed to PicoSAT.
@@ -47,6 +51,13 @@ db_host = 'localhost'
 # Port of PotgreSQL database server
 db_port = 5432
 
+# multithread
+# Define if measurement and kernel build should be executed in parallel.
+multithread = False
+# multithread_buffer
+# Defines maximal number of buffered configurations before generating is suspended.
+multithread_buffer = 32
+
 # git_describe_cmd
 # Command used for getting tools version and status from git
 git_describe_cmd = ['git', 'describe', '--always', '--tags', '--dirty']
@@ -63,9 +74,9 @@ picosat_output = False
 kernel_config_output = True
 kernel_make_output = True
 boot_output = True
+parse_output = False
 
 ## Configs for debugging
-step_by_step = False # Executes only single step and exits.
 single_loop = False # Executes only one loop and exits.
 only_config = False # Executes only to configuration phase. Building and booting phases are skipped.
 ignore_misconfig = False # Ignore if configuration wasn't applied correctly.
@@ -87,13 +98,14 @@ buildroot_initram = 'buildroot/output/images/rootfs.cpio.gz'
 
 build_folder = 'jobfiles/'
 jobfolder_linux_image = build_folder + 'linuxImage'
-phase_file = build_folder + 'phase'
 symbol_map_file = build_folder + 'symbol_map' # Also defined in parse_kconfig
 rules_file = build_folder + 'rules' # Also defined in parse_kconfig
 variable_count_file = build_folder + 'variable_count' # Also defined in parse_kconfig
-required_file = build_folder + 'required'
+fixed_file = build_folder + 'fixed'
+measure_file = build_folder + 'measure'
+dot_measure_file = build_folder + 'dot_measure'
 dot_config_back_file = build_folder + 'dot_config_back'
-iteration_file = build_folder + 'iteration'
+single_generated_file = build_folder + 'single_generated'
 
 configurations_folder = 'configurations/'
 hashconfigsort = configurations_folder + 'hashconfigsort'
@@ -104,8 +116,9 @@ log_folder = 'log/'
 
 ## Programs paths
 parse_kconfig = 'scripts/parse_kconfig/parse'
-write_config = 'scripts/write_config/write'
+write_config = 'scripts/write_config/write_config'
 picosat = 'scripts/picosat-959/picosat'
+allconfig = 'scripts/allconfig/allconfig'
 
 
 absroot = os.path.dirname(os.path.realpath(__file__))

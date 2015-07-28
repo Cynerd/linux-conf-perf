@@ -7,15 +7,25 @@ from conf import sf
 import initialize
 import kernel
 import boot
+import database
 
 def test():
 	initialize.base()
 	initialize.parse_kconfig()
-	initialize.gen_requred() # Call this to check initial solution
+	print("-- Make --")
 	conf.kernel_make_output = True
-	kernel.make()
+	img = kernel.make('test')
+	try:
+		os.remove(sf(conf.jobfolder_linux_image))
+	except FileNotFoundError:
+		pass
+	os.symlink(os.path.join(sf(conf.build_folder), img),
+			sf(conf.jobfolder_linux_image))
 	conf.boot_output = True
-	boot.boot()
+	conf.parse_output = True
+	print("-- Boot --")
+	config = database.Config('0', 'test', img)
+	boot.boot(config, False)
 
 #################################################################################
 
