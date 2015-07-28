@@ -4,7 +4,7 @@ import os
 # kernel_arch
 # This defines environment variable ARCH for linux kernel.
 # Change this to change target architecture
-kernel_arch = 'x86'
+kernel_arch = 'powerpc'
 
 # kernle_env
 # Enviroment variables for Linux
