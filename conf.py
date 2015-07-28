@@ -25,7 +25,7 @@ novaboot_args = ['--qemu=qemu-system-x86_64']
 nbscript = 'scripts/nbscript'
 # boot_command
 # Command executed for booting. Output of this command is saved to output folder.
-boot_command = ['novaboot', 'scripts/nbscript']
+boot_command = ['./boot_script']
 
 # parse_command
 # Command to parse double value from boot output
