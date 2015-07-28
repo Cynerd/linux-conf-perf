@@ -78,17 +78,17 @@ class database:
 		ps(ds, cm)
 		return self.check_linuxgit()
 
-	def add_configuration(self, hash, cfile):
+	def add_configuration(self, hash, cfile, generator):
 		"Add configuration to database."
 		ps = self.db.prepare("""INSERT INTO configurations
-								(hash, cfile, gtime, toolgit, linuxgit)
+								(hash, cfile, gtime, toolgit, linuxgit, generator)
 								VALUES
-								($1, $2, $3, $4, $5);
+								($1, $2, $3, $4, $5, $6);
 								""")
 		gt = self.check_toolsgit()
 		lgt = self.check_linuxgit()
 		tm = datetime.datetime.now()
-		ps(hash, cfile, tm, gt, lgt)
+		ps(hash, cfile, tm, gt, lgt, generator)
 
 	def get_configration(self, hash):
 		"Return configration id for inserted hash."

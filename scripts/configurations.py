@@ -143,7 +143,7 @@ def __calchash__(file):
 	hsh = hashlib.md5(bytes(cstr, 'UTF-8'))
 	return hsh.hexdigest()
 
-def __register_conf__(con, conf_num):
+def __register_conf__(con, conf_num, generator):
 	dtb = database.database()
 	# Solution to configuration
 	wfile = __write_temp_config_file__(con, conf_num)
@@ -158,7 +158,7 @@ def __register_conf__(con, conf_num):
 			# TODO this might have to be tweaked
 			raise Exception()
 	shutil.move(wfile, filen)
-	dtb.add_configuration(hsh, hshf)
+	dtb.add_configuration(hsh, hshf, generator)
 
 def __generate_single__(var_num, conf_num):
 	if os.path.isfile(sf(conf.single_generated_file)):
@@ -173,7 +173,7 @@ def __generate_single__(var_num, conf_num):
 		try:
 			confs = __exec_sat__(tfile, ['-i', '0'])
 			for con in confs:
-				__register_conf__(con, conf_num)
+				__register_conf__(con, conf_num, 'single-sat')
 		except exceptions.NoSolution:
 			pass
 		finally:

@@ -16,6 +16,7 @@ CREATE TABLE linuxgit (
 CREATE TABLE configurations (
 	id BIGSERIAL PRIMARY KEY, -- Id
 	hash char(32) NOT NULL, -- Hash of configuration
+	generator TEXT NOT NULL, -- Text identificator of configure generation method
 	cfile TEXT NOT NULL, -- File path with configuration
 	gtime timestamp NOT NULL, -- Time and date of generation
 	linuxgit BIGINT REFERENCES linuxgit (id), -- Reference to git version of Linux
