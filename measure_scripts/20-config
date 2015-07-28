@@ -68,4 +68,4 @@ conf NETFILTER y
 
 conf PACKET y # ugw mmap
 
-chronic ../other_scripts/my-oldconfig.pl
+chronic ../measure_scripts/my-oldconfig.pl

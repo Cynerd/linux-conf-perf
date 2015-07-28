@@ -6,4 +6,4 @@ cd ../linux
 
 git reset --hard
 
-git apply --index < ../other_scripts/shark-ryu-board-patch.patch
+git apply --index < ../measure_scripts/shark-ryu-board-patch.patch
