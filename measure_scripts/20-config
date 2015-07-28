@@ -1,0 +1,71 @@
+#!/bin/sh
+
+set -e
+
+cd ../linux
+
+export ARCH=powerpc
+make allnoconfig
+
+conf() {
+    sed -i -n -e "/\\bCONFIG_$1\\b/!p" .config
+    echo CONFIG_$1=$2 >> .config
+}
+
+GDESC=$(git describe)
+if [ ${GDESC#v2.6} != ${GDESC} ]; then
+    conf PPC_DISABLE_WERROR y
+fi
+
+conf BINFMT_ELF y
+
+conf BLK_DEV_INITRD y
+conf INITRAMFS_SOURCE '""'
+conf INITRAMFS_ROOT_UID 0
+conf INITRAMFS_ROOT_GID 0
+conf INITRAMFS_COMPRESSION_NONE y
+conf INITRAMFS_COMPRESSION_GZIP n
+conf INITRAMFS_COMPRESSION_BZIP2 n
+conf INITRAMFS_COMPRESSION_LZMA n
+conf INITRAMFS_COMPRESSION_XZ n
+conf INITRAMFS_COMPRESSION_LZO n
+conf RD_GZIP y			# Needed for 3.17+
+conf SIGNALFD y 		# Needed since v3.17-5503-g35a9ad8 to enable ANON_INODES (only needed until the problem http://mid.gmane.org/87vbnt1js4.fsf@steelpick.2x.cz is fixed)
+
+conf PPC_MPC52xx y
+conf PPC_MPC5200_SIMPLE y
+conf SERIAL_CORE y
+conf SERIAL_CORE_CONSOLE y
+conf SERIAL_MPC52xx y
+conf SERIAL_MPC52xx_CONSOLE y
+conf SERIAL_MPC52xx_CONSOLE_BAUD 115200
+
+conf NET y
+conf CAN y
+conf CAN_RAW y
+conf CAN_GW y
+conf CAN_VCAN y
+conf CAN_DEV y
+conf CAN_CALC_BITTIMING y
+conf CAN_MSCAN y
+conf CAN_MPC5XXX y
+
+conf NETDEVICES y
+conf ETHERNET y
+conf DMADEVICES y
+conf PPC_BESTCOMM y
+conf NET_VENDOR_FREESCALE y
+conf FEC_MPC52xx y
+conf FEC_MPC52xx_MDIO y
+
+conf TTY y
+conf PROC_FS y
+conf PRINTK y # Not needed but useful for debugging
+
+# To have netlink for kernel cangw
+conf INET y
+conf NETFILTER y
+
+conf PACKET y # ugw mmap
+
+chronic ../other_scripts/my-oldconfig.pl

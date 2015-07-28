@@ -14,7 +14,7 @@ kernel_env = {'SRCARCH': kernel_arch, 'ARCH': kernel_arch, 'KERNELVERSION': kern
 linux_make_args = ['-j8']
 # build_command
 # Command executed for kernel build in linux folder.
-build_command = ['make'] + linux_make_args
+build_command = ['measure_scripts/30-compile']
 
 # novaboot_args
 # These are arguments passed to Novaboot,
@@ -25,7 +25,7 @@ novaboot_args = ['--qemu=qemu-system-x86_64']
 nbscript = 'scripts/nbscript'
 # boot_command
 # Command executed for booting. Output of this command is saved to output folder.
-boot_command = ['echo', 'bootit']
+boot_command = ['scripts/nbscript']
 
 # parse_command
 # Command to parse double value from boot output

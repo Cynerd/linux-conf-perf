@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+cd ../linux
+
+git reset --hard
+
+git apply --index < ../other_scripts/shark-ryu-board-patch.patch
