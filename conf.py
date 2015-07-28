@@ -89,7 +89,7 @@ dot_config = 'dot_config'
 linux_sources = 'linux/'
 linux_kconfig_head = linux_sources + 'Kconfig'
 linux_dot_config = linux_sources + '.config'
-linux_image = linux_sources + 'arch/' + kernel_arch + '/boot/bzImage'
+linux_image = linux_sources + 'arch/' + kernel_arch + '/boot/uImage'
 
 buildroot_def_config = 'buildroot_recipe/buildroot.def.config'
 buildroot_inittab_directive = 'buildroot_recipe/inittab_directive'
