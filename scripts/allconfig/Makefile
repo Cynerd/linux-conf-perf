@@ -7,7 +7,8 @@ all: allconfig
 KCONFIG_PREFIX = ../shared/kconfig
 include $(KCONFIG_PREFIX)/files.mk
 
-SRC  = allconfig.c
+SRC  = allconfig.c \
+	   inv.c
 OBJ = $(patsubst %.c,%.o,$(SRC))
 CFLAGS = -O0 -Wall -ggdb -DDEBUG
 INCLUDES = -I../shared

@@ -7,9 +7,10 @@
 #include <kconfig/lkc.h>
 #include <build_files.h>
 #include <macros.h>
+#include "inv.h"
 
 int verbose_level;
-bool full_config;
+bool full_config, inv_config;
 
 char *kconfig_file;
 char *output_config_file;
@@ -25,10 +26,12 @@ int main(int argc, char **argv) {
         if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
             print_help();
             exit(0);
-        } else if (!strcmp(argv[i], "-v")) {
+        } else if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--verbose")) {
             verbose_level++;
         } else if (!strcmp(argv[i], "--all")) {
             full_config = true;
+        } else if (!strcmp(argv[i], "--inv")) {
+            inv_config = true;
         } else if (kconfig_file == NULL) {
             kconfig_file = argv[i];
         } else if (input_config_file == NULL) {
@@ -54,6 +57,10 @@ int main(int argc, char **argv) {
 
     conf_parse(kconfig_file);
     conf_read(input_config_file);
+
+    if (inv_config) {
+        inv_prepare(input_config_file);
+    }
 
     struct symbol *sym;
     sym = sym_find("MODULES");
@@ -83,8 +90,9 @@ int main(int argc, char **argv) {
                 goto printit;
             continue;
           printit:
-            fprintf(f, "CONFIG_%s=%s\n", sym->name,
-                    sym_get_tristate_value(sym) == no ? "n" : "y");
+            if (!inv_config || !inv_fixed(sym))
+                fprintf(f, "CONFIG_%s=%s\n", sym->name,
+                        sym_get_tristate_value(sym) == no ? "n" : "y");
         }
     }
     fclose(f);
@@ -93,7 +101,17 @@ int main(int argc, char **argv) {
 }
 
 void print_help() {
-    printf("Usage: allconfig [-v] [-h] Kconfig Input Output\n");
+    printf
+        ("Usage: allconfig [-v] [-h] [--all] [--inv] Kconfig Input Output\n");
     printf("  This is generating full configuration.\n");
     printf("  Output configuration has all configuration options.\n");
+    printf("\n");
+    printf(" Options:\n");
+    printf("  -v, --verbose Increase level of verbose output.\n");
+    printf("  -h, --help    Print this help text.\n");
+    printf
+        ("  --all         Genetate full configuration. Including non dependency\n");
+    printf("                configuration options");
+    printf
+        ("  --inv         Generate configuration of missing configratuon options.\n");
 }
