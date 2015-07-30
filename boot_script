@@ -4,4 +4,4 @@
 sudo /usr/sbin/etherwake 00:0c:f1:77:ec:46
 
 # Boot using novaboot
-novaboot scripts/nbscript
+novaboot cyclictest.nb
