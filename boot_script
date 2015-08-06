@@ -1,7 +1,6 @@
 #!/bin/bash
-
-# Wake target
-sudo /usr/sbin/etherwake 00:0c:f1:77:ec:46
+# Wake target if target is suspended
+# sudo /usr/sbin/etherwake 00:0c:f1:77:ec:46
 
 # Boot using novaboot
-novaboot cyclictest.nb
+novaboot cyclictest.nb --exiton="NOVABOOT EXIT LINUX-CONF-PERF" --target="ryuglab"

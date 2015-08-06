@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo Hello
+
+echo "NOVABOOT EXIT LINUX-CONF-PERF"
