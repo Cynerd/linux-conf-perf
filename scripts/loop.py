@@ -41,8 +41,7 @@ def measure(kernelimg, con):
 		os.remove(sf(conf.jobfolder_linux_image))
 	except FileNotFoundError:
 		pass
-	os.symlink(os.path.join(sf(conf.build_folder), kernelimg),
-			sf(conf.jobfolder_linux_image))
+	os.symlink(kernelimg, sf(conf.jobfolder_linux_image))
 	boot.boot(con)
 	print("Configuration '" + con.hash + "' measured.")
 

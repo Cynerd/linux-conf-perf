@@ -19,8 +19,7 @@ def test():
 		os.remove(sf(conf.jobfolder_linux_image))
 	except FileNotFoundError:
 		pass
-	os.symlink(os.path.join(sf(conf.build_folder), img),
-			sf(conf.jobfolder_linux_image))
+	os.symlink(img, sf(conf.jobfolder_linux_image))
 	conf.boot_output = True
 	conf.parse_output = True
 	print("-- Boot --")
