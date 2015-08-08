@@ -3,4 +3,4 @@
 !.gitignore
 !GNUmakefile
 !prepare_boot
-!overlay/
+!overlay/**
