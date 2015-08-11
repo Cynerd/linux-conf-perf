@@ -31,6 +31,10 @@ boot_command = ['echo', 'bootit']
 # Command to parse double value from boot output
 parse_command = ['echo', '0']
 
+# measurement_identifier
+# Identifier of measurement can consist of measure tool name and version
+measure_identifier = 'cyclictest-v0.92'
+
 # picosat_args
 # Additional arguments passed to PicoSAT.
 picosat_args = []
