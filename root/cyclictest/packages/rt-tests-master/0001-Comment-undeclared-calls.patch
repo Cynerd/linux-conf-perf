@@ -1,0 +1,34 @@
+From 3e6052ef340c939d689b7a69909c74d38915cee9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Karel=20Ko=C4=8D=C3=AD?= <kocikare@fel.cvut.cz>
+Date: Tue, 11 Aug 2015 18:31:12 +0200
+Subject: [PATCH] Comment undeclared calls
+
+Those calls seems to be uninplemented or missing while compiling on
+powerpc architecture.
+---
+ src/lib/rt-sched.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/lib/rt-sched.c b/src/lib/rt-sched.c
+index 4a8e3c4..4984735 100644
+--- a/src/lib/rt-sched.c
++++ b/src/lib/rt-sched.c
+@@ -31,7 +31,7 @@ int sched_setattr(pid_t pid,
+ 		  const struct sched_attr *attr,
+ 		  unsigned int flags)
+ {
+-	return syscall(__NR_sched_setattr, pid, attr, flags);
++	//return syscall(__NR_sched_setattr, pid, attr, flags);
+ }
+ 
+ int sched_getattr(pid_t pid,
+@@ -39,5 +39,5 @@ int sched_getattr(pid_t pid,
+ 		  unsigned int size,
+ 		  unsigned int flags)
+ {
+-        return syscall(__NR_sched_getattr, pid, attr, size, flags);
++        //return syscall(__NR_sched_getattr, pid, attr, size, flags);
+ }
+-- 
+2.1.4
+
