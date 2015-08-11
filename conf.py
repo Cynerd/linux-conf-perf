@@ -29,7 +29,7 @@ boot_command = ['./boot_script']
 
 # parse_command
 # Command to parse double value from boot output
-parse_command = ['echo', '0']
+parse_command = ['./parse_script']
 
 # picosat_args
 # Additional arguments passed to PicoSAT.
