@@ -102,14 +102,14 @@ class database:
 	def add_measure(self, mfile, conf_id, value = None):
 		"Add measurement."
 		ps = self.db.prepare("""INSERT INTO measure
-								(conf, mfile, value, mtime, toolgit, linuxgit)
+								(conf, mfile, value, mtime, toolgit, linuxgit, measurement)
 								VALUES
-								($1, $2, $3, $4, $5, $6);
+								($1, $2, $3, $4, $5, $6, $7);
 								""")
 		gt = self.check_toolsgit()
 		lgt = self.check_linuxgit()
 		tm = datetime.datetime.now()
-		ps(conf_id, mfile, value, tm, gt, lgt)
+		ps(conf_id, mfile, value, tm, gt, lgt, conf.measure_identifier)
 
 	def update_measure(self, measure_id, value):
 		"Update measured value"
