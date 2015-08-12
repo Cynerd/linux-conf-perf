@@ -68,7 +68,10 @@ class prepareThread(Thread):
 		__listlock__.aquire()
 		while not __terminate__ and len(__conflist__) <= conf.multithread_buffer:
 			__listlock__.release()
-			config = prepare()
+			try:
+				config = prepare()
+			except exceptions.NoApplicableConfiguration:
+				return
 			__listlock__.aquire()
 			__conflist__.append(config)
 			if not __measurethread__.isActive():
