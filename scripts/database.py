@@ -132,8 +132,8 @@ class database:
 
 	def get_unmeasured(self):
 		"Returns list of all unmeasured configurations."
-		ps = self.db.prepare("""SELECT * FROM configurations
-								WHERE NOT EXISTS
+		ps = self.db.prepare("""SELECT id, hash, cfile FROM configurations
+								WHERE id NOT IN
 								(SELECT conf FROM measure)
 								""")
 		rtn = []
