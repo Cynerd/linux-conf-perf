@@ -153,6 +153,7 @@ def __register_conf__(con, conf_num, generator):
 	if os.path.isfile(filen):
 		if compare(filen, wfile):
 			print("I: Generated existing configuration.")
+			return
 		else:
 			print("W: Generated configuration with collision hash.")
 			# TODO this might have to be tweaked
