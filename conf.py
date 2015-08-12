@@ -75,9 +75,9 @@ git_commit_cmd = ['git', 'rev-parse', '--verify', 'HEAD']
 # What ever are these settings, output is always written to files in folder log.
 parse_kconfig_output = False
 picosat_output = False
-kernel_config_output = True
-kernel_make_output = True
-boot_output = True
+kernel_config_output = False
+kernel_make_output = False
+boot_output = False
 parse_output = False
 
 ## Configs for debugging
