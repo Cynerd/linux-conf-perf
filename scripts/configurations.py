@@ -206,8 +206,8 @@ def generate():
 
 	# Load variable count
 	with open(sf(conf.variable_count_file)) as f:
-		var_num = f.readline()
-		conf_num = f.readline()
+		var_num = f.readline().rstrip()
+		conf_num = f.readline().rstrip()
 
 	if __generate_single__(var_num, conf_num):
 		return
