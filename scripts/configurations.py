@@ -180,7 +180,6 @@ def __generate_single__(var_num, conf_num):
 			fo.write(str(ln) + '\n')
 	try:
 		confs = __exec_sat__(tfile, ['-i', '0'])
-		print(confs)
 		for con in confs:
 			__register_conf__(con, conf_num, 'single-sat')
 	except exceptions.NoSolution:
