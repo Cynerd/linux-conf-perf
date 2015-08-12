@@ -161,31 +161,41 @@ def __register_conf__(con, conf_num, generator):
 	dtb.add_configuration(hsh, hshf, generator)
 
 def __generate_single__(var_num, conf_num):
-	if os.path.isfile(sf(conf.single_generated_file)):
+	measure_list = set()
+	if not os.path.isfile(sf(conf.single_generated_file)):
+		with open(sf(conf.measure_file), 'r') as fi:
+			for ln in fi:
+				measure_list.add(int(ln))
+	else:
+		with open(sf(conf.single_generated_file), 'r') as f:
+			for ln in f:
+				measure_list.append(int(ln))
+	if measure_list:
 		return False
-	measure_list = []
-	with open(sf(conf.measure_file), 'r') as f:
-		for ln in f:
-			measure_list.append(int(ln))
-	for measure in measure_list:
-		tfile = __buildtempcnf__(var_num, (sf(conf.rules_file),
-			sf(conf.fixed_file)), (str(measure)))
-		try:
-			confs = __exec_sat__(tfile, ['-i', '0'])
-			for con in confs:
-				__register_conf__(con, conf_num, 'single-sat')
-		except exceptions.NoSolution:
-			pass
-		finally:
-			os.remove(tfile)
-	with open(sf(conf.single_generated_file), 'w') as f:
-		f.write("This file informs scripts, that all single selected configurations are already generated.\n")
-		f.write("Remove this file if you want run generating process again.")
-		return True
+	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file),
+		sf(conf.fixed_file)), (str(measure_list.pop())))
+	try:
+		confs = __exec_sat__(tfile, ['-i', '0'])
+		for con in confs:
+			__register_conf__(con, conf_num, 'single-sat')
+	except exceptions.NoSolution:
+		pass
+	finally:
+		os.remove(tfile)
+	with open(sf(conf.single_generated_file), 'w') as fo:
+		fo.writelines(measure_list)
+	return True
 
 def __generate_random__(var_num, conf_num):
 	# TODO
-	pass
+	#tfile = __buildtempcnf__(var_num, (sf(conf.rules_file), sf(conf.fixed_file)), ())
+	#try:
+		#confs = __exec_sat__(tfile, [])
+		#for con in confs:
+			#__register_conf__(con, conf_num)
+	#finally:
+		#os.remove(tfile)
+	return False
 
 def generate():
 	"""Collect boolean equations from files rules and required
@@ -204,14 +214,10 @@ def generate():
 
 	if __generate_single__(var_num, conf_num):
 		return
+	elif __generate_random__(var_num, conf_num):
+		return
 
-	#tfile = __buildtempcnf__(var_num, (sf(conf.rules_file), sf(conf.fixed_file)), ())
-	#try:
-		#confs = __exec_sat__(tfile, [])
-		#for con in confs:
-			#__register_conf__(con, conf_num)
-	#finally:
-		#os.remove(tfile)
+	raise exceptions.NoNewConfiguration()
 
 def compare(file1, file2):
 	"""Compared two configuration"""

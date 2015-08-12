@@ -20,6 +20,11 @@ class ConfigurationError(Exception):
 	def __str__(self):
 		return "Configuration error: " + message
 
+class NoNewConfiguration(Exception):
+	def __init__(self):
+		pass
+	def __str__(self):
+		return "No new configuration generated"
 class NoApplicableConfiguration(Exception):
 	def __init__(self):
 		pass
