@@ -37,13 +37,13 @@ picosat_args = []
 
 # db_database
 # Database in PostgreSQL to be used for this tools
-db_database = 'lcp'
+db_database = 'linux-conf-perf'
 # db_user
 # Define PostgreSQL user
-db_user = 'cynerd'
+db_user = 'user'
 # db_password
 # Define PostrgreSQL user password
-db_password = 'cynerd'
+db_password = 'password'
 # db_host
 # Address of PostgreSQL database server
 db_host = 'localhost'
