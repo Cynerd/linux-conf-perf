@@ -76,7 +76,7 @@ def __write_temp_config_file__(con, conf_num):
 			s *= -1
 		else:
 			nt = False
-		if s > conf_num:
+		if s > int(conf_num):
 			break;
 		if 'NONAMEGEN' in utils.smap[s]: # ignore generated names
 			continue
