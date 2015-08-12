@@ -100,7 +100,7 @@ def __load_config_file__(file):
 			if (ln[indx + 1] == 'y'):
 				rtn[ln[7:indx]] = True
 			else:
-				rtn[ln[7:indx]] = True
+				rtn[ln[7:indx]] = False
 	return rtn
 
 def __calchash__(file):
