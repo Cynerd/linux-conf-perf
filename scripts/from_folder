@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FOLDER=linux/arch
+FOLDER=linux/kernel
 
 CONF=`find $FOLDER -name Kconfig | xargs grep -e ^config | cut -d ' ' -f2`
 
