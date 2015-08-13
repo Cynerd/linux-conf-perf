@@ -35,10 +35,6 @@ parse_command = ['./parse_script']
 # Identifier of measurement can consist of measure tool name and version
 measure_identifier = 'cyclictest-v0.92'
 
-# measurement_identifier
-# Identifier of measurement can consist of measure tool name and version
-measure_identifier = 'cyclictest-v0.92'
-
 # picosat_args
 # Additional arguments passed to PicoSAT.
 picosat_args = []
