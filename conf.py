@@ -1,10 +1,12 @@
 import os
+import re
+import importlib.machinery
 
 ## Global configs
 # kernel_arch
 # This defines environment variable ARCH for linux kernel.
 # Change this to change target architecture
-kernel_arch = 'powerpc'
+kernel_arch = 'x86'
 
 # kernle_env
 # Enviroment variables for Linux
@@ -14,7 +16,7 @@ kernel_env = {'SRCARCH': kernel_arch, 'ARCH': kernel_arch, 'KERNELVERSION': kern
 linux_make_args = ['-j8']
 # build_command
 # Command executed for kernel build in linux folder.
-build_command = ['../build_script']
+build_command = ['make'] + linux_make_args
 
 # novaboot_args
 # These are arguments passed to Novaboot,
@@ -25,11 +27,11 @@ novaboot_args = ['--qemu=qemu-system-x86_64']
 nbscript = 'scripts/nbscript'
 # boot_command
 # Command executed for booting. Output of this command is saved to output folder.
-boot_command = ['./boot_script']
+boot_command = ['echo', 'bootit']
 
 # parse_command
 # Command to parse double value from boot output
-parse_command = ['./parse_script']
+parse_command = ['echo', '0']
 
 # measurement_identifier
 # Identifier of measurement can consist of measure tool name and version
@@ -44,10 +46,10 @@ picosat_args = []
 db_database = 'linux-conf-perf'
 # db_user
 # Define PostgreSQL user
-db_user = 'kocikare'
+db_user = 'user'
 # db_password
 # Define PostrgreSQL user password
-db_password = 'ohNg3Ien'
+db_password = 'password'
 # db_host
 # Address of PostgreSQL database server
 db_host = 'localhost'
@@ -57,7 +59,7 @@ db_port = 5432
 
 # multithread
 # Define if measurement and kernel build should be executed in parallel.
-multithread = True
+multithread = False
 # multithread_buffer
 # Defines maximal number of buffered configurations before generating is suspended.
 multithread_buffer = 32
@@ -75,9 +77,9 @@ git_commit_cmd = ['git', 'rev-parse', '--verify', 'HEAD']
 # What ever are these settings, output is always written to files in folder log.
 parse_kconfig_output = False
 picosat_output = False
-kernel_config_output = False
-kernel_make_output = False
-boot_output = False
+kernel_config_output = True
+kernel_make_output = True
+boot_output = True
 parse_output = False
 
 ## Configs for debugging
@@ -93,7 +95,7 @@ dot_config = 'dot_config'
 linux_sources = 'linux/'
 linux_kconfig_head = linux_sources + 'Kconfig'
 linux_dot_config = linux_sources + '.config'
-linux_image = linux_sources + 'arch/' + kernel_arch + '/boot/uImage'
+linux_image = linux_sources + 'arch/' + kernel_arch + '/boot/bzImage'
 
 buildroot_def_config = 'buildroot_recipe/buildroot.def.config'
 buildroot_inittab_directive = 'buildroot_recipe/inittab_directive'
@@ -124,5 +126,22 @@ write_config = 'scripts/write_config/write_config'
 picosat = 'scripts/picosat-959/picosat'
 allconfig = 'scripts/allconfig/allconfig'
 
+#######################################
+# Overlap configuration for specified target
+if os.path.isfile('.target'):
+	target = None
+	with open('.target', 'r') as f:
+		target = f.readline().rstrip()
+	conffile = os.path.join('targets', target + '.py')
+	if os.path.isfile(conffile):
+		ovconf = importlib.machinery.SourceFileLoader("module.name", conffile).load_module()
+		for name in dir(ovconf):
+			if not re.match('__*__', name):
+				vars()[name] = vars(ovconf)[name]
+	else:
+		print("W: No target specifier. Write target to .target file.")
+else:
+	print("W: No target specifier. Write target to .target file.")
 
+#######################################
 absroot = os.path.dirname(os.path.realpath(__file__))
