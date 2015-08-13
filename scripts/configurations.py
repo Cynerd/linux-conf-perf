@@ -171,16 +171,16 @@ def __generate_single__(var_num, conf_num):
 	if not measure_list:
 		return False
 	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file),
-		sf(conf.fixed_file)), [str(measure_list.pop())])
+		sf(conf.fixed_file)), (str(measure_list.pop())))
 	with open(sf(conf.single_generated_file), 'w') as fo:
-		for ln in measure_list:
-			fo.write(str(ln) + '\n')
+		fo.writelines(measure_list)
 	try:
 		confs = __exec_sat__(tfile, ['-i', '0'])
 		for con in confs:
 			__register_conf__(con, conf_num, 'single-sat')
 	except exceptions.NoSolution:
-		__generate_single__(var_num, conf_num)
+		os.remove(tfile)
+		return __generate_single__(var_num, conf_num)
 	finally:
 		os.remove(tfile)
 	return True
