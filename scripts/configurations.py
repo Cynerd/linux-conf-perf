@@ -167,21 +167,22 @@ def __generate_single__(var_num, conf_num):
 	else:
 		with open(sf(conf.single_generated_file), 'r') as f:
 			for ln in f:
-				measure_list.append(int(ln))
-	if measure_list:
+				measure_list.add(int(ln))
+	if not measure_list:
 		return False
 	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file),
 		sf(conf.fixed_file)), (str(measure_list.pop())))
+	with open(sf(conf.single_generated_file), 'w') as fo:
+		fo.writelines(measure_list)
 	try:
 		confs = __exec_sat__(tfile, ['-i', '0'])
 		for con in confs:
 			__register_conf__(con, conf_num, 'single-sat')
 	except exceptions.NoSolution:
-		pass
+		os.remove(tfile)
+		return __generate_single__(var_num, conf_num)
 	finally:
 		os.remove(tfile)
-	with open(sf(conf.single_generated_file), 'w') as fo:
-		fo.writelines(measure_list)
 	return True
 
 def __generate_random__(var_num, conf_num):
