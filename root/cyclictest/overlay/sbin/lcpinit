@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cyclictest -n -p99 -t3 -l10000 -q | sed 's/^/! /' | sed 's/$/ ok/'
+
+echo "NOVABOOT EXIT LINUX-CONF-PERF"

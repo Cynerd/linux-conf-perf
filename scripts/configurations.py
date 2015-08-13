@@ -180,7 +180,6 @@ def __generate_single__(var_num, conf_num):
 		for con in confs:
 			__register_conf__(con, conf_num, 'single-sat')
 	except exceptions.NoSolution:
-		os.remove(tfile)
 		return __generate_single__(var_num, conf_num)
 	finally:
 		os.remove(tfile)

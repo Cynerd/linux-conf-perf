@@ -2,5 +2,8 @@
 !.config
 !.gitignore
 !GNUmakefile
-!prepare_boot
+!.br-external
 !overlay/
+!overlay/**
+!packages/
+!packages/**

@@ -4,7 +4,7 @@ import os
 # kernel_arch
 # This defines environment variable ARCH for linux kernel.
 # Change this to change target architecture
-kernel_arch = 'x86'
+kernel_arch = 'powerpc'
 
 # kernle_env
 # Enviroment variables for Linux
@@ -14,7 +14,7 @@ kernel_env = {'SRCARCH': kernel_arch, 'ARCH': kernel_arch, 'KERNELVERSION': kern
 linux_make_args = ['-j8']
 # build_command
 # Command executed for kernel build in linux folder.
-build_command = ['make'] + linux_make_args
+build_command = ['../build_script']
 
 # novaboot_args
 # These are arguments passed to Novaboot,
@@ -25,11 +25,11 @@ novaboot_args = ['--qemu=qemu-system-x86_64']
 nbscript = 'scripts/nbscript'
 # boot_command
 # Command executed for booting. Output of this command is saved to output folder.
-boot_command = ['echo', 'bootit']
+boot_command = ['./boot_script']
 
 # parse_command
 # Command to parse double value from boot output
-parse_command = ['echo', '0']
+parse_command = ['./parse_script']
 
 # measurement_identifier
 # Identifier of measurement can consist of measure tool name and version
@@ -44,10 +44,10 @@ picosat_args = []
 db_database = 'linux-conf-perf'
 # db_user
 # Define PostgreSQL user
-db_user = 'user'
+db_user = 'kocikare'
 # db_password
 # Define PostrgreSQL user password
-db_password = 'password'
+db_password = 'ohNg3Ien'
 # db_host
 # Address of PostgreSQL database server
 db_host = 'localhost'
@@ -57,7 +57,7 @@ db_port = 5432
 
 # multithread
 # Define if measurement and kernel build should be executed in parallel.
-multithread = False
+multithread = True
 # multithread_buffer
 # Defines maximal number of buffered configurations before generating is suspended.
 multithread_buffer = 32
@@ -75,9 +75,9 @@ git_commit_cmd = ['git', 'rev-parse', '--verify', 'HEAD']
 # What ever are these settings, output is always written to files in folder log.
 parse_kconfig_output = False
 picosat_output = False
-kernel_config_output = True
-kernel_make_output = True
-boot_output = True
+kernel_config_output = False
+kernel_make_output = False
+boot_output = False
 parse_output = False
 
 ## Configs for debugging
@@ -93,7 +93,7 @@ dot_config = 'dot_config'
 linux_sources = 'linux/'
 linux_kconfig_head = linux_sources + 'Kconfig'
 linux_dot_config = linux_sources + '.config'
-linux_image = linux_sources + 'arch/' + kernel_arch + '/boot/bzImage'
+linux_image = linux_sources + 'arch/' + kernel_arch + '/boot/uImage'
 
 buildroot_def_config = 'buildroot_recipe/buildroot.def.config'
 buildroot_inittab_directive = 'buildroot_recipe/inittab_directive'

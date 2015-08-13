@@ -1,0 +1,139 @@
+From 87a8e2b9406cc7f8779f02047e0cd1594c570b78 Mon Sep 17 00:00:00 2001
+From: Michal Sojka <sojkam1@fel.cvut.cz>
+Date: Thu, 23 Jan 2014 23:44:55 +0100
+Subject: [PATCH] Shark/ryu board patch
+
+This is a new version of the patch. It is not based on historical patches
+from Michal Hrouda, but on mpc5200_simple. It boots, serial line and
+Ethernet work. I haven't check whether flash works.
+---
+ arch/powerpc/boot/dts/shark-ryu.dts          | 104 +++++++++++++++++++++++++++
+ arch/powerpc/platforms/52xx/mpc5200_simple.c |   1 +
+ 2 files changed, 105 insertions(+)
+ create mode 100644 arch/powerpc/boot/dts/shark-ryu.dts
+
+diff --git a/arch/powerpc/boot/dts/shark-ryu.dts b/arch/powerpc/boot/dts/shark-ryu.dts
+new file mode 100644
+index 0000000..63e48a8
+--- /dev/null
++++ b/arch/powerpc/boot/dts/shark-ryu.dts
+@@ -0,0 +1,104 @@
++/*
++ * Shark(MPC5200) board Device Tree Source
++ *
++ * Copyright 2006-2007 Secret Lab Technologies Ltd.
++ * Grant Likely <grant.likely@secretlab.ca>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++/include/ "mpc5200b.dtsi"
++
++/ {
++	model = "cvut,ryu";
++	compatible = "midam,shark";
++
++	memory {
++		reg = <0x00000000 0x08000000>;	// 128MB
++	};
++
++	soc: soc5200@f0000000 {
++		psc@2000 {			// PSC1
++			compatible = "fsl,mpc5200b-psc-uart","fsl,mpc5200-psc-uart";
++		};
++		psc5: psc@2800 {		// PSC5
++			status = "disabled";
++		};
++
++		ethernet@3000 {
++			phy-handle = <&phy0>;
++		};
++
++		mdio@3000 {
++			phy0: ethernet-phy@1f {
++				device_type = "ethernet-phy";
++				reg = <0x1f>;
++			};
++		};
++
++		i2c@3d40 {
++			rtc@68 {
++				compatible = "dallas,ds1307";
++				reg = <0x68>;
++			};
++		};
++	};
++
++	localbus {
++		ranges = <0 0 0xfc000000 0x04000000>;
++
++		flash@0,0 {
++			compatible = "cfi-flash";
++			reg = <0 0 0x04000000>;
++			bank-width = <2>;
++			device-width = <2>;
++			#size-cells = <1>;
++			#address-cells = <1>;
++
++			uboot@0 {
++				label = "u-boot";
++				reg = <0 0x00100000>;
++				read-only;
++			};
++
++			kernel@100000 {
++				label = "kernel";
++				reg = <0x00100000 0x00300000>;
++				read-only;
++			};
++
++			filesystem@400000 {
++				label = "filesystem";
++				reg = <0x00400000 0x03c00000>;
++			};
++		};
++	};
++
++	pci: pci@f0000d00 {
++		interrupt-map-mask = <0xf800 0 0 7>;
++		interrupt-map = <0xc000 0 0 1 &mpc5200_pic 0 0 3 // 1st slot
++				 0xc000 0 0 2 &mpc5200_pic 1 1 3
++				 0xc000 0 0 3 &mpc5200_pic 1 2 3
++				 0xc000 0 0 4 &mpc5200_pic 1 3 3
++
++				 0xc800 0 0 1 &mpc5200_pic 1 1 3 // 2nd slot
++				 0xc800 0 0 2 &mpc5200_pic 1 2 3
++				 0xc800 0 0 3 &mpc5200_pic 1 3 3
++				 0xc800 0 0 4 &mpc5200_pic 0 0 3>;
++		ranges = <0x42000000 0 0x80000000 0x80000000 0 0x20000000
++			  0x02000000 0 0xa0000000 0xa0000000 0 0x10000000
++			  0x01000000 0 0x00000000 0xb0000000 0 0x01000000>;
++	};
++	motorek@0 {
++		device_type = "motorek";
++		pwmf = <&gpt2>;
++		pwmb = <&gpt3>;
++		irca = <&gpt5>;
++		ircb = <&gpt4>;
++		interrupts = <0 0 1>;
++		//gpios = <&gpio_a
++	};
++};
+diff --git a/arch/powerpc/platforms/52xx/mpc5200_simple.c b/arch/powerpc/platforms/52xx/mpc5200_simple.c
+index 792a301..82aaa6e 100644
+--- a/arch/powerpc/platforms/52xx/mpc5200_simple.c
++++ b/arch/powerpc/platforms/52xx/mpc5200_simple.c
+@@ -62,6 +62,7 @@ static const char *board[] __initdata = {
+ 	"promess,motionpro",
+ 	"schindler,cm5200",
+ 	"tqc,tqm5200",
++	"midam,shark",
+ 	NULL
+ };
+ 
+-- 
+1.8.5.2
+
