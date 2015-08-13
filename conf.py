@@ -57,7 +57,7 @@ db_port = 5432
 
 # multithread
 # Define if measurement and kernel build should be executed in parallel.
-multithread = False
+multithread = True
 # multithread_buffer
 # Defines maximal number of buffered configurations before generating is suspended.
 multithread_buffer = 32
