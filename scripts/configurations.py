@@ -149,13 +149,14 @@ def __register_conf__(con, conf_num, generator):
 	if os.path.isfile(filen):
 		if compare(filen, wfile):
 			print("I: Generated existing configuration.")
-			return
+			return False
 		else:
 			print("W: Generated configuration with collision hash.")
 			# TODO this might have to be tweaked
 			raise Exception()
 	shutil.move(wfile, filen)
 	dtb.add_configuration(hsh, hshf, generator)
+	return True
 
 def __generate_single__(var_num, conf_num):
 	measure_list = set()
@@ -185,15 +186,15 @@ def __generate_single__(var_num, conf_num):
 	return True
 
 def __generate_random__(var_num, conf_num):
-	# TODO
-	#tfile = __buildtempcnf__(var_num, (sf(conf.rules_file), sf(conf.fixed_file)), ())
-	#try:
-		#confs = __exec_sat__(tfile, [])
-		#for con in confs:
-			#__register_conf__(con, conf_num)
-	#finally:
-		#os.remove(tfile)
-	return False
+	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file), sf(conf.fixed_file)), ())
+	try:
+		confs = __exec_sat__(tfile, ['-i', '3'])
+		for con in confs:
+			if not __register_conf__(con, conf_num, 'random-sat'):
+				__generate_random__(var_num, conf_num)
+	finally:
+		os.remove(tfile)
+	return True
 
 def generate():
 	"""Collect boolean equations from files rules and required
