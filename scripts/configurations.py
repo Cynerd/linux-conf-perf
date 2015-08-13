@@ -119,11 +119,9 @@ def __calchash__(file):
 	for c in csort:
 		try:
 			if con[c]:
-				cstr += '+'
-			else:
-				cstr += '-'
+				cstr += c
 		except ValueError:
-			cstr += '0'
+			pass
 
 	# Add missing
 	csortfile = open(sf(conf.hashconfigsort), 'a');
@@ -135,9 +133,7 @@ def __calchash__(file):
 			csort.append(key)
 			csortfile.write(key + '\n')
 			if val:
-				cstr += '+'
-			else:
-				cstr += '-'
+				cstr += key
 	csortfile.close()
 
 	hsh = hashlib.md5(bytes(cstr, 'UTF-8'))
