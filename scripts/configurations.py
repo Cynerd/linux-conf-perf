@@ -173,7 +173,8 @@ def __generate_single__(var_num, conf_num):
 	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file),
 		sf(conf.fixed_file)), (str(measure_list.pop())))
 	with open(sf(conf.single_generated_file), 'w') as fo:
-		fo.writelines(measure_list)
+		for ln in measure_list:
+			fo.write(str(ln) + '\n')
 	try:
 		confs = __exec_sat__(tfile, ['-i', '0'])
 		for con in confs:
