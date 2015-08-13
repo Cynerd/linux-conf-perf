@@ -58,7 +58,7 @@ class mainThread(Thread):
 				measure(img, config)
 
 # Multithread section #
-__conflist__ = []
+__conflist__ = set()
 __listlock__ = Lock()
 
 class prepareThread(Thread):
@@ -69,11 +69,11 @@ class prepareThread(Thread):
 		while not __terminate__ and len(__conflist__) <= conf.multithread_buffer:
 			__listlock__.release()
 			try:
-				config = prepare()
+				img, config = prepare()
 			except exceptions.NoApplicableConfiguration:
 				return
 			__listlock__.aquire()
-			__conflist__.append(config)
+			__conflist__.add((img, config))
 			if not __measurethread__.isActive():
 				__measurethread__.start()
 		__listlock__.release()
@@ -84,12 +84,11 @@ class measureThread(Thread):
 	def run(self):
 		__listlock__.aquire()
 		while not __terminate__ and len(__conflist__) > 0:
-			config = __conflist__[0]
-			del __conflist__[0]
+			img, config = __conflist__.pop()
 			__listlock__.release()
 			if not __preparethread__.isActive():
 				__preparethread__.start()
-			measure(config)
+			measure(img, config)
 			__listlock__.aquire()
 		__listlock__.release()
 
