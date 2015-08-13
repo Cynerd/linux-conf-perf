@@ -11,7 +11,6 @@ import database
 
 def test():
 	initialize.base()
-	initialize.parse_kconfig()
 	print("-- Make --")
 	conf.kernel_make_output = True
 	img = kernel.make('test')
