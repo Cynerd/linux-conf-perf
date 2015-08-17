@@ -127,12 +127,15 @@ picosat = 'scripts/picosat-959/picosat'
 allconfig = 'scripts/allconfig/allconfig'
 
 #######################################
+absroot = os.path.dirname(os.path.realpath(__file__))
+
+#######################################
 # Overlap configuration for specified target
-if os.path.isfile('.target'):
+if os.path.isfile(os.path.join(absroot, '.target')):
 	target = None
-	with open('.target', 'r') as f:
+	with open(os.path.join(absroot, '.target'), 'r') as f:
 		target = f.readline().rstrip()
-	conffile = os.path.join('targets', target, 'conf.py')
+	conffile = os.path.join(absroot, 'targets', target, 'conf.py')
 	if os.path.isfile(conffile):
 		ovconf = importlib.machinery.SourceFileLoader("module.name", conffile).load_module()
 		for name in dir(ovconf):
@@ -142,6 +145,3 @@ if os.path.isfile('.target'):
 		print("W: No target specifier. Write target to .target file.")
 else:
 	print("W: No target specifier. Write target to .target file.")
-
-#######################################
-absroot = os.path.dirname(os.path.realpath(__file__))
