@@ -4,8 +4,7 @@
 
 kernel_arch = 'powerpc'
 build_command = ['../targets/ryuglab/scripts/compile']
-boot_command = ['novaboot', 'targets/ryuglab/cyclictest/nbscript',
-				'--exiton="NOVABOOT EXIT LINUX-CONF-PERF"']
+boot_command = ['targets/ryuglab/scripts/boot']
 
 db_user = 'kocikare'
 db_password = 'ohNg3Ien'

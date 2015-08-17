@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Wake target if target is suspended
+sudo /usr/sbin/etherwake 00:0c:f1:77:ec:46
+
+# Boot using novaboot
+cd `dirname $0`
+novaboot ../cyclictest/nbscripts --exiton="NOVABOOT EXIT LINUX-CONF-PERF"
