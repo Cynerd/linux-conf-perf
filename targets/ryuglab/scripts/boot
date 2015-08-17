@@ -5,4 +5,9 @@ sudo /usr/sbin/etherwake 00:0c:f1:77:ec:46
 
 # Boot using novaboot
 cd `dirname $0`
-novaboot ../cyclictest/nbscripts --exiton="NOVABOOT EXIT LINUX-CONF-PERF"
+cd ../cyclictest
+
+ln -s ../../../jobfiles/linuxImage uImage
+ln -s ../../../root/cyclictest/images/rootfs.cpio.uboot rootfs.cpio.uboot
+
+novaboot nbscripts --exiton="NOVABOOT EXIT LINUX-CONF-PERF"
