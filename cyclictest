@@ -1,1 +1,0 @@
-cyclictest -n -p99 -t3 -l 100000 --histogram=1000

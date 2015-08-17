@@ -132,7 +132,7 @@ if os.path.isfile('.target'):
 	target = None
 	with open('.target', 'r') as f:
 		target = f.readline().rstrip()
-	conffile = os.path.join('targets', target + '.py')
+	conffile = os.path.join('targets', target, 'conf.py')
 	if os.path.isfile(conffile):
 		ovconf = importlib.machinery.SourceFileLoader("module.name", conffile).load_module()
 		for name in dir(ovconf):

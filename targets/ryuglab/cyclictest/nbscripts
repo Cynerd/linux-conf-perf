@@ -1,0 +1,5 @@
+#!/usr/bin/env novaboot
+# -*-sh-*-
+load ../../../jobfiles/linuxImage console=ttyPSC0,115200 quiet
+load shark-ryu.dtb
+load ../../../root/cyclictest/images/rootfs.cpio.uboot
