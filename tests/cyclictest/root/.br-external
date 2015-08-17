@@ -1,0 +1,1 @@
+BR2_EXTERNAL ?= /home/cynerd/Programing/linux-conf-perf/tests/cyclictest/root/packages

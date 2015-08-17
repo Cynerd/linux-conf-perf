@@ -8,6 +8,6 @@ cd `dirname $0`
 cd ../cyclictest
 
 ln -s ../../../jobfiles/linuxImage uImage
-ln -s ../../../root/cyclictest/images/rootfs.cpio.uboot rootfs.cpio.uboot
+ln -s ../../../tests/cyclictest/root/images/rootfs.cpio.uboot rootfs.cpio.uboot
 
 novaboot nbscripts --exiton="NOVABOOT EXIT LINUX-CONF-PERF"

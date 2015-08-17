@@ -5,6 +5,7 @@
 kernel_arch = 'powerpc'
 build_command = ['../targets/ryuglab/scripts/compile']
 boot_command = ['targets/ryuglab/scripts/boot']
+parse_command = ['tests/cyclictest/parse']
 
 db_user = 'kocikare'
 db_password = 'ohNg3Ien'
