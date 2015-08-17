@@ -2,15 +2,18 @@ import os
 import sys
 import subprocess
 import shutil
+import tempfile
 
 from conf import conf
 from conf import sf
 import exceptions
 import utils
 
-def config(cfile):
+def config(txtconfig):
+	"Apply text configuration to kernel folder"
+	infile = tempfile.NamedTemporaryFile()
+	infile.write(bytes(txtconfig, sys.getdefaultencoding()))
 	wd = os.getcwd()
-	infile = os.path.join(sf(conf.configurations_folder), cfile)
 	os.chdir(sf(conf.linux_sources))
 	try:
 		utils.callsubprocess('write_config', [sf(conf.write_config), infile],

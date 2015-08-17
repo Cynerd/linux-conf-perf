@@ -65,11 +65,11 @@ def __exec_sat__(file, args):
 		pass
 	return rtn
 
-def __write_temp_config_file__(con, conf_num):
+def __txt_config__(con, conf_num):
 	# Ensure smap existence
 	utils.build_symbol_map()
 	# Write temporally file
-	wfile = tempfile.NamedTemporaryFile(delete=False)
+	txt = ''
 	for s in con:
 		if s < 0:
 			nt = True
@@ -80,41 +80,44 @@ def __write_temp_config_file__(con, conf_num):
 			break;
 		if 'NONAMEGEN' in utils.smap[s]: # ignore generated names
 			continue
-		wfile.write(bytes('CONFIG_' + utils.smap[s] + '=',
-			sys.getdefaultencoding()))
+		txt += 'CONFIG_' + utils.smap[s] + '='
 		if not nt:
-			wfile.write(bytes('y', sys.getdefaultencoding()))
+			txt += 'y'
 		else:
-			wfile.write(bytes('n', sys.getdefaultencoding()))
-		wfile.write(bytes('\n', sys.getdefaultencoding()))
+			txt += 'n'
+		txt += '\n'
+	return txt
+
+def __write_temp_config_file__(con, conf_num):
+	wfile = tempfile.NamedTemporaryFile(delete=False)
+	txt = __txt_config__(con, conf_num)
+	wfile.write(bytes(txt, sys.getdefaultencoding()))
 	wfile.close()
 	return wfile.name
 
-def __load_config_file__(file):
+def __load_config_text__(txt):
 	rtn = dict()
-	with open(file, 'r') as f:
-		for ln in f:
-			if ln[0] == '#' or not '=' in ln:
-				continue
-			indx = ln.index('=')
-			if (ln[indx + 1] == 'y'):
-				rtn[ln[7:indx]] = True
-			else:
-				rtn[ln[7:indx]] = False
+	for ln in txt:
+		if ln[0] == '#' or not '=' in ln:
+			continue
+		indx = ln.index('=')
+		if (ln[indx + 1] == 'y'):
+			rtn[ln[7:indx]] = True
+		else:
+			rtn[ln[7:indx]] = False
 	return rtn
 
-def __calchash__(file):
-	"""Calculates hash from configuration file"""
-	# Build hashconfigsort
-	csort = []
-	try:
-		with open(conf.hashconfigsort, 'r') as f:
-			for ln in f:
-				csort.append(ln.rstrip())
-	except FileNotFoundError:
-		pass
 
-	con = __load_config_file__(file)
+def __load_config_file__(file):
+	f = open(file, 'r')
+	rtn = __load_config_text__(f)
+	f.close()
+	return rtn
+
+def __calchash__(con):
+	dt = database.database()
+	csort = dt.get_configsort()
+
 	cstr = ""
 	for c in csort:
 		try:
@@ -124,38 +127,41 @@ def __calchash__(file):
 			pass
 
 	# Add missing
-	csortfile = open(sf(conf.hashconfigsort), 'a');
 	for key, val in con.items():
 		try:
 			csort.index(key)
 		except ValueError:
 			indx = len(csort)
 			csort.append(key)
-			csortfile.write(key + '\n')
+			dt.add_configsort(key)
 			if val:
 				cstr += key
-	csortfile.close()
 
 	hsh = hashlib.md5(bytes(cstr, 'UTF-8'))
 	return hsh.hexdigest()
 
+
+def __calchash_file__(file):
+	"""Calculates hash from configuration file"""
+	con = __load_config_file__(file)
+	return __calchash__(con)
+
 def __register_conf__(con, conf_num, generator):
 	dtb = database.database()
 	# Solution to configuration
-	wfile = __write_temp_config_file__(con, conf_num)
-	hsh = __calchash__(wfile)
-	filen = os.path.join(sf(conf.configurations_folder), hsh)
-	hshf = hsh
-	if os.path.isfile(filen):
-		if compare(filen, wfile):
+	txtconfig = __txt_config__(con, conf_num)
+	hsh = __calchash__(con)
+	cconf = dtb.get_configration(hsh)
+	for cc in cconf:
+		print('hash: ' + hsh)
+		if compare_text(cc, txtconfig):
 			print("I: Generated existing configuration.")
 			return False
 		else:
 			print("W: Generated configuration with collision hash.")
 			# TODO this might have to be tweaked
 			raise Exception()
-	shutil.move(wfile, filen)
-	dtb.add_configuration(hsh, hshf, generator)
+	dtb.add_configuration(hsh, txtconfig, generator)
 	return True
 
 def __generate_single__(var_num, conf_num):
@@ -218,11 +224,7 @@ def generate():
 
 	raise exceptions.NoNewConfiguration()
 
-def compare(file1, file2):
-	"""Compared two configuration"""
-	conf1 = __load_config_file__(file1)
-	conf2 = __load_config_file__(file2)
-
+def compare(conf1, conf2):
 	# This is not exactly best comparison method
 	for key, val in conf1.items():
 		try:
@@ -237,3 +239,14 @@ def compare(file1, file2):
 		except ValueError:
 			return False
 	return True
+
+def compare_text(text1, text2):
+	conf1 = __load_config_text__(text1)
+	conf2 = __load_config_text__(text2)
+	return compare_file(conf1, conf2)
+
+def compare_file(file1, file2):
+	"""Compared two configuration"""
+	conf1 = __load_config_file__(file1)
+	conf2 = __load_config_file__(file2)
+	return compare_file(conf1, conf2)

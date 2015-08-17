@@ -17,7 +17,7 @@ CREATE TABLE configurations (
 	id BIGSERIAL PRIMARY KEY, -- Id
 	hash char(32) NOT NULL, -- Hash of configuration
 	generator TEXT NOT NULL, -- Text identificator of configure generation method
-	cfile TEXT NOT NULL, -- File path with configuration
+	config TEXT NOT NULL, -- Full configuration in text form
 	gtime timestamp NOT NULL, -- Time and date of generation
 	linuxgit BIGINT REFERENCES linuxgit (id), -- Reference to git version of Linux
 	toolgit BIGINT REFERENCES toolsgit (id) -- Reference to git version of tools 
@@ -33,4 +33,11 @@ CREATE TABLE measure (
 	mtime timestamp NOT NULL, -- Time and date of measurement
 	linuxgit BIGINT REFERENCES linuxgit (id), -- Reference to git version of Linux
 	toolgit BIGINT REFERENCES toolsgit (id) -- Reference to git version of tools 
+);
+
+-- In this table are sorted all used configuration options
+-- Order in this table is fundamental for configuration hash calculation
+CREATE TABLE configopt (
+	id BIGSERIAL PRIMARY KEY, -- Id
+	configopt TEXT NOT NULL -- Name of configuration option
 );

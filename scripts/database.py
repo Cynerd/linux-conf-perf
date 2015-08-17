@@ -19,7 +19,7 @@ def __git_commit__():
 def __timestamp__():
 	return datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
 
-Config = collections.namedtuple('Config', 'id hash cfile') # Named tuple for configuration
+Config = collections.namedtuple('Config', 'id hash config') # Named tuple for configuration
 Measure = collections.namedtuple('Measure', 'id conf_id mfile value') # Named tuple for measurement
 
 class database:
@@ -78,21 +78,21 @@ class database:
 		ps(ds, cm)
 		return self.check_linuxgit()
 
-	def add_configuration(self, hash, cfile, generator):
+	def add_configuration(self, hash, txtconfig, generator):
 		"Add configuration to database."
 		ps = self.db.prepare("""INSERT INTO configurations
-								(hash, cfile, gtime, toolgit, linuxgit, generator)
+								(hash, config, gtime, toolgit, linuxgit, generator)
 								VALUES
 								($1, $2, $3, $4, $5, $6);
 								""")
 		gt = self.check_toolsgit()
 		lgt = self.check_linuxgit()
 		tm = datetime.datetime.now()
-		ps(hash, cfile, tm, gt, lgt, generator)
+		ps(hash, txtconfig, tm, gt, lgt, generator)
 
 	def get_configration(self, hash):
 		"Return configration id for inserted hash."
-		ps = self.db.prepare("""SELECT id, cfile FROM configurations
+		ps = self.db.prepare("""SELECT id, config FROM configurations
 								WHERE hash = $1""")
 		rtn = []
 		for dt in ps(hash):
@@ -140,3 +140,17 @@ class database:
 		for dt in ps():
 			rtn.append(Config(dt[0], dt[1], dt[2]))
 		return rtn
+
+	def add_configsort(self, configopt):
+		"Add configuration option to sorted list"
+		ps = self.db.prepare("""INSERT INTO configopt
+								(configopt) VALUES ($1)
+								""")
+		ps()
+
+	def get_configsort(self):
+		"Returns sorted list of all configuration options"
+		ps = self.db.prepare("""SELECT configopt FROM configopt
+								ORDER BY id ASC
+								""")
+		return ps()

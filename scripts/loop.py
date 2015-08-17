@@ -20,6 +20,7 @@ __confs_unmeasured__ = []
 def prepare():
 	"""Prepare for measuring
 	Outcome is Linux image for generated configuration."""
+	print("Preparing new image.")
 	global __confs_unmeasured__
 	if len(__confs_unmeasured__) == 0:
 		dtb = database.database()
@@ -31,7 +32,7 @@ def prepare():
 				raise exceptions.NoApplicableConfiguration()
 		__confs_unmeasured__ = list(confs)
 	con = __confs_unmeasured__.pop()
-	kernel.config(con.cfile)
+	kernel.config(con.config)
 	img = kernel.make(con.hash)
 	print("Prepared image: " + img)
 	return img, con
