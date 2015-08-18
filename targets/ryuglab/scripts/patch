@@ -7,4 +7,4 @@ cd ../../../linux
 
 git reset --hard
 
-git apply --index < ../targets/ryuglab/shark-ryu-board-patch.patch
+git am ../targets/ryuglab/shark-ryu-board-patch.patch
