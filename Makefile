@@ -69,7 +69,7 @@ clean:
 	$(RM) .conf.mk
 	$(RM) -r jobfiles
 
-clean_measure: cleandb
+clean_measure:
 	$(RM) -r configurations
 	$(RM) -r output
 	$(RM) -r result
