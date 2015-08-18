@@ -146,7 +146,7 @@ class database:
 		ps = self.db.prepare("""INSERT INTO configopt
 								(configopt) VALUES ($1)
 								""")
-		ps()
+		ps(configopt)
 
 	def get_configsort(self):
 		"Returns sorted list of all configuration options"
