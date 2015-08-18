@@ -129,7 +129,7 @@ def __calchash__(con):
 		try:
 			if con[c]:
 				cstr += c
-		except ValueError:
+		except KeyError:
 			pass
 
 	# Add missing
