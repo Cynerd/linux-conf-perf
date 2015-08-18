@@ -31,7 +31,8 @@ def build_symbol_map():
 def callsubprocess(process_name, process, show_output = True,
 		return_output = False, env=os.environ, allowed_exit_codes = [0],
 		allow_all_exit_codes = False):
-	sprc = subprocess.Popen(process, stdout = subprocess.PIPE, env = env)
+	sprc = subprocess.Popen(process, stdout = subprocess.PIPE,
+			stderr = subprocess.STDOUT, env = env)
 
 	try:
 		os.mkdir(os.path.join(sf(conf.log_folder), process_name))
