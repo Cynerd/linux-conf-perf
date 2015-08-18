@@ -150,7 +150,11 @@ class database:
 
 	def get_configsort(self):
 		"Returns sorted list of all configuration options"
-		ps = self.db.prepare("""SELECT configopt FROM configopt
+		ps = self.db.prepare("""SELECT id, configopt FROM configopt
 								ORDER BY id ASC
 								""")
-		return ps()
+		rtn = []
+		itms = ps()
+		for id, config in itms:
+			rtn.append(config)
+		return rtn
