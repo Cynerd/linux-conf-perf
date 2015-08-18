@@ -20,6 +20,7 @@ def config(txtconfig):
 			conf.kernel_config_output, env=utils.get_kernel_env())
 	except exceptions.ProcessFailed:
 		raise exceptions.ConfigurationError("some configs mismatch")
+	infile.close()
 	os.chdir(wd)
 
 #def config_noprogram():
