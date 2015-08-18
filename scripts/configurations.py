@@ -36,7 +36,7 @@ def __buildtempcnf__(variable_count, files, strlines):
 	wfile.close()
 	return wfile.name
 
-def __exec_sat__(file, args):
+def __exec_sat__(file, args, conf_num):
 	"""Executes SAT solver and returns configuration."""
 	picosat_cmd = [sf(conf.picosat), file]
 	picosat_cmd += conf.picosat_args
@@ -63,34 +63,40 @@ def __exec_sat__(file, args):
 		rtn.append(solut)
 	except ValueError:
 		pass
-	return rtn
-
-def __txt_config__(con, conf_num):
 	# Ensure smap existence
 	utils.build_symbol_map()
-	# Write temporally file
+	# Translate to dict
+	con = list()
+	for rt in rtn:
+		cond = dict()
+		for r in rt:
+			if r < 0:
+				val = False
+				r *= -1
+			else:
+				val = True
+			if r > int(conf_num):
+				break;
+			if 'NONAMEGEN' in utils.smap[r]: # ignore generated names
+				continue
+			cond[utils.smap[r]] = val
+		con.append(cond)
+	return con
+
+def __txt_config__(con):
 	txt = ''
-	for s in con:
-		if s < 0:
-			nt = True
-			s *= -1
-		else:
-			nt = False
-		if s > int(conf_num):
-			break;
-		if 'NONAMEGEN' in utils.smap[s]: # ignore generated names
-			continue
-		txt += 'CONFIG_' + utils.smap[s] + '='
-		if not nt:
+	for key, val in con.items():
+		txt += 'CONFIG_' + key + '='
+		if val:
 			txt += 'y'
 		else:
 			txt += 'n'
 		txt += '\n'
 	return txt
 
-def __write_temp_config_file__(con, conf_num):
+def __write_temp_config_file__(con):
 	wfile = tempfile.NamedTemporaryFile(delete=False)
-	txt = __txt_config__(con, conf_num)
+	txt = __txt_config__(con)
 	wfile.write(bytes(txt, sys.getdefaultencoding()))
 	wfile.close()
 	return wfile.name
@@ -149,7 +155,7 @@ def __calchash_file__(file):
 def __register_conf__(con, conf_num, generator):
 	dtb = database.database()
 	# Solution to configuration
-	txtconfig = __txt_config__(con, conf_num)
+	txtconfig = __txt_config__(con)
 	hsh = __calchash__(con)
 	cconf = dtb.get_configration(hsh)
 	for cc in cconf:
@@ -182,7 +188,7 @@ def __generate_single__(var_num, conf_num):
 		for ln in measure_list:
 			fo.write(str(ln) + '\n')
 	try:
-		confs = __exec_sat__(tfile, ['-i', '0'])
+		confs = __exec_sat__(tfile, ['-i', '0'], conf_num)
 		for con in confs:
 			__register_conf__(con, conf_num, 'single-sat')
 	except exceptions.NoSolution:
@@ -194,7 +200,7 @@ def __generate_single__(var_num, conf_num):
 def __generate_random__(var_num, conf_num):
 	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file), sf(conf.fixed_file)), set())
 	try:
-		confs = __exec_sat__(tfile, ['-i', '3'])
+		confs = __exec_sat__(tfile, ['-i', '3'], conf_num)
 		for con in confs:
 			if not __register_conf__(con, conf_num, 'random-sat'):
 				__generate_random__(var_num, conf_num)
