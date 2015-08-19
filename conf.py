@@ -11,20 +11,10 @@ kernel_arch = 'x86'
 # kernle_env
 # Enviroment variables for Linux
 kernel_env = {'SRCARCH': kernel_arch, 'ARCH': kernel_arch, 'KERNELVERSION': kernel_arch}
-# linux_make_args
-# These are arguments passed to make when linux is build.
-linux_make_args = ['-j8']
 # build_command
 # Command executed for kernel build in linux folder.
-build_command = ['make'] + linux_make_args
+build_command = ['make']
 
-# novaboot_args
-# These are arguments passed to Novaboot,
-# but only if you don't remove it from boot_command.
-novaboot_args = ['--qemu=qemu-system-x86_64']
-# nbscript
-# This variable is path to Novaboot script.
-nbscript = 'scripts/nbscript'
 # boot_command
 # Command executed for booting. Output of this command is saved to output folder.
 boot_command = ['echo', 'bootit']
@@ -97,11 +87,6 @@ linux_kconfig_head = linux_sources + 'Kconfig'
 linux_dot_config = linux_sources + '.config'
 linux_image = linux_sources + 'arch/' + kernel_arch + '/boot/bzImage'
 
-buildroot_def_config = 'buildroot_recipe/buildroot.def.config'
-buildroot_inittab_directive = 'buildroot_recipe/inittab_directive'
-buildroot_initscript = 'scripts/buildroot_recipe/linux-conf-perf'
-buildroot_initram = 'buildroot/output/images/rootfs.cpio.gz'
-
 build_folder = 'jobfiles/'
 jobfolder_linux_image = build_folder + 'linuxImage'
 symbol_map_file = build_folder + 'symbol_map' # Also defined in parse_kconfig
@@ -113,10 +98,6 @@ dot_measure_file = build_folder + 'dot_measure'
 dot_config_back_file = build_folder + 'dot_config_back'
 single_generated_file = build_folder + 'single_generated'
 
-configurations_folder = 'configurations/'
-hashconfigsort = configurations_folder + 'hashconfigsort'
-
-output_folder = 'output/'
 result_folder = 'result/'
 log_folder = 'log/'
 
