@@ -1,3 +1,3 @@
 #!/bin/bash
 
-grep -e "^! .* ok" | sed -n '2p' | awk '{print $17}'
+cat | grep -e "^! .* ok$" | sed -n '2p' | awk '{print $17}'
