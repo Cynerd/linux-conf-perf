@@ -38,6 +38,7 @@ def prepare():
 	return img, con
 
 def measure(kernelimg, con):
+	print("Measuring " + con.hash)
 	try:
 		os.remove(sf(conf.jobfolder_linux_image))
 	except FileNotFoundError:
