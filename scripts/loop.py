@@ -14,6 +14,7 @@ import kernel
 import boot
 import exceptions
 import database
+import utils
 
 __confs_unmeasured__ = []
 
