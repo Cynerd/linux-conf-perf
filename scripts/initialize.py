@@ -11,6 +11,10 @@ from conf import sf
 import exceptions
 
 def all():
+	try:
+		utils.dirtycheck()
+	except exceptions.DirtyRepository as e:
+		print("Warning: " + str(e))
 	base()
 	parse_kconfig()
 	gen_fixed()

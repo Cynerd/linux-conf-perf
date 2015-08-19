@@ -8,8 +8,13 @@ import initialize
 import kernel
 import boot
 import database
+import exceptions
 
 def test():
+	try:
+		utils.dirtycheck()
+	except exceptions.DirtyRepository as e:
+		print("Warning: " + str(e))
 	initialize.base()
 	print("-- Make --")
 	conf.kernel_make_output = True

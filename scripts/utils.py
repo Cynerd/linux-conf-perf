@@ -67,3 +67,14 @@ def get_kernel_env():
 	env = dict(os.environ)
 	env.update(conf.kernel_env)
 	return env
+
+def __dirty_repo__(path):
+	cwd = os.getcwd()
+	os.chdir(conf.absroot)
+	out = subprocess.check_output(conf.git_describe_cmd)
+	if re.search('dirty', out.decode(sys.getdefaultencoding())):
+		raise exceptions.DirtyRepository(path)
+
+def dirtycheck():
+	__dirty_repo__(conf.absroot)
+	__dirty_repo__(conf.linux_sources)

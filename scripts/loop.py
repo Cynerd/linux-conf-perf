@@ -102,6 +102,7 @@ def sigterm_handler(_signo, _stack_frame):
 	__terminate__ = True
 
 def loop():
+	utils.dirtycheck()
 	initialize.all()
 	global thr
 	thr = mainThread()

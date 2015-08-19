@@ -42,3 +42,9 @@ class ProcessFailed(Exception):
 class DatabaseUninitialized(Exception):
 	def __str__(self):
 		return "Database seems to be uninitialized."
+
+class DirtyRepository(Exception):
+	def __init__(self, repo):
+		self.repo = repo
+	def __str__(self):
+		return "Detected dirty repository: " + self.repo
