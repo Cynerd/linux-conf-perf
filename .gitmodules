@@ -7,3 +7,6 @@
 [submodule "scripts/buildroot"]
 	path = buildroot
 	url = http://git.buildroot.net/git/buildroot.git
+[submodule "targets/ryuglab/linux"]
+	path = targets/ryuglab/linux
+	url = https://github.com/Cynerd/linux-ryu.git
