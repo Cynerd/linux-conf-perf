@@ -16,9 +16,9 @@ def boot(config, to_database = True):
 
 	value = None
 	try:
-		out = utils.callsubprocess('parse_command', conf.parse_command,
-				conf.parse_output, True)
-		value = float(out[0])
+		res = utils.callsubprocess('parse_command', conf.parse_command,
+				conf.parse_output, True, stdin = out)
+		value = float(res[0])
 	except Exception as e:
 		print("W: parse exception: " + e.__str__())
 
