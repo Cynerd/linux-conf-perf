@@ -24,10 +24,6 @@ def base():
 	except FileExistsError:
 		pass
 	try:
-		os.mkdir(sf(conf.configurations_folder))
-	except FileExistsError:
-		pass
-	try:
 		os.mkdir(sf(conf.log_folder))
 	except FileExistsError:
 		pass
