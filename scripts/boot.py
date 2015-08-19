@@ -16,8 +16,7 @@ def boot(config, to_database = True):
 
 	value = None
 	try:
-		out = utils.callsubprocess('parse_command', conf.parse_command +
-                                [os.path.join(conf.output_folder, config.cfile)],
+		out = utils.callsubprocess('parse_command', conf.parse_command,
 				conf.parse_output, True)
 		value = float(out[0])
 	except Exception as e:
