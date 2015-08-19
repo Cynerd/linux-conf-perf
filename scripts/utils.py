@@ -40,7 +40,10 @@ def callsubprocess(process_name, process, show_output = True,
 		pass
 
 	if stdin != None:
-		sprc.stdin.write(bytes(stdin, sys.getdefaultencoding()))
+		for ln in stdin:
+			sprc.stdin.write(bytes(ln + '\n', sys.getdefaultencoding()))
+			sprc.stdin.flush()
+		sprc.stdin.close()
 
 	rtn = []
 	with open(os.path.join(sf(conf.log_folder),
