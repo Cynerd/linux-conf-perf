@@ -35,14 +35,18 @@ mbuildroot: buildroot/.config buildroot/system/skeleton/usr/bin/linux-conf-perf
 	$(MAKE) -C buildroot menuconfig
 
 mlinux:
-	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C linux menuconfig
+	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C $(CONF_LINUX_SOURCES) menuconfig
 
 deflinux:
-	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C linux defconfig
+	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C $(CONF_LINUX_SOURCES) defconfig
 
 dot_config: allconfig
-	cd linux && SRCARCH=$(CONF_KERNEL_ARCH) ARCH=$(CONF_KERNEL_ARCH) KERNELVERSION=$(CONF_KERNEL_ARCH) \
-		../scripts/allconfig/allconfig Kconfig .config ../$(CONF_DOT_CONFIG)
+	cd $(CONF_LINUX_SOURCES) && \
+		SRCARCH=$(CONF_KERNEL_ARCH) \
+		ARCH=$(CONF_KERNEL_ARCH) \
+		KERNELVERSION=$(CONF_KERNEL_ARCH) \
+		$(CONF_ABSROOT)/scripts/allconfig/allconfig \
+		Kconfig .config $(CONF_ABSROOT)/$(CONF_DOT_CONFIG)
 
 init: initialize
 initialize: all
@@ -82,10 +86,10 @@ clean_database:
 distclean: clean distclean_linux distclean_buildroot clean_measure
 
 clean_linux:
-	@$(MAKE) -C linux clean
+	@$(MAKE) -C $(CONF_LINUX_SOURCES) clean
 
 distclean_linux:
-	@$(MAKE) -C linux distclean
+	@$(MAKE) -C $(CONF_LINUX_SOURCES) distclean
 
 clean_buildroot:
 	@$(MAKE) -C buildroot clean
@@ -115,10 +119,3 @@ picosat:
 	cd scripts/picosat-959 && ./configure; fi
 	@if [ `$(MAKE) -C scripts/picosat-959 -q; echo $$?` != "0" ]; then \
 	$(MAKE) -C scripts/picosat-959; fi
-
-buildroot/.config:
-	cp $(CONF_BUILDROOT_DEF_CONFIG) $@
-
-buildroot/system/skeleton/usr/bin/linux-conf-perf:
-	cp $(CONF_BUILDROOT_INITSCRIPT) $@
-	cat $(CONF_BUILDROOT_INITTAB_DIRECTIVE) >> buildroot/system/skeleton/etc/inittab
