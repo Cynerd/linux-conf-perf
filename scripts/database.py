@@ -20,7 +20,7 @@ def __timestamp__():
 	return datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
 
 Config = collections.namedtuple('Config', 'id hash config') # Named tuple for configuration
-Measure = collections.namedtuple('Measure', 'id conf_id mfile value') # Named tuple for measurement
+Measure = collections.namedtuple('Measure', 'id conf_id output value') # Named tuple for measurement
 
 class database:
 	"Class used for accessing PostgreSQL project database."
@@ -99,17 +99,17 @@ class database:
 			rtn.append(Config(dt[0], hash, dt[1]))
 		return rtn
 
-	def add_measure(self, mfile, conf_id, value = None):
+	def add_measure(self, output, conf_id, value = None):
 		"Add measurement."
 		ps = self.db.prepare("""INSERT INTO measure
-								(conf, mfile, value, mtime, toolgit, linuxgit, measurement)
+								(conf, output, value, mtime, toolgit, linuxgit, measurement)
 								VALUES
 								($1, $2, $3, $4, $5, $6, $7);
 								""")
 		gt = self.check_toolsgit()
 		lgt = self.check_linuxgit()
 		tm = datetime.datetime.now()
-		ps(conf_id, mfile, value, tm, gt, lgt, conf.measure_identifier)
+		ps(conf_id, output, value, tm, gt, lgt, conf.measure_identifier)
 
 	def update_measure(self, measure_id, value):
 		"Update measured value"
@@ -122,7 +122,7 @@ class database:
 
 	def get_measures(self, conf_id):
 		"Get measures for configuration with conf_id id"
-		ps = self.db.prepare("""SELECT id, mfile, value FROM measure
+		ps = self.db.prepare("""SELECT id, output, value FROM measure
 								WHERE conf = $1;
 								""")
 		rtn = []
@@ -132,7 +132,7 @@ class database:
 
 	def get_unmeasured(self):
 		"Returns list of all unmeasured configurations."
-		ps = self.db.prepare("""SELECT id, hash, cfile FROM configurations
+		ps = self.db.prepare("""SELECT id, hash, config FROM configurations
 								WHERE id NOT IN
 								(SELECT conf FROM measure)
 								""")

@@ -30,14 +30,17 @@ def build_symbol_map():
 
 def callsubprocess(process_name, process, show_output = True,
 		return_output = False, env=os.environ, allowed_exit_codes = [0],
-		allow_all_exit_codes = False):
+		allow_all_exit_codes = False, stdin = None):
 	sprc = subprocess.Popen(process, stdout = subprocess.PIPE,
-			stderr = subprocess.STDOUT, env = env)
+			stderr = subprocess.STDOUT, stdin = subprocess.PIPE, env = env)
 
 	try:
 		os.mkdir(os.path.join(sf(conf.log_folder), process_name))
 	except OSError:
 		pass
+
+	if stdin != None:
+		sprc.stdin.write(bytes(stdin, sys.getdefaultencoding()))
 
 	rtn = []
 	with open(os.path.join(sf(conf.log_folder),
