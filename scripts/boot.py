@@ -24,4 +24,7 @@ def boot(config, to_database = True):
 
 	if to_database:
 			dtb = database.database()
-			dtb.add_measure(out, config.id, value)
+			txt = ''
+			for ln in out:
+				txt += ln + '\n'
+			dtb.add_measure(txt, config.id, value)
