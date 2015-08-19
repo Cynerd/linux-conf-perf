@@ -16,7 +16,7 @@ def config(txtconfig):
 	wd = os.getcwd()
 	os.chdir(sf(conf.linux_sources))
 	try:
-		utils.callsubprocess('write_config', [sf(conf.write_config), infile],
+		utils.callsubprocess('write_config', [sf(conf.write_config), infile.name],
 			conf.kernel_config_output, env=utils.get_kernel_env())
 	except exceptions.ProcessFailed:
 		raise exceptions.ConfigurationError("some configs mismatch")
