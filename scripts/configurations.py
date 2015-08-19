@@ -84,26 +84,29 @@ def __exec_sat__(file, args, conf_num):
 	return con
 
 def __txt_config__(con):
-	txt = ''
+	config = []
 	for key, val in con.items():
-		txt += 'CONFIG_' + key + '='
+		txt = 'CONFIG_' + key + '='
 		if val:
 			txt += 'y'
 		else:
 			txt += 'n'
-		txt += '\n'
-	return txt
+		config.append(txt)
+	return config
 
 def __write_temp_config_file__(con):
 	wfile = tempfile.NamedTemporaryFile(delete=False)
 	txt = __txt_config__(con)
-	wfile.write(bytes(txt, sys.getdefaultencoding()))
+	for ln in txt:
+		wfile.write(bytes(ln + '\n', sys.getdefaultencoding()))
 	wfile.close()
 	return wfile.name
 
 def __load_config_text__(txt):
 	rtn = dict()
 	for ln in txt:
+		if not ln:
+			continue
 		if ln[0] == '#' or not '=' in ln:
 			continue
 		indx = ln.index('=')
@@ -160,7 +163,7 @@ def __register_conf__(con, conf_num, generator):
 	cconf = dtb.get_configration(hsh)
 	for cc in cconf:
 		print('hash: ' + hsh)
-		if compare_text(cc, txtconfig):
+		if compare_text(cc.config, txtconfig):
 			print("I: Generated existing configuration.")
 			return False
 		else:

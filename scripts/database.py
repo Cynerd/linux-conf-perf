@@ -88,7 +88,7 @@ class database:
 		gt = self.check_toolsgit()
 		lgt = self.check_linuxgit()
 		tm = datetime.datetime.now()
-		ps(hash, txtconfig, tm, gt, lgt, generator)
+		ps(hash, '\n'.join(txtconfig), tm, gt, lgt, generator)
 
 	def get_configration(self, hash):
 		"Return configration id for inserted hash."
@@ -96,7 +96,7 @@ class database:
 								WHERE hash = $1""")
 		rtn = []
 		for dt in ps(hash):
-			rtn.append(Config(dt[0], hash, dt[1]))
+			rtn.append(Config(dt[0], hash, dt[1].split('\n')))
 		return rtn
 
 	def add_measure(self, output, conf_id, value = None):
@@ -138,7 +138,7 @@ class database:
 								""")
 		rtn = []
 		for dt in ps():
-			rtn.append(Config(dt[0], dt[1], dt[2]))
+			rtn.append(Config(dt[0], dt[1], dt[2].split('\n')))
 		return rtn
 
 	def add_configsort(self, configopt):

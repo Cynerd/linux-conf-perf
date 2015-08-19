@@ -4,7 +4,7 @@
 
 kernel_arch = 'powerpc'
 kernel_env = {'SRCARCH': kernel_arch, 'ARCH': kernel_arch, 'KERNELVERSION': kernel_arch}
-build_command = ['make']
+build_command = ['make', 'uImage']
 boot_command = ['targets/ryuglab/boot/boot']
 parse_command = ['tests/cyclictest/parse']
 
