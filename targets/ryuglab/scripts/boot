@@ -5,7 +5,7 @@ sudo /usr/sbin/etherwake 00:0c:f1:77:ec:46
 
 # Boot using novaboot
 cd `dirname $0`
-cd ../cyclictest
+cd ../boot
 
 ln -sf ../../../jobfiles/linuxImage uImage
 ln -sf ../../../tests/cyclictest/root/images/rootfs.cpio.uboot rootfs.cpio.uboot
