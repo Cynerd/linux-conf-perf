@@ -9,6 +9,7 @@ import kernel
 import boot
 import database
 import exceptions
+import utils
 
 def test():
 	try:
