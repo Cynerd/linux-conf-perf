@@ -234,6 +234,7 @@ def generate():
 	raise exceptions.NoNewConfiguration()
 
 def compare(conf1, conf2):
+	"""Compared two configuration"""
 	# This is not exactly best comparison method
 	for key, val in conf1.items():
 		try:
@@ -252,10 +253,9 @@ def compare(conf1, conf2):
 def compare_text(text1, text2):
 	conf1 = __load_config_text__(text1)
 	conf2 = __load_config_text__(text2)
-	return compare_file(conf1, conf2)
+	return compare(conf1, conf2)
 
 def compare_file(file1, file2):
-	"""Compared two configuration"""
 	conf1 = __load_config_file__(file1)
 	conf2 = __load_config_file__(file2)
-	return compare_file(conf1, conf2)
+	return compare(conf1, conf2)
