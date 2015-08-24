@@ -99,17 +99,18 @@ class database:
 			rtn.append(Config(dt[0], hash, dt[1].split('\n')))
 		return rtn
 
-	def add_measure(self, output, conf_id, value = None):
+	def add_measure(self, output, result, conf_id, value = None):
 		"Add measurement."
 		ps = self.db.prepare("""INSERT INTO measure
-								(conf, output, value, mtime, toolgit, linuxgit, measurement)
+								(conf, output, value, mtime, toolgit,
+								linuxgit, measurement, result)
 								VALUES
-								($1, $2, $3, $4, $5, $6, $7);
+								($1, $2, $3, $4, $5, $6, $7, $8);
 								""")
 		gt = self.check_toolsgit()
 		lgt = self.check_linuxgit()
 		tm = datetime.datetime.now()
-		ps(conf_id, output, value, tm, gt, lgt, conf.measure_identifier)
+		ps(conf_id, output, value, tm, gt, lgt, conf.measure_identifier, result)
 
 	def update_measure(self, measure_id, value):
 		"Update measured value"

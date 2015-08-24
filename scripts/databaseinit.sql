@@ -29,6 +29,7 @@ CREATE TABLE measure (
 	conf BIGINT REFERENCES configurations (id), -- Reference to configuration
 	measurement TEXT NOT NULL, -- Text identifivator of measuring tool
 	output TEXT NOT NULL, -- Output of boot
+	result TEXT NOT NULL, -- Result of boot script, if exited normally
 	value DOUBLE PRECISION DEFAULT null, -- Measured data value
 	mtime timestamp NOT NULL, -- Time and date of measurement
 	linuxgit BIGINT REFERENCES linuxgit (id), -- Reference to git version of Linux

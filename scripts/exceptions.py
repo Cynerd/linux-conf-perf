@@ -32,12 +32,20 @@ class NoApplicableConfiguration(Exception):
 		return "No applicable configuration find. All generated configurations were already applied."
 
 class ProcessFailed(Exception):
-	def __init__(self, process, returncode):
+	def __init__(self, process, returncode, output):
 		self.process = process
 		self.returncode = returncode
+		self.output = output
 	def __str__(self):
 		return "Process failed: " + str(self.process) + \
 			" with return code: " + str(self.returncode)
+
+class ProcessTimeout(Exception):
+	def __init__(self, process, output):
+		self.process = process
+		self.output = output
+	def __str__(self):
+		return "Process timeout: " + str(self.process)
 
 class DatabaseUninitialized(Exception):
 	def __str__(self):

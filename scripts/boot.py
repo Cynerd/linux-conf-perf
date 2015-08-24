@@ -3,16 +3,28 @@ import sys
 import subprocess
 import shutil
 import importlib
+import traceback
 
 import utils
 import initialize
 from conf import conf
 from conf import sf
-from exceptions import MissingFile
+import exceptions
 import database
 
 def boot(config, to_database = True):
-	out = utils.callsubprocess('boot', conf.boot_command, conf.boot_output, True)
+	try:
+		out = utils.callsubprocess('boot', conf.boot_command, conf.boot_output, \
+				True, timeout = conf.boot_timeout)
+		result = 'nominal'
+	except exceptions.ProcessFailed as e:
+		result = 'failed'
+		out = e.output
+		traceback.print_exc()
+	except exceptions.ProcessTimeout as e:
+		result = 'timeout'
+		out = e.output
+		traceback.print_exc()
 
 	value = None
 	try:
@@ -27,4 +39,4 @@ def boot(config, to_database = True):
 			txt = ''
 			for ln in out:
 				txt += ln + '\n'
-			dtb.add_measure(txt, config.id, value)
+			dtb.add_measure(txt, result, config.id, value)

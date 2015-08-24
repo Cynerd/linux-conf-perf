@@ -18,6 +18,9 @@ build_command = ['make']
 # boot_command
 # Command executed for booting. Output of this command is saved to output folder.
 boot_command = ['echo', 'bootit']
+# boot_timeout
+# Set timeout of boot process if no output is generated for selected seconds
+boot_timeout = 120
 
 # parse_command
 # Command to parse double value from boot output

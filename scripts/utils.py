@@ -3,7 +3,9 @@ import sys
 import subprocess
 import time
 import hashlib
+import signal
 import re
+from threading import Thread
 from conf import conf
 from conf import sf
 import exceptions
@@ -27,12 +29,36 @@ def build_symbol_map():
 				w = lnn.rstrip().split(sep=':')
 				smap[int(w[0])] = w[1]
 
+class __subprocess_timer__(Thread):
+	def __init__(self, sprc, timeout):
+		Thread.__init__(self, name='subprocess_timer')
+		self.sprc = sprc
+		self.last = time.time()
+		self.exitit = False
+		self.timeout = timeout
+		self.timeouted = False
+		if timeout > 0:
+			self.start()
+	def output(self):
+		self.last = time.time()
+	def exit(self):
+		self.exitit = True
+		return self.timeouted
+	def run(self):
+		while not self.exitit:
+			now = time.time()
+			if (now - self.last) >= self.timeout:
+				self.timeouted = True
+				os.kill(self.sprc.pid, signal.SIGTERM)
+				return
+			time.sleep(1)
 
 def callsubprocess(process_name, process, show_output = True,
 		return_output = False, env=os.environ, allowed_exit_codes = [0],
-		allow_all_exit_codes = False, stdin = None):
+		allow_all_exit_codes = False, stdin = None, timeout = -1):
 	sprc = subprocess.Popen(process, stdout = subprocess.PIPE,
 			stderr = subprocess.STDOUT, stdin = subprocess.PIPE, env = env)
+
 
 	try:
 		os.mkdir(os.path.join(sf(conf.log_folder), process_name))
@@ -46,21 +72,24 @@ def callsubprocess(process_name, process, show_output = True,
 		sprc.stdin.close()
 
 	rtn = []
+	timerout = __subprocess_timer__(sprc, timeout)
 	with open(os.path.join(sf(conf.log_folder),
 			process_name, time.strftime("%y-%m-%d-%H-%M-%S") + ".log"),
 			"a") as f:
 		f.write('::' + time.strftime("%y-%m-%d-%H-%M-%S-%f") + '::\n')
 		for linen in sprc.stdout:
+			timerout.output()
 			line = linen.decode(sys.getdefaultencoding())
 			f.write(line)
 			if show_output:
 				print(line, end="")
 			if return_output:
 				rtn.append(line.rstrip())
-
+	if timerout.exit():
+		raise exceptions.ProcessTimeout(process_name, rtn)
 	rtncode = sprc.wait()
 	if rtncode not in allowed_exit_codes and not allow_all_exit_codes:
-		raise exceptions.ProcessFailed(process, rtncode)
+		raise exceptions.ProcessFailed(process, rtncode, rtn)
 	return rtn
 
 def get_kernel_env():
