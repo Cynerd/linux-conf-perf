@@ -114,12 +114,11 @@ def sigterm_handler(_signo, _stack_frame):
 		__preparethreadEvent__.set()
 
 # Main loop and single thread #
+__terminate__ = False
 def loop():
 	utils.dirtycheck()
 	initialize.all()
 	if conf.multithread:
-		global __terminate__
-		__terminate__ = False
 		__preparethread__.start()
 		__measurethread__.start()
 	else:
