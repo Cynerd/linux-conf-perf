@@ -48,19 +48,7 @@ def measure(kernelimg, con):
 	boot.boot(con)
 	print("Configuration '" + con.hash + "' measured.")
 
-# Threads #
-__terminate__ = False
-class mainThread(Thread):
-	def run(self):
-		if conf.single_loop:
-			img, config = prepare()
-			measure(img, config)
-		else:
-			while not __terminate__:
-				img, config = prepare()
-				measure(img, config)
-
-# Multithread section #
+# Multithread #
 __conflist__ = set()
 __listlock__ = Lock()
 
@@ -102,19 +90,25 @@ __measurethread__ = measureThread()
 def sigterm_handler(_signo, _stack_frame):
 	__terminate__ = True
 
+# Main loop and single thread #
 def loop():
 	utils.dirtycheck()
 	initialize.all()
-	global thr
-	thr = mainThread()
-	thr.start()
-	try:
-		thr.join()
-	except KeyboardInterrupt:
-		__terminate__ = True
+	if conf.multithread:
+		__preparethread__.start()
+		__measurethread__.start()
+	else:
+		if conf.single_loop:
+			img, config = prepare()
+			measure(img, config)
+		else:
+			while not __terminate__:
+				img, config = prepare()
+				measure(img, config)
 
 #################################################################################
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGTERM, sigterm_handler)
+	signal.signal(signal.SIGINT, sigterm_handler)
 	loop()
