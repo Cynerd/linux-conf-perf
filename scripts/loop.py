@@ -5,6 +5,7 @@ import subprocess
 import signal
 from threading import Thread
 from threading import Lock
+from threading import Event
 
 from conf import conf
 from conf import sf
@@ -51,6 +52,8 @@ def measure(kernelimg, con):
 # Multithread #
 __conflist__ = []
 __listlock__ = Lock()
+__preparethreadEvent__ = Event()
+__measurethreadEvent__ = Event()
 
 class prepareThread(Thread):
 	global __preparethread__
@@ -59,19 +62,22 @@ class prepareThread(Thread):
 		Thread.__init__(self, name=name)
 	def run(self):
 		print('Prepare thread start')
-		__listlock__.acquire()
-		while not __terminate__ and len(__conflist__) <= conf.multithread_buffer:
-			__listlock__.release()
+		while not __terminate__:
 			try:
 				img, config = prepare()
 			except exceptions.NoApplicableConfiguration:
 				return
 			__listlock__.acquire()
 			__conflist__.append((img, config))
-			if not __measurethread__.is_alive():
-				__measurethread__ = measureThread()
-				__measurethread__.start()
-		__listlock__.release()
+			__preparethreadEvent__.set()
+			if len(__conflist__) > conf.multithread_buffer:
+				__listlock__.release()
+				print('Prepare thread suspended')
+				__measurethreadEvent__.wait()
+				print('Prepare thread waken')
+			else:
+				__listlock__.release()
+			__measurethreadEvent__.clear()
 		print('Prepare thread stop')
 
 class measureThread(Thread):
@@ -81,32 +87,39 @@ class measureThread(Thread):
 		Thread.__init__(self, name=name)
 	def run(self):
 		print('Measure thread start')
-		__listlock__.acquire()
-		while not __terminate__ and len(__conflist__) > 0:
+		while not __terminate__:
+			__listlock__.acquire()
+			if len(__conflist__) <= 0:
+				__listlock__.release()
+				print('Measure thread suspended')
+				__preparethreadEvent__.wait()
+				print('Measure thread waken')
+				__listlock__.acquire()
+			__preparethreadEvent__.clear()
 			img, config = __conflist__.pop()
 			__listlock__.release()
-			if not __preparethread__.is_alive():
-				__preparethread__ = prepareThread()
-				__preparethread__.start()
+			__measurethreadEvent__.set()
 			measure(img, config)
-			__listlock__.acquire()
-		__listlock__.release()
 		print('Measure thread stop')
 
 __preparethread__ = prepareThread()
 __measurethread__ = measureThread()
 
 # Start and sigterm handler #
-__terminate__ = False
 def sigterm_handler(_signo, _stack_frame):
 	global __terminate__
 	__terminate__ = True
+	if conf.multithread:
+		__measurethreadEvent__.set()
+		__preparethreadEvent__.set()
 
 # Main loop and single thread #
 def loop():
 	utils.dirtycheck()
 	initialize.all()
 	if conf.multithread:
+		global __terminate__
+		__terminate__ = False
 		__preparethread__.start()
 		__measurethread__.start()
 	else:
