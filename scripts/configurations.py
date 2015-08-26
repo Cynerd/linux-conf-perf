@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import time
 import hashlib
+import struct
 
 import utils
 from conf import conf
@@ -203,7 +204,7 @@ def __generate_single__(var_num, conf_num):
 def __generate_random__(var_num, conf_num):
 	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file), sf(conf.fixed_file)), set())
 	try:
-		confs = __exec_sat__(tfile, ['-i', '3'], conf_num)
+		confs = __exec_sat__(tfile, ['-i', '3', '-s', struct.unpack('<L', os.urandom(4))[0]], conf_num)
 		for con in confs:
 			if not __register_conf__(con, conf_num, 'random-sat'):
 				__generate_random__(var_num, conf_num)
