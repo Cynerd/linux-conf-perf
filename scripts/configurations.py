@@ -41,6 +41,7 @@ def __exec_sat__(file, args, conf_num):
 	"""Executes SAT solver and returns configuration."""
 	picosat_cmd = [sf(conf.picosat), file]
 	picosat_cmd += conf.picosat_args
+	picosat_cmd += args
 	stdout = utils.callsubprocess('picosat', picosat_cmd, conf.picosat_output,
 			True, allow_all_exit_codes = True)
 
@@ -194,7 +195,8 @@ def __generate_single__(var_num, conf_num):
 	try:
 		confs = __exec_sat__(tfile, ['-i', '0'], conf_num)
 		for con in confs:
-			__register_conf__(con, conf_num, 'single-sat')
+			if not __register_conf__(con, conf_num, 'single-sat'):
+				return __generate_single__(var_num, conf_num)
 	except exceptions.NoSolution:
 		return __generate_single__(var_num, conf_num)
 	finally:
@@ -204,13 +206,14 @@ def __generate_single__(var_num, conf_num):
 def __generate_random__(var_num, conf_num):
 	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file), sf(conf.fixed_file)), set())
 	try:
-		confs = __exec_sat__(tfile, ['-i', '3', '-s', struct.unpack('<L', os.urandom(4))[0]], conf_num)
-		for con in confs:
-			if not __register_conf__(con, conf_num, 'random-sat'):
-				__generate_random__(var_num, conf_num)
+		while True:
+			seed = struct.unpack('<L', os.urandom(4))[0]
+			confs = __exec_sat__(tfile, ['-i', '3', '-s', str(seed)], conf_num)
+			for con in confs:
+				if __register_conf__(con, conf_num, 'random-sat'):
+					return True
 	finally:
 		os.remove(tfile)
-	return True
 
 def generate():
 	"""Collect boolean equations from files rules and required
