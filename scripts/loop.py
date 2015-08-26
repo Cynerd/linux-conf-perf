@@ -49,13 +49,14 @@ def measure(kernelimg, con):
 	print("Configuration '" + con.hash + "' measured.")
 
 # Multithread #
-__conflist__ = set()
+__conflist__ = []
 __listlock__ = Lock()
 
 class prepareThread(Thread):
 	def __init__(self, name='prepare'):
 		Thread.__init__(self, name=name)
 	def run(self):
+		print('Prepare thread start')
 		__listlock__.acquire()
 		while not __terminate__ and len(__conflist__) <= conf.multithread_buffer:
 			__listlock__.release()
@@ -64,15 +65,17 @@ class prepareThread(Thread):
 			except exceptions.NoApplicableConfiguration:
 				return
 			__listlock__.acquire()
-			__conflist__.add((img, config))
+			__conflist__.append((img, config))
 			if not __measurethread__.isActive():
 				__measurethread__.start()
 		__listlock__.release()
+		print('Prepare thread stop')
 
 class measureThread(Thread):
 	def __init__(self, name='measure'):
 		Thread.__init__(self, name=name)
 	def run(self):
+		print('Measure thread start')
 		__listlock__.acquire()
 		while not __terminate__ and len(__conflist__) > 0:
 			img, config = __conflist__.pop()
@@ -82,6 +85,7 @@ class measureThread(Thread):
 			measure(img, config)
 			__listlock__.acquire()
 		__listlock__.release()
+		print('Measure thread stop')
 
 __preparethread__ = prepareThread()
 __measurethread__ = measureThread()
