@@ -56,14 +56,14 @@ class prepareThread(Thread):
 	def __init__(self, name='prepare'):
 		Thread.__init__(self, name=name)
 	def run(self):
-		__listlock__.aquire()
+		__listlock__.acquire()
 		while not __terminate__ and len(__conflist__) <= conf.multithread_buffer:
 			__listlock__.release()
 			try:
 				img, config = prepare()
 			except exceptions.NoApplicableConfiguration:
 				return
-			__listlock__.aquire()
+			__listlock__.acquire()
 			__conflist__.add((img, config))
 			if not __measurethread__.isActive():
 				__measurethread__.start()
@@ -73,21 +73,23 @@ class measureThread(Thread):
 	def __init__(self, name='measure'):
 		Thread.__init__(self, name=name)
 	def run(self):
-		__listlock__.aquire()
+		__listlock__.acquire()
 		while not __terminate__ and len(__conflist__) > 0:
 			img, config = __conflist__.pop()
 			__listlock__.release()
 			if not __preparethread__.isActive():
 				__preparethread__.start()
 			measure(img, config)
-			__listlock__.aquire()
+			__listlock__.acquire()
 		__listlock__.release()
 
 __preparethread__ = prepareThread()
 __measurethread__ = measureThread()
 
 # Start and sigterm handler #
+__terminate__ = False
 def sigterm_handler(_signo, _stack_frame):
+	global __terminate__
 	__terminate__ = True
 
 # Main loop and single thread #
