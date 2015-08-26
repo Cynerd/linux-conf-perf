@@ -53,6 +53,8 @@ __conflist__ = []
 __listlock__ = Lock()
 
 class prepareThread(Thread):
+	global __preparethread__
+	global __measurethread__
 	def __init__(self, name='prepare'):
 		Thread.__init__(self, name=name)
 	def run(self):
@@ -66,12 +68,15 @@ class prepareThread(Thread):
 				return
 			__listlock__.acquire()
 			__conflist__.append((img, config))
-			if not __measurethread__.isActive():
+			if not __measurethread__.is_alive():
+				__measurethread__ = measureThread()
 				__measurethread__.start()
 		__listlock__.release()
 		print('Prepare thread stop')
 
 class measureThread(Thread):
+	global __preparethread__
+	global __measurethread__
 	def __init__(self, name='measure'):
 		Thread.__init__(self, name=name)
 	def run(self):
@@ -80,7 +85,8 @@ class measureThread(Thread):
 		while not __terminate__ and len(__conflist__) > 0:
 			img, config = __conflist__.pop()
 			__listlock__.release()
-			if not __preparethread__.isActive():
+			if not __preparethread__.is_alive():
+				__preparethread__ = prepareThread()
 				__preparethread__.start()
 			measure(img, config)
 			__listlock__.acquire()
