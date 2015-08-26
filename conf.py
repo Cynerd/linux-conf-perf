@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import importlib.machinery
 
@@ -126,6 +127,8 @@ if os.path.isfile(os.path.join(absroot, '.target')):
 			if not re.match('__*__', name):
 				vars()[name] = vars(ovconf)[name]
 	else:
-		print("W: No target specifier. Write target to .target file.")
+		print("E: Invalid target specifier. Write valid target to .target file.")
+		sys.exit(-99)
 else:
-	print("W: No target specifier. Write target to .target file.")
+	print("E: No target specifier. Write target to .target file.")
+	sys.exit(-99)

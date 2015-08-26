@@ -99,8 +99,11 @@ distclean_buildroot:
 
 #######################################
 
-.conf.mk: conf.py
+.conf.mk: conf.py .target
 	scripts/confmk.py
+
+.target:
+	$(error Please select target by writing it to .target file)
 
 parse_kconfig:
 	@if [ `$(MAKE) -C scripts/parse_kconfig/ -q; echo $$?` != "0" ]; then \
