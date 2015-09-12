@@ -48,11 +48,14 @@ if __name__ == '__main__':
 		exceptfile = sys.argv[4]
 
 	exceptconf = set()
-	if os.path.isfile(exceptfile):
-		for ln in open(exceptfile):
-			lns = ln.rstrip()
-			if lns:
-				exceptconf.add(lns)
+	try:
+		if os.path.isfile(exceptfile):
+			for ln in open(exceptfile):
+				lns = ln.rstrip()
+				if lns:
+					exceptconf.add(lns)
+	except NameError:
+		pass
 
 	rem = loadfromfolder(sf(conf.linux_sources + '/' + folder))
 
