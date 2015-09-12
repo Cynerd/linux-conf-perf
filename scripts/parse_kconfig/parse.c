@@ -99,7 +99,7 @@ void cpy_dep() {
         if (sym->type == S_BOOLEAN || sym->type == S_TRISTATE) {
             el_id = symlist_id(gsymlist, sym->name);
             el = &(gsymlist->array[el_id - 1]);
-            boolsym = boolexpr_sym(gsymlist, sym, false);
+            boolsym = boolexpr_sym(gsymlist, sym, false, NULL);
             Iprintf("Processing: %s\n", sym->name);
             // Visibility
             for_all_prompts(sym, prop) {
@@ -108,7 +108,7 @@ void cpy_dep() {
                     doutput_expr(prop->visible.expr);
                     struct boolexpr *vis =
                         boolexpr_kconfig(gsymlist, prop->visible.expr,
-                                         false);
+                                         false, NULL);
                     if (el->vis == NULL) {
                         el->vis = vis;
                     } else {
@@ -130,13 +130,13 @@ void cpy_dep() {
                 Dprintf(" Default value:\n");
                 doutput_expr(prop->expr);
                 struct boolexpr *def =
-                    boolexpr_kconfig(gsymlist, prop->expr, true);
+                    boolexpr_kconfig(gsymlist, prop->expr, true, NULL);
                 if (prop->visible.expr != NULL)
                     def =
                         boolexpr_and(def,
                                      boolexpr_kconfig(gsymlist,
                                                       prop->visible.expr,
-                                                      false));
+                                                      false, NULL));
                 if (el->def == NULL) {
                     el->def = def;
                 } else {
@@ -150,7 +150,7 @@ void cpy_dep() {
                 Dprintf(" Dependency:\n");
                 doutput_expr(sym->dir_dep.expr);
                 el->dep =
-                    boolexpr_kconfig(gsymlist, sym->dir_dep.expr, false);
+                    boolexpr_kconfig(gsymlist, sym->dir_dep.expr, false, NULL);
             } else
                 el->dep = boolexpr_true();
             // Reverse dependency expression
@@ -158,7 +158,7 @@ void cpy_dep() {
                 Dprintf(" Reverse dependency:\n");
                 doutput_expr(sym->rev_dep.expr);
                 el->rev_dep =
-                    boolexpr_kconfig(gsymlist, sym->rev_dep.expr, false);
+                    boolexpr_kconfig(gsymlist, sym->rev_dep.expr, false, NULL);
             } else
                 el->rev_dep = boolexpr_false();
 
@@ -230,7 +230,7 @@ void cpy_dep() {
                 Dprintf(" Dependency:\n");
                 doutput_expr(sym->rev_dep.expr);
                 el->rev_dep =
-                    boolexpr_kconfig(gsymlist, sym->rev_dep.expr, true);
+                    boolexpr_kconfig(gsymlist, sym->rev_dep.expr, true, NULL);
             } else
                 el->rev_dep = boolexpr_true();
             for_all_choices(sym, prop) {
@@ -265,8 +265,8 @@ void cpy_dep() {
             if (el->vis->type != BT_FALSE && el->vis->type != BT_TRUE)
                 cnf_boolexpr(gsymlist, el->vis);
             // (!sym || rev_dep) && (!sym || !rev_dep || vis)
-            // For nonoptional add:
-            // (sym || !rev_dep || !vis)
+            // For nonoptional per list symbol add:
+            // (sym || !rev_dep || !vis || !dir_dep_of_list))
             if (el->rev_dep->type != BT_TRUE) {
                 output_rules_symbol(-1 * boolsym->id);
                 if (el->rev_dep->type != BT_FALSE) {
@@ -285,16 +285,36 @@ void cpy_dep() {
                 output_rules_endterm();
             }
             if (!sym_is_optional(sym)) {
-                if (el->rev_dep->type != BT_FALSE
-                    && el->vis->type != BT_FALSE) {
-                    output_rules_symbol(boolsym->id);
-                    if (el->rev_dep->type != BT_TRUE) {
-                        output_rules_symbol(-1 * el->rev_dep->id);
+                for_all_choices(sym, prop) {
+                    struct symbol *symw;
+                    struct expr *exprw;
+                    expr_list_for_each_sym(prop->expr, exprw, symw) {
+                        struct boolexpr *wdep;
+                        if (symw->dir_dep.expr != NULL) {
+                            struct symbol *settrue[] = {sym, NULL};
+                            wdep =
+                                boolexpr_kconfig(gsymlist, symw->dir_dep.expr,
+                                        false, settrue);
+                        } else
+                            wdep = boolexpr_true();
+                        cnf_boolexpr(gsymlist, wdep);
+                        if (el->rev_dep->type != BT_FALSE
+                            && el->vis->type != BT_FALSE
+                            && wdep->type != BT_FALSE) {
+                            output_rules_symbol(boolsym->id);
+                            if (el->rev_dep->type != BT_TRUE) {
+                                output_rules_symbol(-1 * el->rev_dep->id);
+                            }
+                            if (el->vis->type != BT_TRUE) {
+                                output_rules_symbol(-1 * el->vis->id);
+                            }
+                            if (wdep->type != BT_TRUE
+                                && wdep->id != boolsym->id) {
+                                output_rules_symbol(-1 * wdep->id);
+                            }
+                            output_rules_endterm();
+                        }
                     }
-                    if (el->vis->type != BT_TRUE) {
-                        output_rules_symbol(-1 * el->vis->id);
-                    }
-                    output_rules_endterm();
                 }
             }
         }

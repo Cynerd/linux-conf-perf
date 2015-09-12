@@ -4,7 +4,7 @@ struct boolexpr *boolexpr_eql(struct symlist *sl, struct symbol *sym1,
                               struct symbol *sym2);
 
 struct boolexpr *boolexpr_kconfig(struct symlist *sl, struct expr *expr,
-                                  bool modulesym) {
+                                  bool modulesym, struct symbol **as_true) {
     struct stck {
         struct expr *expr;
         struct boolexpr *bl;
@@ -30,7 +30,7 @@ struct boolexpr *boolexpr_kconfig(struct symlist *sl, struct expr *expr,
         }
         switch (expr->type) {
         case E_SYMBOL:
-            rtn = boolexpr_sym(sl, expr->left.sym, modulesym);
+            rtn = boolexpr_sym(sl, expr->left.sym, modulesym, as_true);
             goto go_up;
         case E_NOT:
             if (rtn == NULL)
@@ -111,7 +111,7 @@ struct boolexpr *boolexpr_false() {
 }
 
 struct boolexpr *boolexpr_sym(struct symlist *sl, struct symbol *sym,
-                              bool modulesym) {
+                              bool modulesym, struct symbol **as_true) {
     struct boolexpr *rtn;
     rtn = malloc(sizeof(struct boolexpr));
     rtn->overusage = 0;
@@ -125,6 +125,14 @@ struct boolexpr *boolexpr_sym(struct symlist *sl, struct symbol *sym,
     } else if (!strcmp(sym->name, "y")) {
         rtn->type = BT_TRUE;
     } else {
+        if (as_true != NULL) {
+            for (; *as_true != NULL; as_true++) {
+                if (!strcmp((*as_true)->name, sym->name)) {
+                    rtn->type = BT_TRUE;
+                    return rtn;
+                }
+            }
+        }
         rtn->id = symlist_id(sl, sym->name);
         if (rtn->id != 0)
             rtn->type = BT_SYM;
@@ -144,18 +152,18 @@ struct boolexpr *boolexpr_eql(struct symlist *sl,
         return rtn;
     }
     if (!strcmp(sym2->name, "n"))
-        return boolexpr_not(boolexpr_sym(sl, sym1, false));
+        return boolexpr_not(boolexpr_sym(sl, sym1, false, NULL));
     if (!strcmp(sym2->name, "y"))
-        return boolexpr_sym(sl, sym1, false);
+        return boolexpr_sym(sl, sym1, false, NULL);
     // sym1 <-> sym2
     // (!sym1 || sym2) && (sym1 || !sym2)
     return
         boolexpr_and(boolexpr_or
-                     (boolexpr_not(boolexpr_sym(sl, sym1, false)),
-                      boolexpr_sym(sl, sym2, false)),
-                     boolexpr_or(boolexpr_sym(sl, sym1, false),
+                     (boolexpr_not(boolexpr_sym(sl, sym1, false, NULL)),
+                      boolexpr_sym(sl, sym2, false, NULL)),
+                     boolexpr_or(boolexpr_sym(sl, sym1, false, NULL),
                                  boolexpr_not(boolexpr_sym
-                                              (sl, sym2, false))));
+                                              (sl, sym2, false, NULL))));
 }
 
 struct boolexpr *boolexpr_or(struct boolexpr *e1, struct boolexpr *e2) {
