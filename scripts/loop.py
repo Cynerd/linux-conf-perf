@@ -18,18 +18,27 @@ import database
 import utils
 
 __confs_unmeasured__ = []
+__confs_prepared__ = []
 
 def prepare():
 	"""Prepare for measuring
 	Outcome is Linux image for generated configuration."""
+	def get():
+		confs = dtb.get_unmeasured()
+		for pr in __confs_prepared__:
+			for cn in confs.copy():
+				if pr == cn.hash:
+					confs.remove(cn)
+					break
+		return confs
 	print("Preparing new image.")
 	global __confs_unmeasured__
 	if len(__confs_unmeasured__) == 0:
 		dtb = database.database()
-		confs = dtb.get_unmeasured()
+		confs = get()
 		if len(confs) == 0:
 			configurations.generate()
-			confs = dtb.get_unmeasured()
+			confs = get()
 			if len(confs) == 0:
 				raise exceptions.NoApplicableConfiguration()
 		__confs_unmeasured__ = list(confs)
@@ -37,6 +46,7 @@ def prepare():
 	kernel.config(con.config)
 	img = kernel.make(con.hash)
 	print("Prepared image: " + img)
+	__confs_prepared__.append(con.hash)
 	return img, con
 
 def measure(kernelimg, con):
@@ -48,6 +58,7 @@ def measure(kernelimg, con):
 	os.symlink(kernelimg, sf(conf.jobfolder_linux_image))
 	boot.boot(con)
 	print("Configuration '" + con.hash + "' measured.")
+	__confs_prepared__.remove(con.hash)
 
 # Multithread #
 __conflist__ = []
