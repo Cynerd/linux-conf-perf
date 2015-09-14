@@ -12,7 +12,7 @@ import utils
 def config(txtconfig):
 	"Apply text configuration to kernel folder"
 	infile = tempfile.NamedTemporaryFile()
-	for ln in infile:
+	for ln in txtconfig:
 		infile.write(bytes(ln + '\n', sys.getdefaultencoding()))
 	wd = os.getcwd()
 	os.chdir(sf(conf.linux_sources))
