@@ -58,6 +58,7 @@ def measure(kernelimg, con):
 	os.symlink(kernelimg, sf(conf.jobfolder_linux_image))
 	boot.boot(con)
 	print("Configuration '" + con.hash + "' measured.")
+	os.remove(sf(conf.build_folder) + '/' + kernelimg)
 	__confs_prepared__.remove(con.hash)
 
 # Multithread #
