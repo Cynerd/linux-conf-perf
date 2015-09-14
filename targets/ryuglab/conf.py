@@ -11,7 +11,7 @@ parse_command = ['tests/cyclictest/parse']
 db_user = 'kocikare'
 db_password = 'ohNg3Ien'
 
-multithread = False
+multithread = True
 
 
 parse_kconfig_output = False
