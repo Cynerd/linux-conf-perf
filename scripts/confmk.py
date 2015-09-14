@@ -18,6 +18,9 @@ def gen_confmk():
 				if type(val) is str:
 					f.write("CONF_" + var.upper() + " := ")
 					f.write(val + '\n')
+				elif type(val) is int:
+					f.write("CONF_" + var.upper() + " := ")
+					f.write(str(val) + '\n')
 
 #################################################################################
 
