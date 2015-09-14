@@ -1,4 +1,4 @@
-.PHONY: all help parse_kconfig write_config build run test clean clean_db clean_database clean_measure clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean picosat init initialize initialize_database initdb
+.PHONY: all help parse_kconfig write_config build run test clean clean_db clean_database clean_measure clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean picosat init initialize initialize_database initdb psql
 
 -include .conf.mk
 
@@ -30,6 +30,9 @@ help:
 	@echo "distclean_linux     - Executes 'make distclean' in linux folder."
 	@echo "clean_buildroot     - Executes 'make clean' in buildroot folder."
 	@echo "distclean_buildroot - Executes 'make distclean' in buildroot folder."
+
+psql:
+	PGPASSWORD="$(CONF_DB_PASSWORD)" psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)"
 
 mbuildroot: buildroot/.config buildroot/system/skeleton/usr/bin/linux-conf-perf
 	$(MAKE) -C buildroot menuconfig
