@@ -10,4 +10,4 @@ ln -sf ../../../jobfiles/linuxImage uImage
 ln -sf ../../../tests/cyclictest/root/images/rootfs.cpio.uboot rootfs.cpio.uboot
 
 novaboot nbscripts --exiton="NOVABOOT EXIT LINUX-CONF-PERF" --exiton-timeout=120 \
-	--exiton="Kernel panic"
+	--exiton="Kernel panic" --append="rdinit=/sbin/lcpinit"
