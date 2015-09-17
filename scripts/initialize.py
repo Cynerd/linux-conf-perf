@@ -9,6 +9,7 @@ import database
 from conf import conf
 from conf import sf
 import exceptions
+import configurations
 
 def all():
 	try:
@@ -18,8 +19,8 @@ def all():
 	base()
 	parse_kconfig()
 	gen_fixed()
-	# check if database is initialized
-	database.database()
+	checkmeasure()
+	database.database() # check if database is initialized
 
 def base():
 	print('Initialize base...')
@@ -96,6 +97,26 @@ def gen_fixed():
 					raise exceptions.ConfigurationError("Can't measure configuraion option MODULES. Not supported.")
 				fmes.write(str(srmap[line[7:indx]]) + "\n")
 
+def checkmeasure():
+	print("Checking if all configurations can be measured...")
+	utils.build_symbol_map()
+	measure_list = set()
+	with open(sf(conf.variable_count_file)) as f:
+		var_num = f.readline().rstrip()
+		conf_num = f.readline().rstrip()
+	with open(sf(conf.measure_file), 'r') as fi:
+		for ln in fi:
+			measure_list.add(int(ln))
+	for measure in measure_list:
+		tfile1 = configurations.__buildtempcnf__(var_num, (sf(conf.rules_file),
+			sf(conf.fixed_file)), [str(measure)])
+		tfile2 = configurations.__buildtempcnf__(var_num, (sf(conf.rules_file),
+			sf(conf.fixed_file)), [str(-1 * measure)])
+		try:
+			configurations.__exec_sat__(tfile1, [], conf_num)
+			configurations.__exec_sat__(tfile2, [], conf_num)
+		except exceptions.NoSolution:
+			print("W: " + utils.smap[measure] + " won't be measured!")
 
 #################################################################################
 
