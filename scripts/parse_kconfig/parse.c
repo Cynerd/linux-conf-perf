@@ -126,22 +126,46 @@ void cpy_dep() {
                 goto choice_exception;
             }
             // Default value
+            struct boolexpr **defexpr = NULL;
+            size_t defexpr_size = 0;
+            int z;
+            bool exitdef = false;
             for_all_defaults(sym, prop) {
                 Dprintf(" Default value:\n");
                 doutput_expr(prop->expr);
                 struct boolexpr *def =
                     boolexpr_kconfig(gsymlist, prop->expr, true, NULL);
+                struct boolexpr *vis;
                 if (prop->visible.expr != NULL)
-                    def =
-                        boolexpr_and(def,
-                                     boolexpr_kconfig(gsymlist,
-                                                      prop->visible.expr,
-                                                      false, NULL));
-                if (el->def == NULL) {
-                    el->def = def;
+                    vis = boolexpr_kconfig(gsymlist, prop->visible.expr,
+                            false, NULL);
+                else
+                    vis = boolexpr_true();
+                if (vis->type != BT_TRUE) {
+                    defexpr = realloc(defexpr,
+                            ++defexpr_size * sizeof(struct boolexpr *));
+                    defexpr[defexpr_size - 1] = boolexpr_copy(vis);
                 } else {
-                    el->def = boolexpr_or(el->def, def);
+                    ++defexpr_size;
+                    exitdef = true;
                 }
+                def = boolexpr_and(def, vis);
+                for (z = 0; z < ((int)defexpr_size - 1); z++) {
+                    def = boolexpr_and(def, boolexpr_not(
+                                boolexpr_copy(defexpr[z])));
+                }
+                if (el->def == NULL)
+                    el->def = def;
+                else
+                    el->def = boolexpr_or(el->def, def);
+                if (exitdef)
+                    break;
+            }
+            if (defexpr != NULL) {
+                for (z = 0; z < defexpr_size - 1; z++) {
+                    boolexpr_free(defexpr[z]);
+                }
+                free(defexpr);
             }
             if (el->def == NULL)
                 el->def = boolexpr_false();

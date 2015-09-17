@@ -286,6 +286,7 @@ void boolexpr_free(struct boolexpr *e) {
 }
 
 struct boolexpr *boolexpr_copy(struct boolexpr *e) {
+    struct boolexpr *cop = e;
     struct boolexpr **stack;
     size_t stack_size = 2, stack_pos = 0;
     stack = malloc(stack_size * sizeof(struct boolexpr *));
@@ -311,5 +312,5 @@ struct boolexpr *boolexpr_copy(struct boolexpr *e) {
         }
     }
     free(stack);
-    return e;
+    return cop;
 }
