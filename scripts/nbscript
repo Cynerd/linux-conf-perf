@@ -1,4 +1,0 @@
-#!/usr/bin/env novaboot
-# Novaboot script
-load ../jobfiles/linuxImage console=ttyS0,115200
-load ../root/cyclictest/images/rootfs.cpio.gz

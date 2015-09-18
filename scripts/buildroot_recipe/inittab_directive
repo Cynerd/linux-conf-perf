@@ -1,3 +1,0 @@
-
-# linux-conf-perf init script
-console::sysinit:/usr/bin/linux-conf-perf -L console 115200 vt100
