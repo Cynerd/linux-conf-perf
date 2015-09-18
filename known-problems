@@ -1,1 +1,2 @@
+In multithreading mode are paths moved to linux folder during image preparation, but boot phase doesn't expecting this and fails on execution.
 MissingFile exception __str__ is not working properly. Not printing any text.
