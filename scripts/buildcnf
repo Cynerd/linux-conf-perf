@@ -1,0 +1,12 @@
+#!/bin/bash
+# This is simple scripts created for generating input file for PicoSAT in jobfiles folder.
+# Tis script is generating file cnf from files fixed and rules and add format head.
+# This script is for debugging purposes.
+
+sed 's/$/ 0/' fixed > cnf
+sed 's/$/0/' rules >> cnf
+
+LINE=`wc -l cnf | awk '{print $1}'`
+VARS=`head -1 variable_count`
+
+sed  -i "1ip cnf $VARS $LINE" cnf
