@@ -38,5 +38,8 @@ def boot(config, to_database = True):
 			dtb = database.database()
 			txt = ''
 			for ln in out:
+				for c in ln:
+					if c == '\x00':
+						c = ' '
 				txt += ln + '\n'
 			dtb.add_measure(txt, result, config.id, value)
