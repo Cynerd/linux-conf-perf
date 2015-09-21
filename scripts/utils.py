@@ -79,12 +79,16 @@ def callsubprocess(process_name, process, show_output = True,
 		f.write('::' + time.strftime("%y-%m-%d-%H-%M-%S-%f") + '::\n')
 		for linen in sprc.stdout:
 			timerout.output()
-			line = linen.decode(sys.getdefaultencoding())
-			f.write(line)
-			if show_output:
-				print(line, end="")
-			if return_output:
-				rtn.append(line.rstrip())
+			try:
+				line = linen.decode(sys.getdefaultencoding())
+				f.write(line)
+				if show_output:
+					print(line, end="")
+				if return_output:
+					rtn.append(line.rstrip())
+			except UnicodeDecodeError:
+				if return_output:
+					rtn.append('DecodeError')
 	if timerout.exit():
 		raise exceptions.ProcessTimeout(process_name, rtn)
 	rtncode = sprc.wait()
