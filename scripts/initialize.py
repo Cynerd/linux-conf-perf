@@ -98,6 +98,10 @@ def gen_fixed():
 				fmes.write(str(srmap[line[7:indx]]) + "\n")
 
 def checkmeasure():
+	if os.path.isfile(sf(conf.measurechecked_file)):
+		print("Checking if all configurations can be measured skiped.")
+		print("  For new check remove file " + sf(conf.measurechecked_file))
+		return
 	print("Checking if all configurations can be measured...")
 	utils.build_symbol_map()
 	measure_list = set()
@@ -117,6 +121,8 @@ def checkmeasure():
 			configurations.__exec_sat__(tfile2, [], conf_num)
 		except exceptions.NoSolution:
 			print("W: " + utils.smap[measure] + " won't be measured!")
+	with open(sf(conf.measurechecked_file), 'w') as f:
+		f.write("Remove this file if you wanna execute check if all configurations can be measured once again.\n")
 
 #################################################################################
 

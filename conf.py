@@ -101,6 +101,7 @@ measure_file = build_folder + 'measure'
 dot_measure_file = build_folder + 'dot_measure'
 dot_config_back_file = build_folder + 'dot_config_back'
 single_generated_file = build_folder + 'single_generated'
+measurechecked_file = build_folder + 'measurechecked'
 
 result_folder = 'result/'
 log_folder = 'log/'
