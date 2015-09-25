@@ -1,36 +1,16 @@
+HELP=""
 -include .conf.mk
 
+HELP+="all         - Builds basic programs and prints message about next steps.\n"
 .PHONY: all
 all: parse_kconfig write_config allconfig picosat initram_cyclictest
 
 .PHONY: help
 help:
-	@echo "all         - Builds basic programs and prints message about next steps."
-	@echo "help        - Prints this text"
-	@echo "mbuildroot  - Calls 'make menuconfig' in buildroot folder. Use this for"
-	@echo "              buildroot configuration."
-	@echo "mlinux      - Calls 'make menuconfig' in linux folder. Use this for linux"
-	@echo "              configuration."
-	@echo "deflinux    - Executes 'make defconfig' in linux folder. This generates default"
-	@echo "              linux configuration for architecture specified in conf.py"
-	@echo "initialize  - Executes only initialization. Depending on configuration this"
-	@echo "              can take various amount of time."
-	@echo "test        - Executes boot and benchmark test. You should use this before"
-	@echo "              target run. This target is for testing if initial kernel"
-	@echo "              configuration, buildroot configuration and benchmark are"
-	@echo "              configured right."
-	@echo "run         - Executes loop of kernel building, booting and benchmark execution."
-	@echo "evaluate    - Creating result statistics from generated data."
-	@echo
-	@echo "clean               - Cleans all generated files. Except those in"
-	@echo "                      linux and buildroot."
-	@echo "distclean           - Cleans all configurations and generated files."
-	@echo "                      Including linux and buildroot."
-	@echo "clean_linux         - Executes 'make clean' in linux folder."
-	@echo "distclean_linux     - Executes 'make distclean' in linux folder."
-	@echo "clean_buildroot     - Executes 'make clean' in buildroot folder."
-	@echo "distclean_buildroot - Executes 'make distclean' in buildroot folder."
+	@echo " help        - Prints this text"
+	@echo -e $(HELP)
 
+HELP+="psql        - Launch PostgreSQL interactive terminal.\n"
 .PHONY: psql
 psql:
 	PGPASSWORD="$(CONF_DB_PASSWORD)" psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)"
@@ -39,14 +19,20 @@ psql:
 mbuildroot:
 	$(MAKE) -C tests/cyclictest/root/ menuconfig
 
+HELP+="mlinux      - Calls 'make menuconfig' in Linux folder. Use this for Linux\n"
+HELP+="              configuration.\n"
 .PHONY: mlinux
 mlinux:
 	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C $(CONF_LINUX_SOURCES) menuconfig
 
+HELP+="deflinux    - Executes 'make menuconfig' in linux folder. This generates default\n"
+HELP+="              linux configuration.\n"
 .PHONY: deflinux
 deflinux:
 	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C $(CONF_LINUX_SOURCES) defconfig
 
+HELP+="dot_config  - Generate dot_config file. This file is based on default Linux\n"
+HELP+="              configuration.\n"
 dot_config: allconfig
 	cd $(CONF_LINUX_SOURCES) && \
 		SRCARCH=$(CONF_KERNEL_ARCH) \
@@ -55,20 +41,27 @@ dot_config: allconfig
 		$(CONF_ABSROOT)/scripts/allconfig/allconfig \
 		Kconfig .config $(CONF_ABSROOT)/$(CONF_DOT_CONFIG)
 
+HELP+="initialize  - Executes only initialization.\n"
 .PHONY: initialize init
 init: initialize
 initialize: all
 	scripts/initialize.py
 
+HELP+="initdb      - Initialize database.\n"
 .PHONY: initdb initialize_database
 initdb: initialize_database
 initialize_database:
 	PGPASSWORD="$(CONF_DB_PASSWORD)" psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseinit.sql
 
+HELP+="test        - Executes boot and benchmark test. You should use this before\n"
+HELP+="              target run. This target is for testing if initial kernel\n"
+HELP+="              configuration, buildroot configuration and benchmark are\n"
+HELP+="              configured right.\n"
 .PHONY: test
 test: parse_kconfig initram_cyclictest
 	scripts/test.py
 
+HELP+="run         - Executes loop of kernel building, booting and benchmark execution.\n"
 .PHONY: run
 run: all
 	scripts/loop.py
@@ -77,6 +70,10 @@ run: all
 evaluate:
 	scripts/evaluate.py
 
+HELP+="\n"
+
+HELP+="clean           - Cleans all generated files. Except those in\n"
+HELP+="                  linux and buildroot.\n"
 .PHONY: clean
 clean:
 	@$(MAKE) -C scripts/parse_kconfig clean
@@ -86,6 +83,8 @@ clean:
 	$(RM) .conf.mk
 	$(RM) -r jobfiles
 
+HELP+="clean_measure   - Removes working files used while measuring. After this,\n"
+HELP+="                  initializations has to be executed once again.\n"
 .PHONY: clean_measure
 clean_measure:
 	$(RM) -r configurations
@@ -93,18 +92,23 @@ clean_measure:
 	$(RM) -r result
 	$(RM) $(CONF_DOT_CONFIG)
 
+HELP+="clean_database  - Drop all tables in database.\n"
 .PHONY: cleandb clean_database
 cleandb: clean_database
 clean_database:
 	PGPASSWORD="$(CONF_DB_PASSWORD)" psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseclean.sql
 
+HELP+="distclean       - Cleans all configurations and generated files.\n"
+HELP+="                  Including linux and buildroot.\n"
 .PHONY: distclean
 distclean: clean distclean_linux distclean_buildroot clean_measure
 
+HELP+="clean_linux     - Executes 'make clean' in linux folder.\n"
 .PHONY: clean_linux
 clean_linux:
 	@$(MAKE) -C $(CONF_LINUX_SOURCES) clean
 
+HELP+="distclean_linux - Executes 'make distclean' in linux folder.\n"
 .PHONY: distclean_linux
 distclean_linux:
 	@$(MAKE) -C $(CONF_LINUX_SOURCES) distclean
