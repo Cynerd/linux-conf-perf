@@ -1,0 +1,8 @@
+#!/bin/bash
+cd `dirname $0`
+
+cp -f ../../../jobfiles/linuxImage uImage
+cp -f ../../../tests/cyclictest/root/images/rootfs.cpio.uboot rootfs.cpio.uboot
+
+novaboot nbscript --exiton="NOVABOOT EXIT LINUX-CONF-PERF" --exiton-timeout=120 \
+	--exiton="Kernel panic" --append="rdinit=/sbin/lcpinit"

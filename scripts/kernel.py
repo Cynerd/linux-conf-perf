@@ -19,6 +19,8 @@ def config(txtconfig):
 	try:
 		utils.callsubprocess('write_config', [sf(conf.write_config), infile.name],
 			conf.kernel_config_output, env=utils.get_kernel_env())
+		os.rename(sf(conf.linux_sources) + '/.config',
+				sf(conf.linux_build_folder) + '/.config')
 	except exceptions.ProcessFailed:
 		raise exceptions.ConfigurationError("some configs mismatch")
 	infile.close()
@@ -39,7 +41,7 @@ def config(txtconfig):
 
 def make(confhash):
 	wd = os.getcwd()
-	os.chdir(sf(conf.linux_sources))
+	os.chdir(sf(conf.linux_build_folder))
 	if conf.kernel_make_output:
 		subprocess.call(conf.build_command, env=utils.get_kernel_env())
 	else:

@@ -44,7 +44,7 @@ def parse_kconfig():
 	wd = os.getcwd()
 	os.chdir(sf(conf.linux_sources))
 	parse_kconfig_cmd = [sf(conf.parse_kconfig)]
-	parse_kconfig_cmd += [sf(conf.linux_kconfig_head), sf(conf.build_folder)]
+	parse_kconfig_cmd += ['Kconfig', sf(conf.build_folder)]
 	parse_kconfig_cmd += ['-v', '-v']
 	utils.callsubprocess("parse_kconfig", parse_kconfig_cmd,
 			conf.parse_kconfig_output, env=utils.get_kernel_env())

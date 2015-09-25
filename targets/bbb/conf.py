@@ -1,11 +1,11 @@
-## Configuration for ryuglab target
+## Configuration for bbb target
 # This configuration overlaps default configuration if file .target
-# contains "ryuglab"
+# contains "bbb"
 
-kernel_arch = 'powerpc'
+kernel_arch = 'arm'
 kernel_env = {'SRCARCH': kernel_arch, 'ARCH': kernel_arch, 'KERNELVERSION': kernel_arch}
-build_command = ['make', 'uImage']
-boot_command = ['targets/ryuglab/boot/boot']
+build_command = ['make']
+boot_command = ['targets/bbb/boot/boot']
 parse_command = ['tests/cyclictest/parse']
 
 db_user = 'kocikare'
@@ -21,8 +21,9 @@ kernel_make_output = False
 boot_output = False
 parse_output = False
 
-test_config_cyclictest = '/targets/ryuglab/cyclictest_config'
 
-linux_sources = 'targets/ryuglab/linux/'
-linux_build_folder = linux_sources
-linux_image = linux_sources + 'arch/' + kernel_arch + '/boot/uImage'
+linux_sources = 'targets/bbb/linux/'
+linux_build_folder = 'targets/bbb/build/'
+linux_image = linux_build_folder + 'arch/' + kernel_arch + '/boot/uImage'
+
+test_config_cyclictest = 'targets/bbb/cyclictest_config'

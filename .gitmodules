@@ -7,3 +7,6 @@
 [submodule "targets/ryuglab/linux"]
 	path = targets/ryuglab/linux
 	url = https://github.com/Cynerd/linux-ryu.git
+[submodule "targets/bbb/linux"]
+	path = targets/bbb/linux
+	url = https://github.com/wentasah/linux-beagleboard.git

@@ -87,9 +87,8 @@ dot_confmk = '.conf.mk'
 dot_config = 'dot_config'
 
 linux_sources = 'linux/'
-linux_kconfig_head = linux_sources + 'Kconfig'
-linux_dot_config = linux_sources + '.config'
-linux_image = linux_sources + 'arch/' + kernel_arch + '/boot/bzImage'
+linux_build_folder = 'linux/'
+linux_image = linux_build_folder + 'arch/' + kernel_arch + '/boot/bzImage'
 
 build_folder = 'jobfiles/'
 jobfolder_linux_image = build_folder + 'linuxImage'
@@ -102,6 +101,8 @@ dot_measure_file = build_folder + 'dot_measure'
 dot_config_back_file = build_folder + 'dot_config_back'
 single_generated_file = build_folder + 'single_generated'
 measurechecked_file = build_folder + 'measurechecked'
+
+buildroot_config_cyclictest = '/dev/null'
 
 result_folder = 'result/'
 log_folder = 'log/'

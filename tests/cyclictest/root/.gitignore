@@ -1,5 +1,5 @@
 *
-!.config
+!config_base
 !.gitignore
 !GNUmakefile
 !.br-external

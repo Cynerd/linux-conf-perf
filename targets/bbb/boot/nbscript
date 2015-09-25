@@ -1,0 +1,4 @@
+#!/usr/bin/env novaboot
+load uImage console=tty0 console=ttyO0,115200n8 ro fixrtc
+load am335x-boneblack.dtb
+load rootfs.cpio.uboot

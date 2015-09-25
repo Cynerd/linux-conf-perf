@@ -1,9 +1,9 @@
-.PHONY: all help parse_kconfig write_config build run test clean clean_db clean_database clean_measure clean_linux clean_buildroot mlinux mbuildroot deflinux distclean_linux distclean_buildroot distclean picosat init initialize initialize_database initdb psql
-
 -include .conf.mk
 
-all: parse_kconfig write_config allconfig picosat
+.PHONY: all
+all: parse_kconfig write_config allconfig picosat initram_cyclictest
 
+.PHONY: help
 help:
 	@echo "all         - Builds basic programs and prints message about next steps."
 	@echo "help        - Prints this text"
@@ -31,15 +31,19 @@ help:
 	@echo "clean_buildroot     - Executes 'make clean' in buildroot folder."
 	@echo "distclean_buildroot - Executes 'make distclean' in buildroot folder."
 
+.PHONY: psql
 psql:
 	PGPASSWORD="$(CONF_DB_PASSWORD)" psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)"
 
-mbuildroot: buildroot/.config buildroot/system/skeleton/usr/bin/linux-conf-perf
-	$(MAKE) -C buildroot menuconfig
+.PHONY: mbuildroot
+mbuildroot:
+	$(MAKE) -C tests/cyclictest/root/ menuconfig
 
+.PHONY: mlinux
 mlinux:
 	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C $(CONF_LINUX_SOURCES) menuconfig
 
+.PHONY: deflinux
 deflinux:
 	ARCH=$(CONF_KERNEL_ARCH) $(MAKE) -C $(CONF_LINUX_SOURCES) defconfig
 
@@ -51,23 +55,29 @@ dot_config: allconfig
 		$(CONF_ABSROOT)/scripts/allconfig/allconfig \
 		Kconfig .config $(CONF_ABSROOT)/$(CONF_DOT_CONFIG)
 
+.PHONY: initialize init
 init: initialize
 initialize: all
 	scripts/initialize.py
 
+.PHONY: initdb initialize_database
 initdb: initialize_database
 initialize_database:
 	PGPASSWORD="$(CONF_DB_PASSWORD)" psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseinit.sql
 
-test: parse_kconfig
+.PHONY: test
+test: parse_kconfig initram_cyclictest
 	scripts/test.py
 
+.PHONY: run
 run: all
 	scripts/loop.py
 
+.PHONY: evaluate
 evaluate:
 	scripts/evaluate.py
 
+.PHONY: clean
 clean:
 	@$(MAKE) -C scripts/parse_kconfig clean
 	@$(MAKE) -C scripts/write_config clean
@@ -76,29 +86,36 @@ clean:
 	$(RM) .conf.mk
 	$(RM) -r jobfiles
 
+.PHONY: clean_measure
 clean_measure:
 	$(RM) -r configurations
 	$(RM) -r output
 	$(RM) -r result
 	$(RM) $(CONF_DOT_CONFIG)
 
+.PHONY: cleandb clean_database
 cleandb: clean_database
 clean_database:
 	PGPASSWORD="$(CONF_DB_PASSWORD)" psql -d "$(CONF_DB_DATABASE)" -h "$(CONF_DB_HOST)" -p "$(CONF_DB_PORT)" -f scripts/databaseclean.sql
 
+.PHONY: distclean
 distclean: clean distclean_linux distclean_buildroot clean_measure
 
+.PHONY: clean_linux
 clean_linux:
 	@$(MAKE) -C $(CONF_LINUX_SOURCES) clean
 
+.PHONY: distclean_linux
 distclean_linux:
 	@$(MAKE) -C $(CONF_LINUX_SOURCES) distclean
 
+.PHONY: clean_buildroot
 clean_buildroot:
-	@$(MAKE) -C buildroot clean
+	@$(MAKE) -C tests/cyclictest/root/ clean
 
+.PHONY: distclean_buildroot
 distclean_buildroot:
-	@$(MAKE) -C buildroot distclean
+	@$(MAKE) -C tests/cyclictest/root/ distclean
 
 #######################################
 
@@ -108,20 +125,29 @@ distclean_buildroot:
 .target:
 	$(error Please select target by writing it to .target file)
 
+.PHONY: parse_kconfig
 parse_kconfig:
 	@if [ `$(MAKE) -C scripts/parse_kconfig/ -q; echo $$?` != "0" ]; then \
 	$(MAKE) -C scripts/parse_kconfig/; fi
 
+.PHONY: write_config
 write_config:
 	@if [ `$(MAKE) -C scripts/write_config/ -q; echo $$?` != "0" ]; then \
 	$(MAKE) -C scripts/write_config/; fi
 
+.PHONY:allconfig
 allconfig:
 	@if [ `$(MAKE) -C scripts/allconfig/ -q; echo $$?` != "0" ]; then \
 	$(MAKE) -C scripts/allconfig/; fi
 
+.PHONY: picosat
 picosat:
 	@if [ ! -e scripts/picosat-959/makefile ]; then \
 	cd scripts/picosat-959 && ./configure; fi
 	@if [ `$(MAKE) -C scripts/picosat-959 -q; echo $$?` != "0" ]; then \
 	$(MAKE) -C scripts/picosat-959; fi
+
+.PHONY: initram_cyclictest
+initram_cyclictest:
+	@if [ `$(MAKE) -C tests/cyclictest/root/ -q; echo $$?` != "0" ]; then \
+	$(MAKE) -C scripts/cyclictest/root/; fi
