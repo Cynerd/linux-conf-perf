@@ -2,7 +2,6 @@
 !config_base
 !.gitignore
 !GNUmakefile
-!.br-external
 !overlay/
 !overlay/**
 !packages/

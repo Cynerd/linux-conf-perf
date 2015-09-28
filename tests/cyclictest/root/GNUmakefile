@@ -1,4 +1,5 @@
 export SRCARCH=$(CONF_KERNEL_ARCH)
+export BR2_EXTERNAL=$(CURDIR)/packages
 
 lastword = $(word $(words $(1)),$(1))
 makedir := $(dir $(call lastword,$(MAKEFILE_LIST)))
