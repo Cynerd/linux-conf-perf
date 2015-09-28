@@ -1,3 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env python3
+import re
+import fileinput
 
-cat | grep -e "^! .* ok$" | sed -n '2p' | awk '{print $17}'
+result_re = re.compile("! T: 0 \(.*\) P:.* I:.* C:.* Min: *(?P<min>\d+) Act: *(?P<act>\d+) Avg: *(?P<avg>\d+) Max: *(?P<max>\d+) ok")
+
+for line in fileinput.input():
+    match = result_re.match(line)
+    if match:
+        print(match.group('max'))
