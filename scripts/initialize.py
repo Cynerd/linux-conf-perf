@@ -118,9 +118,12 @@ def checkmeasure():
 			sf(conf.fixed_file)), [str(-1 * measure)])
 		try:
 			configurations.__exec_sat__(tfile1, [], conf_num)
+		except exceptions.NoSolution:
+			print("W: " + utils.smap[measure] + " won't be measured! Can't select.")
+		try:
 			configurations.__exec_sat__(tfile2, [], conf_num)
 		except exceptions.NoSolution:
-			print("W: " + utils.smap[measure] + " won't be measured!")
+			print("W: " + utils.smap[measure] + " won't be measured! Can't unselect.")
 	with open(sf(conf.measurechecked_file), 'w') as f:
 		f.write("Remove this file if you wanna execute check if all configurations can be measured once again.\n")
 
