@@ -2,7 +2,7 @@
 import re
 import fileinput
 
-result_re = re.compile("! T: 0 \(.*\) P:.* I:.* C:.* Min: *(?P<min>\d+) Act: *(?P<act>\d+) Avg: *(?P<avg>\d+) Max: *(?P<max>\d+) ok")
+result_re = re.compile("T: 0 \(.*\) P:.* I:.* C:.* Min: *(?P<min>\d+) Act: *(?P<act>\d+) Avg: *(?P<avg>\d+) Max: *(?P<max>\d+)")
 
 for line in fileinput.input():
     match = result_re.match(line)

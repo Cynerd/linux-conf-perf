@@ -2,9 +2,7 @@
 
 /bin/mount -t devtmpfs devtmpfs /dev
 
-echo Command: cyclictest -n -p99 -t3 -l10000 -q
 echo Version: `cyclictest --help | head -1`
-echo
-cyclictest -n -p99 -t3 -l10000 -q | sed 's/^/! /' | sed 's/$/ ok/'
+(set -x; cyclictest -n -p99 -t3 -l10000 -q --priospread)
 
 echo "NOVABOOT EXIT LINUX-CONF-PERF"
