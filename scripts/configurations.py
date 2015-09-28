@@ -176,6 +176,7 @@ def __register_conf__(con, conf_num, generator):
 	return True
 
 def __generate_single__(var_num, conf_num):
+	utils.build_symbol_map()
 	measure_list = set()
 	if not os.path.isfile(sf(conf.single_generated_file)):
 		with open(sf(conf.measure_file), 'r') as fi:
@@ -187,15 +188,17 @@ def __generate_single__(var_num, conf_num):
 				measure_list.add(int(ln))
 	if not measure_list:
 		return False
+	measuring = measure_list.pop()
 	tfile = __buildtempcnf__(var_num, (sf(conf.rules_file),
-		sf(conf.fixed_file)), [str(measure_list.pop())])
+		sf(conf.fixed_file)), [str(measuring)])
 	with open(sf(conf.single_generated_file), 'w') as fo:
 		for ln in measure_list:
 			fo.write(str(ln) + '\n')
 	try:
 		confs = __exec_sat__(tfile, ['-i', '0'], conf_num)
 		for con in confs:
-			if not __register_conf__(con, conf_num, 'single-sat'):
+			if not __register_conf__(con, conf_num, 'single-sat-'
+					+ utils.smap[measuring]):
 				return __generate_single__(var_num, conf_num)
 	except exceptions.NoSolution:
 		return __generate_single__(var_num, conf_num)
